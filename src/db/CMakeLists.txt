@@ -1,18 +1,22 @@
 
-add_library(cq_db
+add_library(sologs_db
     database.cpp
+    log_repository.cpp
 )
 
-target_include_directories(cq_db
+target_include_directories(sologs_db
     PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-target_link_libraries(cq_db
+target_link_libraries(sologs_db
+    PUBLIC
+    sologs_domain
+    jsonlib 
 
     PRIVATE
     sqlite3
 )
 
-target_compile_features(cq_db PUBLIC cxx_std_17)
+target_compile_features(sologs_db PUBLIC cxx_std_17)
 

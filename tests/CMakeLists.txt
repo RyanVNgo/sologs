@@ -13,7 +13,7 @@ function(add_gtest TARGET)
     add_executable(${TARGET} ${ARGN})
     target_link_libraries(${TARGET}
         PRIVATE
-        cq_db
+        sologs_db
         GTest::gtest_main
     )
     target_include_directories(${TARGET}

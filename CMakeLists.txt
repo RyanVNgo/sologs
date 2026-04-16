@@ -19,6 +19,9 @@ option(BUILD_TESTS "Build the test suite" OFF)
 add_library(httplib INTERFACE)
 target_include_directories(httplib INTERFACE external/httplib)
 
+add_library(jsonlib INTERFACE)
+target_include_directories(jsonlib INTERFACE external/json)
+
 add_library(sqlite3 STATIC external/sqlite/sqlite3.c)
 target_include_directories(sqlite3 PUBLIC external/sqlite)
 

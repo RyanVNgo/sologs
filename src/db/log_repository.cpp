@@ -33,6 +33,23 @@ bool LogRepository::insert(const LogEntry& entry) {
     return m_database.execute_prepared(sql, row_data);
 }
 
+bool LogRepository::insert_batch(const std::vector<LogEntry>& entries) {
+    std::string sql =
+        "INSERT INTO logs (message, level, source)"
+        "VALUES (?, ?, ?);";
+
+    std::vector<Row> data;
+    for (const auto& log : entries) {
+        Row row_data;
+        row_data.push_back(log.message);
+        row_data.push_back(log.level);
+        row_data.push_back(log.source);
+        data.push_back(row_data);
+    }
+
+    return m_database.execute_prepared_batched(sql, data);
+}
+
 std::vector<LogEntry> LogRepository::get_all() {
     const char* sql = 
         "SELECT id, message, level, source, timestamp FROM logs "

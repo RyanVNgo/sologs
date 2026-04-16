@@ -15,6 +15,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Options 
 option(BUILD_TESTS "Build the test suite" OFF)
+option(BUILD_BENCH "Build benchmark tools" OFF)
 
 add_library(httplib INTERFACE)
 target_include_directories(httplib INTERFACE external/httplib)
@@ -31,5 +32,9 @@ add_subdirectory(src)
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
+endif()
+
+if(BUILD_BENCH)
+    add_subdirectory(bench)
 endif()
 

@@ -11,6 +11,7 @@ class LogRepository {
         LogRepository(SQLiteDatabase& db);
 
         bool insert(const LogEntry& entry);
+        bool insert_batch(const std::vector<LogEntry>& entries);
         std::vector<LogEntry> get_all();
 
     private:

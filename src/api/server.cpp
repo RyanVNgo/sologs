@@ -17,15 +17,9 @@ SOLogSServer::SOLogSServer(LogService& service)
         [this](const httplib::Request& req, httplib::Response& res){
             try {
                 auto body = json::parse(req.body);
-
-                if (m_service.create_log(body)) {
-                    res.status = 201;
-                    res.set_content("Created", "text/plain");
-                } else {
-                    res.status = 400;
-                    res.set_content("Invalid input", "text/plain");
-                }
-
+                m_service.create_log(body);
+                res.status = 202;
+                res.set_content("Accepted", "text/plain");
             } catch (...) {
                 res.status = 400;
                 res.set_content("Invalid JSON", "text/plain");

@@ -15,7 +15,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Options 
 option(BUILD_TESTS "Build the test suite" OFF)
-option(BUILD_BENCH "Build benchmark tools" OFF)
 
 add_library(httplib INTERFACE)
 target_include_directories(httplib INTERFACE external/httplib)
@@ -26,15 +25,10 @@ target_include_directories(jsonlib INTERFACE external/json)
 add_library(sqlite3 STATIC external/sqlite/sqlite3.c)
 target_include_directories(sqlite3 PUBLIC external/sqlite)
 
-# Subdirectories 
 add_subdirectory(src)
 
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
-endif()
-
-if(BUILD_BENCH)
-    add_subdirectory(bench)
 endif()
 

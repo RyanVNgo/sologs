@@ -14,7 +14,7 @@ SOLogSServer::SOLogSServer(LogService& service)
 
     m_server.Post(
         "/logs",
-        [this](const httplib::Request& req, httplib::Response& res){
+        [this](const httplib::Request& req, httplib::Response& res) {
             try {
                 auto body = json::parse(req.body);
                 m_service.create_log(body);

@@ -3,8 +3,7 @@
 
 #include <string>
 #include <vector>
-
-#include <sqlite3.h>
+#include <memory>
 
 
 using Value = std::string;
@@ -27,8 +26,6 @@ class SQLiteDatabase {
         SQLiteDatabase(const std::string& db_path);
         ~SQLiteDatabase();
 
-        sqlite3* get();
-
         bool execute(const std::string& query);
 
         bool execute_prepared(
@@ -44,7 +41,8 @@ class SQLiteDatabase {
         QueryResult query(const std::string& query);
 
     private:
-        sqlite3* m_db;
+        struct Impl;
+        std::unique_ptr<Impl> m_pimpl;
 
 };
 

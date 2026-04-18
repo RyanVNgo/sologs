@@ -3,34 +3,34 @@
 
 #include <iostream>
 
+#include <sqlite3.h>
 
-SQLiteDatabase::SQLiteDatabase(const std::string& db_path) {
-    int rc = sqlite3_open(db_path.c_str(), &m_db);
-    if (rc != SQLITE_OK) {
-        std::cerr << "SQLiteDatabase | Failed to create DB" << std::endl;
+
+struct SQLiteDatabase::Impl {
+    sqlite3* db;
+};
+
+SQLiteDatabase::SQLiteDatabase(const std::string& db_path) 
+    : m_pimpl(new Impl())
+{
+    if (sqlite3_open(db_path.c_str(), &(m_pimpl->db)) != SQLITE_OK) {
+        std::string msg = sqlite3_errmsg(m_pimpl->db);
+        sqlite3_close(m_pimpl->db);
+        throw std::runtime_error("Failed to open database: " + msg);
     }
-    return;
 }
 
 SQLiteDatabase::~SQLiteDatabase() {
-    (void)sqlite3_close(m_db);
-    return;
-}
-
-sqlite3* SQLiteDatabase::get() {
-    return m_db;
+    if (m_pimpl->db) {
+        sqlite3_close(m_pimpl->db);
+    }
 }
 
 bool SQLiteDatabase::execute(const std::string& query) {
-    char* err_msg;
-
-    int rc = sqlite3_exec(m_db, query.c_str(), nullptr, nullptr, &err_msg); 
+    int rc = sqlite3_exec(m_pimpl->db, query.c_str(), nullptr, nullptr, nullptr); 
     if (rc != SQLITE_OK) {
-        std::cerr << "SQLiteDatabase | SQL error: " << err_msg << "\n";
-        sqlite3_free(err_msg);
         return false;
     } 
-
     return true;
 }
 
@@ -40,10 +40,10 @@ bool SQLiteDatabase::execute_prepared(
 ) {
     sqlite3_stmt* stmt = nullptr;
 
-    if (sqlite3_prepare_v2(m_db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+    if (sqlite3_prepare_v2(m_pimpl->db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
         std::cerr << "SQLiteDatabase | Failed to prepare stmt" << "\n";
         std::cerr << "  SQL: " << query << "\n";
-        std::cout << "  Error: " << sqlite3_errmsg(m_db) << std::endl;
+        std::cout << "  Error: " << sqlite3_errmsg(m_pimpl->db) << std::endl;
         return false;
     }
     
@@ -73,10 +73,11 @@ bool SQLiteDatabase::execute_prepared_batched(
         const std::vector<Row>& rows
 ) {
     sqlite3_stmt* stmt = nullptr;
-    if (sqlite3_prepare_v2(m_db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+
+    if (sqlite3_prepare_v2(m_pimpl->db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
         std::cerr << "SQLiteDatabase | Failed to prepare stmt" << "\n";
         std::cerr << "  SQL: " << query << "\n";
-        std::cout << "  Error: " << sqlite3_errmsg(m_db) << std::endl;
+        std::cout << "  Error: " << sqlite3_errmsg(m_pimpl->db) << std::endl;
         return false;
     }
 
@@ -117,10 +118,10 @@ QueryResult SQLiteDatabase::query(const std::string& query) {
     QueryResult results;
     sqlite3_stmt* stmt = nullptr;
     
-    if (sqlite3_prepare_v2(m_db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+    if (sqlite3_prepare_v2(m_pimpl->db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
         std::cerr << "SQLiteDatabase | Failed to prepare stmt" << std::endl;
         std::cerr << "  SQL: " << query << "\n";
-        std::cout << "  Error: " << sqlite3_errmsg(m_db) << std::endl;
+        std::cout << "  Error: " << sqlite3_errmsg(m_pimpl->db) << std::endl;
         return results;
     }
 

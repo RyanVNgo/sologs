@@ -12,7 +12,6 @@ target_include_directories(sologs_db
 target_link_libraries(sologs_db
     PUBLIC
     sologs_domain
-    jsonlib 
 
     PRIVATE
     sqlite3

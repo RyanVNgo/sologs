@@ -12,6 +12,7 @@ target_link_libraries(sologs_service
     PUBLIC
     sologs_db
     sologs_domain
+    jsonlib
 )
 
 target_compile_features(sologs_service PUBLIC cxx_std_17)

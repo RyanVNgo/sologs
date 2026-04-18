@@ -1,8 +1,6 @@
 
 #include "log_service.h"
 
-#include <iostream>
-
 
 LogService::LogService(LogRepository& repo)
     : m_repo(repo),
@@ -23,18 +21,19 @@ bool LogService::create_log(const json& body) {
         return false;
     }
 
+    LogEntry new_entry{
+        .message = body["message"],
+        .level = body["level"],
+        .source = body["source"]
+    };
+
     bool was_empty;
     {
         std::lock_guard<std::mutex> lock(m_mtx);
         was_empty = m_log_queue.empty();
-
-        LogEntry new_entry{
-            .message = body["message"],
-            .level = body["level"],
-            .source = body["source"]
-        };
         m_log_queue.push(std::move(new_entry));
     }
+
     if (was_empty) {
         m_cv.notify_one();
     }

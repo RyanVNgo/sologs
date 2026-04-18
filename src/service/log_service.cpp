@@ -1,6 +1,8 @@
 
 #include "log_service.h"
 
+#include <iostream>
+
 
 LogService::LogService(LogRepository& repo)
     : m_repo(repo),
@@ -30,8 +32,8 @@ bool LogService::create_log(const json& body) {
     bool was_empty;
     {
         std::lock_guard<std::mutex> lock(m_mtx);
-        was_empty = m_log_queue.empty();
-        m_log_queue.push(std::move(new_entry));
+        was_empty = m_log_buffer.empty();
+        m_log_buffer.push_back(std::move(new_entry));
     }
 
     if (was_empty) {
@@ -62,27 +64,41 @@ json LogService::get_logs() {
 
 void LogService::worker() {
     std::vector<LogEntry> batch;
-    const int max_batch_size = 100;
+    const size_t max_batch_size = 1024 * 4;
     batch.reserve(max_batch_size);
 
     while (true) {
         std::unique_lock<std::mutex> lock(m_mtx);
 
-        m_cv.wait_for(
+        m_cv.wait(
             lock, 
-            std::chrono::milliseconds(50),
             [&] {
-                return !m_log_queue.empty() || !m_running;
+                return !m_log_buffer.empty() || !m_running;
             }
         );
         
-        if (!m_running && m_log_queue.empty()) {
+        if (!m_running && m_log_buffer.empty()) {
             break;
         }
 
-        while (!m_log_queue.empty() && batch.size() < max_batch_size) {
-            batch.push_back(std::move(m_log_queue.front()));
-            m_log_queue.pop();
+        if (m_log_buffer.size() > max_batch_size) {
+            std::cout << "Buffer limit hit" << std::endl;
+            batch.insert(
+                    batch.begin(),
+                    m_log_buffer.begin(),
+                    m_log_buffer.begin() + max_batch_size
+            );
+            m_log_buffer.erase(
+                    m_log_buffer.begin(),
+                    m_log_buffer.begin() + max_batch_size
+            );
+        } else {
+            batch.insert(
+                    batch.begin(),
+                    m_log_buffer.begin(),
+                    m_log_buffer.end()
+            );
+            m_log_buffer.clear();
         }
 
         lock.unlock();

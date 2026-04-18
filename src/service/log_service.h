@@ -2,7 +2,7 @@
 #pragma once
 
 
-#include <queue>
+#include <vector>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -25,7 +25,7 @@ class LogService {
     private:
         LogRepository& m_repo;
         std::thread m_worker_thread;
-        std::queue<LogEntry> m_log_queue;
+        std::vector<LogEntry> m_log_buffer;
         std::mutex m_mtx;
         std::condition_variable m_cv;
         bool m_running = true;

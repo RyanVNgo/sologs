@@ -82,7 +82,6 @@ void LogService::worker() {
         }
 
         if (m_log_buffer.size() > max_batch_size) {
-            std::cout << "Buffer limit hit" << std::endl;
             batch.insert(
                     batch.begin(),
                     m_log_buffer.begin(),

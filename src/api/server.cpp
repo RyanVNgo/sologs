@@ -41,3 +41,10 @@ void SOLogSServer::start(int port) {
     return;
 }
 
+void SOLogSServer::stop() {
+    m_server.wait_until_ready();
+    m_server.stop();
+    std::cout << "Server stopped" << std::endl;
+    return;
+}
+

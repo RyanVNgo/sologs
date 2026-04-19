@@ -12,6 +12,7 @@ class SOLogSServer {
         explicit SOLogSServer(LogService& service);
 
         void start(int port);
+        void stop();
 
     private:
         httplib::Server m_server;

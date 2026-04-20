@@ -1,4 +1,8 @@
 
+enable_testing()
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
+
 include(FetchContent)
 FetchContent_Declare(
     googletest
@@ -6,26 +10,31 @@ FetchContent_Declare(
     GIT_TAG        v1.14.0
 )
 
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
-
-function(add_gtest TARGET)
-    add_executable(${TARGET} ${ARGN})
-    target_link_libraries(${TARGET}
-        PRIVATE
-        sologs_db
-        GTest::gtest_main
-    )
-    target_include_directories(${TARGET}
-        PRIVATE
-        "${CMAKE_SOURCE_DIR}/src/"
-    )
-    gtest_discover_tests(${TARGET})
-endfunction()
 
 include(GoogleTest)
 
-add_gtest(database_testing
-    database_tests.cpp
+# ------------------------------------------------------------
+# Database Tests
+# ------------------------------------------------------------
+add_executable(database_tests
+    db/db_init_tests.cpp
+    db/db_execute_tests.cpp
+    db/db_prepared_tests.cpp
+    db/db_batch_tests.cpp
+    db/db_query_tests.cpp
+)
+target_link_libraries(database_tests
+    PRIVATE
+    sologs_db
+    sqlite3
+    GTest::gtest_main
+)
+target_include_directories(database_tests
+    PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/
+)
+gtest_discover_tests(database_tests
+    WORKING_DIRECTORY $<TARGET_FILE_DIR:database_tests>
 )
 

@@ -38,13 +38,11 @@ SOLogSServer::SOLogSServer(LogService& service)
 
 void SOLogSServer::start(int port) {
     m_server.listen("0.0.0.0", port);
-    return;
 }
 
 void SOLogSServer::stop() {
     m_server.wait_until_ready();
     m_server.stop();
     std::cout << "Server stopped" << std::endl;
-    return;
 }
 

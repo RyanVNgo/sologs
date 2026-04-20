@@ -1,8 +1,6 @@
 
 #include "log_service.h"
 
-#include <iostream>
-
 
 LogService::LogService(LogRepository& repo)
     : m_repo(repo),

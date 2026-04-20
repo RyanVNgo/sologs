@@ -14,5 +14,5 @@ target_link_libraries(sologs_server
     httplib
 )
 
-target_compile_features(sologs_server PUBLIC cxx_std_17)
+target_compile_features(sologs_server PUBLIC cxx_std_20)
 

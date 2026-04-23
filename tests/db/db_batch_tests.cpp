@@ -14,7 +14,6 @@ TEST(DatabaseTests, db_batched_valid) {
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     
-    // Setup table
     auto db = util_open_database(db_filename);
     const std::string table_name = "test_table";
     const std::string setup_query = std::format(
@@ -29,7 +28,7 @@ TEST(DatabaseTests, db_batched_valid) {
     );
     ASSERT_TRUE(util_exec_query(db.get(), setup_query.c_str()));
 
-    const std::string batched_query = std::format(R"(
+    const std::string valid_query = std::format(R"(
         INSERT INTO {} (message, level, source) 
         VALUES (?, ?, ?);
         )", 
@@ -41,7 +40,7 @@ TEST(DatabaseTests, db_batched_valid) {
         {"test log 3", "INFO", "tests"}
     };
 
-    EXPECT_TRUE(test_db->execute_prepared_batched(batched_query, valid_data));
+    EXPECT_TRUE(test_db->execute_prepared_batched(valid_query, valid_data));
 
     EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), valid_data.size()));
 
@@ -69,7 +68,7 @@ TEST(DatabaseTests, db_batched_invalid_query) {
     );
     ASSERT_TRUE(util_exec_query(db.get(), setup_query.c_str()));
 
-    const std::vector<std::string> batched_invalid_queries = {
+    const std::vector<std::string> invalid_queries = {
         std::format(R"(
             INSERT INTO {} (message, level, source) 
             VALUES (?, ?);)", 
@@ -87,7 +86,7 @@ TEST(DatabaseTests, db_batched_invalid_query) {
         {"test log 3", "INFO", "tests"}
     };
 
-    for (const auto& query : batched_invalid_queries) {
+    for (const auto& query : invalid_queries) {
         EXPECT_FALSE(test_db->execute_prepared_batched(query, valid_data));
     }
 
@@ -117,7 +116,7 @@ TEST(DatabaseTests, db_batched_invalid_data) {
     );
     ASSERT_TRUE(util_exec_query(db.get(), setup_query.c_str()));
 
-    const std::string batched_query = std::format(R"(
+    const std::string valid_query = std::format(R"(
         INSERT INTO {} (message, level, source) 
         VALUES (?, ?, ?);
         )", 
@@ -137,7 +136,7 @@ TEST(DatabaseTests, db_batched_invalid_data) {
     };
 
     for (const auto& data : invalid_data) {
-        EXPECT_FALSE(test_db->execute_prepared_batched(batched_query, data));
+        EXPECT_FALSE(test_db->execute_prepared_batched(valid_query, data));
     }
 
     EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), 0));

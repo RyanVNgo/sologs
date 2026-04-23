@@ -12,11 +12,11 @@
 TEST(DatabaseTests, db_execute_valid) {
     const char* db_filename = "db_execute_valid.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
-    EXPECT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     
-    // Test initial valid query
+    auto db = util_open_database(db_filename);
     const std::string table_name = "test_table";
-    const std::string query = std::format(
+    const std::string setup_query = std::format(
         "CREATE TABLE IF NOT EXISTS {} ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "message TEXT NOT NULL,"
@@ -26,12 +26,8 @@ TEST(DatabaseTests, db_execute_valid) {
         ");",
         table_name
     );
-    EXPECT_TRUE(test_db->execute(query));
+    ASSERT_TRUE(util_exec_query(db.get(), setup_query.c_str()));
 
-    auto db = util_open_database(db_filename);
-    ASSERT_TRUE(util_table_exists(db.get(), table_name.c_str()));
-
-    // Test other valid queries
     const std::vector<std::string> valid_queries = {
         std::format("SELECT * FROM {};", table_name),
         std::format("SELECT COUNT(*) FROM {};", table_name),
@@ -53,9 +49,8 @@ TEST(DatabaseTests, db_execute_valid) {
 TEST(DatabaseTests, db_execute_invalid) {
     const char* db_filename = "db_execute_invalid.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
-    EXPECT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     
-    // Setup table
     auto db = util_open_database(db_filename);
     const std::string table_name = "test_table";
     const std::string setup_query = std::format(
@@ -70,7 +65,6 @@ TEST(DatabaseTests, db_execute_invalid) {
     );
     ASSERT_TRUE(util_exec_query(db.get(), setup_query.c_str()));
 
-    // Test invalid queries
     const std::vector<std::string> invalid_queries = {
         std::format("SELEC * FROM {};", table_name),
         std::format("SELECT COUNT(* FROM {};", table_name),

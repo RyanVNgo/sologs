@@ -18,8 +18,8 @@ TEST(DatabaseTests, db_init_file_dne) {
 TEST(DatabaseTests, db_init_file_exists) {
     const char* file_name = "db_init_exists.sqlite";
 
-    EXPECT_NO_THROW(SQLiteDatabase db(file_name));
-    EXPECT_TRUE(std::filesystem::exists(file_name));
+    ASSERT_NO_THROW(SQLiteDatabase db(file_name));
+    ASSERT_TRUE(std::filesystem::exists(file_name));
 
     EXPECT_NO_THROW(SQLiteDatabase db(file_name));
 

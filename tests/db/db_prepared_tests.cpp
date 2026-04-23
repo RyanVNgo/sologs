@@ -12,9 +12,8 @@
 TEST(DatabaseTests, db_prepared_valid) {
     const char* db_filename = "db_prepared_valid.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
-    EXPECT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     
-    // Setup table
     auto db = util_open_database(db_filename);
     const std::string table_name = "test_table";
     const std::string setup_query = std::format(
@@ -29,8 +28,7 @@ TEST(DatabaseTests, db_prepared_valid) {
     );
     ASSERT_TRUE(util_exec_query(db.get(), setup_query.c_str()));
 
-    // Test valid queries
-    const std::vector<std::pair<std::string, Row>> valid_queries = {
+    const std::vector<std::pair<std::string, Row>> valid_prepares = {
         {
             std::format("INSERT INTO {} (message, level, source) VALUES (?, ?, ?);", table_name),
             {"test log", "INFO", "tests"}
@@ -40,11 +38,11 @@ TEST(DatabaseTests, db_prepared_valid) {
             {"test log", "INFO"}
         }
     };
-    for (const auto& [query, row] : valid_queries) {
+    for (const auto& [query, row] : valid_prepares) {
         ASSERT_TRUE(test_db->execute_prepared(query, row));
     }
 
-    EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), valid_queries.size()));
+    EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), valid_prepares.size()));
 
     EXPECT_TRUE(std::filesystem::exists(db_filename));
     std::filesystem::remove(db_filename);
@@ -53,9 +51,8 @@ TEST(DatabaseTests, db_prepared_valid) {
 TEST(DatabaseTests, db_prepared_invalid) {
     const char* db_filename = "db_prepared_invalid.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
-    EXPECT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     
-    // Setup table
     auto db = util_open_database(db_filename);
     const std::string table_name = "test_table";
     const std::string setup_query = std::format(
@@ -70,8 +67,7 @@ TEST(DatabaseTests, db_prepared_invalid) {
     );
     ASSERT_TRUE(util_exec_query(db.get(), setup_query.c_str()));
 
-    // Test invalid queries
-    const std::vector<std::pair<std::string, Row>> invalid_queries = {
+    const std::vector<std::pair<std::string, Row>> invalid_prepares = {
         {
             std::format("INSERT INTO {} (message, source, level) VALUES (?, ?, ?);", table_name),
             {"test log", "tests"}
@@ -89,7 +85,7 @@ TEST(DatabaseTests, db_prepared_invalid) {
             {"test log", "INFO", "tests"}
         }
     };
-    for (const auto& [query, row] : invalid_queries) {
+    for (const auto& [query, row] : invalid_prepares) {
         ASSERT_FALSE(test_db->execute_prepared(query, row)) << query;
     }
 

@@ -1,9 +1,10 @@
 
 #include <format>
+#include <filesystem>
 
 #include <gtest/gtest.h>
 
-#include "sqlite3.h"
+#include "db_utils.h"
 
 #include "db/database.h"
 
@@ -11,14 +12,11 @@
 TEST(DatabaseTests, db_execute_valid) {
     const char* db_filename = "db_execute_valid.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
-    try {
-        test_db = std::make_unique<SQLiteDatabase>(db_filename);
-    } catch (...) {
-        FAIL();
-    }
+    EXPECT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     
-    std::string table_name = "test_table";
-    std::string query = std::format(
+    // Test initial valid query
+    const std::string table_name = "test_table";
+    const std::string query = std::format(
         "CREATE TABLE IF NOT EXISTS {} ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "message TEXT NOT NULL,"
@@ -28,76 +26,66 @@ TEST(DatabaseTests, db_execute_valid) {
         ");",
         table_name
     );
-
     EXPECT_TRUE(test_db->execute(query));
 
-    struct Tables {
-        std::vector<std::string> names;
+    auto db = util_open_database(db_filename);
+    ASSERT_TRUE(util_table_exists(db.get(), table_name.c_str()));
+
+    // Test other valid queries
+    const std::vector<std::string> valid_queries = {
+        std::format("SELECT * FROM {};", table_name),
+        std::format("SELECT COUNT(*) FROM {};", table_name),
+        std::format("SELECT source, message, timestamp FROM {} WHERE level='INFO';", table_name),
+        std::format("SELECT source, message FROM {} WHERE (timestamp BETWEEN '2026-04-01' AND '2026-04-08') AND level='WARNING';", table_name),
+        std::format("INSERT INTO {} (message, level, source) VALUES ('test log', 'INFO', 'tests');", table_name),
+        std::format("INSERT INTO {} (message, level) VALUES ('test log', 'INFO');", table_name)
     };
-    Tables tables;
+    for (const auto& query : valid_queries) {
+        EXPECT_TRUE(test_db->execute(query)) << query;
+    }
 
-    auto callback = [](void* out, int col_count, char** col_vals, char**) -> int {
-        Tables* t = (Tables*)out;
-        for (size_t i = 0; i < col_count; i++) {
-            t->names.push_back(col_vals[i]);
-        }
-        return 0;
-    };
+    EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), 2));
 
-    sqlite3* db;
-    sqlite3_open(db_filename, &db);
-    sqlite3_exec(
-            db,
-            "SELECT name FROm sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%';",
-            callback,
-            &tables,
-            nullptr
-    );
-
-    EXPECT_GE(tables.names.size(), 1);
-    auto target_iter = std::find(
-            tables.names.begin(),
-            tables.names.end(),
-            table_name
-    );
-    EXPECT_NE(target_iter, tables.names.end());
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
 }
 
 TEST(DatabaseTests, db_execute_invalid) {
     const char* db_filename = "db_execute_invalid.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
-    try {
-        test_db = std::make_unique<SQLiteDatabase>(db_filename);
-    } catch (...) {
-        FAIL();
-    }
+    EXPECT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     
-    std::string query = std::format(
-        "CREATE TABLE IF NOT EXISTS test_table ("
+    // Setup table
+    auto db = util_open_database(db_filename);
+    const std::string table_name = "test_table";
+    const std::string setup_query = std::format(
+        "CREATE TABLE IF NOT EXISTS {} ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "message TEXT NOT NULL,"
         "level TEXT NOT NULL,"
         "source TEXT,"
         "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP"
-        ");"
+        ");",
+        table_name
     );
+    ASSERT_TRUE(util_exec_query(db.get(), setup_query.c_str()));
 
+    // Test invalid queries
     const std::vector<std::string> invalid_queries = {
-        "SELEC * FROM test_table;",
-        "SELECT * FROM ;",
-        "SELECT * FROM test_table WHERE message = 'Hello;",
-        "SELECT id, message, FROM test_table;",
-        "SELECT * FROM test_table WHERE;",
-        "SELECT (id, message FROM test_table;",
-        "INSERT INTO test_table id, message VALUES (1, 'Test');",
-        "INSERT INTO test_table (id, message) VALUES (1, 'Test', 'Extra');",
-        "UPDATE test_table SET WHERE id = 1;",
-        "SELECT id test_table;",
-        "SELECT * FROM test_table JOIN ON test_table.id = test_table.id;",
+        std::format("SELEC * FROM {};", table_name),
+        std::format("SELECT COUNT(* FROM {};", table_name),
+        std::format("SELECT source message timestamp FROM {} WHERE level='INFO';", table_name),
+        std::format("SELECT source, message FROM {} WHERE (timestamp BETWEEN '2026-04-01' AND '2026-04-08') AND level='WARNING';", table_name + "e"),
+        std::format("INSERT INTO {} (message, level, source) VALUES ('test log', 'tests');", table_name),
+        std::format("INSERT INTO {} (level, source) VALUES ('INFO', 'tests');", table_name)
     };
-
     for (const auto& query : invalid_queries) {
         EXPECT_FALSE(test_db->execute(query)) << query;
     }
+
+    EXPECT_TRUE(util_validate_row_count(db.get(), "test_table", 0));
+
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
 }
 

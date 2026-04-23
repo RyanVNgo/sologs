@@ -14,6 +14,20 @@ FetchContent_MakeAvailable(googletest)
 
 include(GoogleTest)
 
+add_library(test_utils
+    utils/db_setup.cpp
+    utils/db_validate.cpp
+)
+target_include_directories(test_utils
+    PUBLIC
+    utils/
+)
+target_link_libraries(test_utils
+    sologs_db
+)
+target_compile_features(test_utils PUBLIC cxx_std_20)
+
+
 # ------------------------------------------------------------
 # Database Tests
 # ------------------------------------------------------------
@@ -27,6 +41,7 @@ add_executable(database_tests
 target_link_libraries(database_tests
     PRIVATE
     sologs_db
+    test_utils
     sqlite3
     GTest::gtest_main
 )

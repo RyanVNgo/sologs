@@ -70,8 +70,8 @@ TEST(DatabaseTests, db_prepared_invalid) {
     );
     ASSERT_TRUE(util_exec_query(db.get(), setup_query.c_str()));
 
-    // Test valid queries
-    const std::vector<std::pair<std::string, Row>> valid_queries = {
+    // Test invalid queries
+    const std::vector<std::pair<std::string, Row>> invalid_queries = {
         {
             std::format("INSERT INTO {} (message, source, level) VALUES (?, ?, ?);", table_name),
             {"test log", "tests"}
@@ -89,7 +89,7 @@ TEST(DatabaseTests, db_prepared_invalid) {
             {"test log", "INFO", "tests"}
         }
     };
-    for (const auto& [query, row] : valid_queries) {
+    for (const auto& [query, row] : invalid_queries) {
         ASSERT_FALSE(test_db->execute_prepared(query, row)) << query;
     }
 

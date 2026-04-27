@@ -53,3 +53,25 @@ gtest_discover_tests(database_tests
     WORKING_DIRECTORY $<TARGET_FILE_DIR:database_tests>
 )
 
+# ------------------------------------------------------------
+# Repository Tests
+# ------------------------------------------------------------
+add_executable(repo_tests
+    db/repo_init_tests.cpp
+    db/repo_insert_tests.cpp
+)
+target_link_libraries(repo_tests
+    PRIVATE
+    sologs_db
+    test_utils
+    sqlite3
+    GTest::gtest_main
+)
+target_include_directories(repo_tests
+    PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/
+)
+gtest_discover_tests(repo_tests
+    WORKING_DIRECTORY $<TARGET_FILE_DIR:repo_tests>
+)
+

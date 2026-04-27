@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <vector>
 #include <memory>
 
 #include <sqlite3.h>
@@ -14,4 +15,9 @@ bool util_exec_query(sqlite3* db, const char* query);
 
 bool util_table_exists(sqlite3* db, const char* table_name);
 bool util_validate_row_count(sqlite3* db, const char* table_name, int count);
+bool util_validate_rows_exist(
+        sqlite3* db, 
+        const char* table_name, 
+        const std::vector<std::vector<std::string>>& rows
+);
 

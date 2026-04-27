@@ -81,3 +81,51 @@ bool util_validate_row_count(sqlite3* db, const char* table_name, int count) {
     return true;
 }
 
+bool util_validate_rows_exist(
+        sqlite3* db, 
+        const char* table_name, 
+        const std::vector<std::vector<std::string>>& rows
+) {
+    std::vector<std::vector<std::string>> qr;
+    auto callback = [](void* out, int col_count, char** col_vals, char**) -> int {
+        std::vector<std::vector<std::string>>* t = (std::vector<std::vector<std::string>>*)out;
+        std::vector<std::string> row;
+        for (size_t i = 0; i < col_count; i++) {
+            row.push_back(col_vals[i]);
+        }
+        t->push_back(row);
+        return 0;
+    };
+
+    auto query = std::format(
+            "SELECT * FROM {};",
+            table_name
+    );
+
+    int rc = sqlite3_exec(
+            db,
+            query.c_str(),
+            callback,
+            &qr,
+            nullptr
+    );
+
+    if (rc != SQLITE_OK) {
+        return false;
+    }
+
+    if (qr.empty() && !rows.empty()) {
+        return false;
+    }
+
+    for (const auto& row : rows) {
+        auto iter = std::find(qr.begin(), qr.end(), row);
+        if (iter == qr.end()) {
+            return false;
+        }
+        qr.erase(iter);
+    }
+
+    return true;
+}
+

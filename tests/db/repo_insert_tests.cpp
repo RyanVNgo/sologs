@@ -22,9 +22,15 @@ TEST(RepoTests, repo_insert) {
         .level = "INFO",
         .source = "repo_insert test"
     };
+    std::vector<std::string> vector_entry{
+        "test message",
+        "INFO",
+        "repo_insert test"
+    };
 
     EXPECT_TRUE(repo.insert(test_entry));
     EXPECT_TRUE(util_validate_row_count(db.get(), "logs", 1));
+    EXPECT_TRUE(util_validate_rows_exist(db.get(), "logs", {vector_entry}));
 
     EXPECT_TRUE(std::filesystem::exists(db_filename));
     std::filesystem::remove(db_filename);
@@ -39,19 +45,27 @@ TEST(RepoTests, repo_batch_insert) {
     auto db = util_open_database(db_filename);
 
     std::vector<LogEntry> test_entries;
+    std::vector<std::vector<std::string>> vector_entries;
     const size_t entry_count = 3;
     for (size_t i = 0; i < entry_count; i++) {
-        test_entries.push_back(
+        LogEntry entry {
+            .message = "test message " + std::to_string(i),
+            .level = "INFO",
+            .source = "repo_insert test"
+        };
+        test_entries.push_back(entry);
+        vector_entries.push_back(
             {
-                .message = "test message " + std::to_string(i),
-                .level = "INFO",
-                .source = "repo_insert test"
+                entry.message,
+                entry.level,
+                entry.source,
             }
         );
     }
 
     EXPECT_TRUE(repo.insert_batch(test_entries));
     EXPECT_TRUE(util_validate_row_count(db.get(), "logs", entry_count));
+    EXPECT_TRUE(util_validate_rows_exist(db.get(), "logs", vector_entries));
 
     EXPECT_TRUE(std::filesystem::exists(db_filename));
     std::filesystem::remove(db_filename);

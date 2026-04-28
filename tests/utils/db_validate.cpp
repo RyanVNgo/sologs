@@ -119,7 +119,18 @@ bool util_validate_rows_exist(
     }
 
     for (const auto& row : rows) {
-        auto iter = std::find(qr.begin(), qr.end(), row);
+        auto is_match = [&row](const std::vector<std::string>& res) -> bool {
+                int values_match = 0;
+                for (const auto& value : row) {
+                    auto iter = std::find(res.begin(), res.end(), value);
+                    if (iter != res.end()) {
+                        values_match++;
+                    }
+                }
+                return values_match == row.size() ? true : false;
+        };
+
+        auto iter = std::find_if(qr.begin(), qr.end(), is_match);
         if (iter == qr.end()) {
             return false;
         }

@@ -59,6 +59,7 @@ gtest_discover_tests(database_tests
 add_executable(repo_tests
     db/repo_init_tests.cpp
     db/repo_insert_tests.cpp
+    db/repo_get_tests.cpp
 )
 target_link_libraries(repo_tests
     PRIVATE

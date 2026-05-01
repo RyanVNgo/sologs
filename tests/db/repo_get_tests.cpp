@@ -13,7 +13,7 @@ TEST(RepoTests, repo_get_all) {
     const char* db_filename = "repo_get_all.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
-    LogRepository repo(*test_db.get());
+    SqlLogRepository repo(*test_db.get());
 
     auto db = util_open_database(db_filename);
 
@@ -48,7 +48,7 @@ TEST(RepoTests, repo_get_all_empty) {
     const char* db_filename = "repo_get_all_empty.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
-    LogRepository repo(*test_db.get());
+    SqlLogRepository repo(*test_db.get());
 
     auto db = util_open_database(db_filename);
 

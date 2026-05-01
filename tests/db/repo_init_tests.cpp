@@ -14,7 +14,7 @@ TEST(RepoTests, repo_init) {
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
 
     auto db = util_open_database(db_filename);
-    LogRepository repo(*test_db.get());
+    SqlLogRepository repo(*test_db.get());
 
     EXPECT_TRUE(util_table_exists(db.get(), "logs"));
 

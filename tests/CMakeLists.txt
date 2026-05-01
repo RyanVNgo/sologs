@@ -76,3 +76,24 @@ gtest_discover_tests(repo_tests
     WORKING_DIRECTORY $<TARGET_FILE_DIR:repo_tests>
 )
 
+# ------------------------------------------------------------
+# Service Tests
+# ------------------------------------------------------------
+add_executable(service_tests
+    service/log_service_init_tests.cpp
+)
+target_link_libraries(service_tests
+    PRIVATE
+    sologs_service
+    test_utils
+    sqlite3
+    GTest::gtest_main
+)
+target_include_directories(service_tests
+    PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/
+)
+gtest_discover_tests(service_tests
+    WORKING_DIRECTORY $<TARGET_FILE_DIR:service_tests>
+)
+

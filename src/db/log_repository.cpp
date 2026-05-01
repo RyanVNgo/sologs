@@ -3,7 +3,7 @@
 #include "log_repository.h"
 
 
-LogRepository::LogRepository(SQLiteDatabase& db) 
+SqlLogRepository::SqlLogRepository(SQLiteDatabase& db) 
     : m_database(db)
 {
     const char* sql =
@@ -20,7 +20,7 @@ LogRepository::LogRepository(SQLiteDatabase& db)
     return;
 }
 
-bool LogRepository::insert(const LogEntry& entry) {
+bool SqlLogRepository::insert(const LogEntry& entry) {
     const char* sql =
         "INSERT INTO logs (message, level, source)"
         "VALUES (?, ?, ?);";
@@ -33,7 +33,7 @@ bool LogRepository::insert(const LogEntry& entry) {
     return m_database.execute_prepared(sql, row_data);
 }
 
-bool LogRepository::insert_batch(const std::vector<LogEntry>& entries) {
+bool SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) {
     std::string sql =
         "INSERT INTO logs (message, level, source)"
         "VALUES (?, ?, ?);";
@@ -50,7 +50,7 @@ bool LogRepository::insert_batch(const std::vector<LogEntry>& entries) {
     return m_database.execute_prepared_batched(sql, data);
 }
 
-std::vector<LogEntry> LogRepository::get_all() {
+std::vector<LogEntry> SqlLogRepository::get_all() {
     const char* sql = 
         "SELECT id, message, level, source, timestamp FROM logs "
         "ORDER BY id DESC "

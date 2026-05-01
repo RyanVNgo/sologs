@@ -16,7 +16,7 @@ int main(void) {
         int port = 8080;
 
         SQLiteDatabase db("./sologs.sqlite");
-        LogRepository log_repo(db);
+        SqlLogRepository log_repo(db);
         LogService log_service(log_repo);
         SOLogSServer server(log_service);
 

@@ -16,14 +16,14 @@ using json = nlohmann::json;
 
 class LogService {
     public:
-        LogService(LogRepository& repo);
+        LogService(ILogRepository& repo);
         ~LogService();
 
         bool create_log(const json& body);
         json get_logs();
 
     private:
-        LogRepository& m_repo;
+        ILogRepository& m_repo;
         std::thread m_worker_thread;
         std::vector<LogEntry> m_log_buffer;
         std::mutex m_mtx;

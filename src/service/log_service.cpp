@@ -2,7 +2,7 @@
 #include "log_service.h"
 
 
-LogService::LogService(LogRepository& repo)
+LogService::LogService(ILogRepository& repo)
     : m_repo(repo),
       m_worker_thread(&LogService::worker, this)
 { }

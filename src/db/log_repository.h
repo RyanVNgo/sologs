@@ -6,13 +6,21 @@
 #include "log_entry.h"
 
 
-class LogRepository {
+class ILogRepository {
     public:
-        LogRepository(SQLiteDatabase& db);
+        virtual ~ILogRepository() {};
+        virtual bool insert(const LogEntry& entry) = 0;
+        virtual bool insert_batch(const std::vector<LogEntry>& entries) = 0;
+        virtual std::vector<LogEntry> get_all() = 0;
+};
 
-        bool insert(const LogEntry& entry);
-        bool insert_batch(const std::vector<LogEntry>& entries);
-        std::vector<LogEntry> get_all();
+class SqlLogRepository : public ILogRepository {
+    public:
+        SqlLogRepository(SQLiteDatabase& db);
+
+        bool insert(const LogEntry& entry) override;
+        bool insert_batch(const std::vector<LogEntry>& entries) override;
+        std::vector<LogEntry> get_all() override;
 
     private:
         SQLiteDatabase& m_database;

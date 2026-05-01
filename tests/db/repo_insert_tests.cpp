@@ -13,7 +13,7 @@ TEST(RepoTests, repo_insert) {
     const char* db_filename = "repo_insert.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
-    LogRepository repo(*test_db.get());
+    SqlLogRepository repo(*test_db.get());
 
     auto db = util_open_database(db_filename);
 
@@ -40,7 +40,7 @@ TEST(RepoTests, repo_batch_insert) {
     const char* db_filename = "repo_batch_insert.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
-    LogRepository repo(*test_db.get());
+    SqlLogRepository repo(*test_db.get());
 
     auto db = util_open_database(db_filename);
 

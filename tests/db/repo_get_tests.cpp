@@ -9,8 +9,8 @@
 #include "db/log_repository.h"
 
 
-TEST(RepoTests, repo_get_all) {
-    const char* db_filename = "repo_get_all.sqlite";
+TEST(Repo, get_all) {
+    const char* db_filename = "get_all.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     SqlLogRepository repo(*test_db.get());
@@ -44,8 +44,8 @@ TEST(RepoTests, repo_get_all) {
     std::filesystem::remove(db_filename);
 }
 
-TEST(RepoTests, repo_get_all_empty) {
-    const char* db_filename = "repo_get_all_empty.sqlite";
+TEST(Repo, get_all_empty) {
+    const char* db_filename = "get_all_empty.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     SqlLogRepository repo(*test_db.get());

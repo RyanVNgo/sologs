@@ -8,8 +8,8 @@
 #include "db/log_repository.h"
 
 
-TEST(RepoTests, repo_init) {
-    const char* db_filename = "repo_init.sqlite";
+TEST(Repo, init) {
+    const char* db_filename = "init.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
 

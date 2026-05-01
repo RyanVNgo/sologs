@@ -9,8 +9,8 @@
 #include "db/database.h"
 
 
-TEST(DatabaseTests, db_prepared_valid) {
-    const char* db_filename = "db_prepared_valid.sqlite";
+TEST(Database, prepared_valid) {
+    const char* db_filename = "prepared_valid.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     
@@ -48,8 +48,8 @@ TEST(DatabaseTests, db_prepared_valid) {
     std::filesystem::remove(db_filename);
 }
 
-TEST(DatabaseTests, db_prepared_invalid) {
-    const char* db_filename = "db_prepared_invalid.sqlite";
+TEST(Database, prepared_invalid) {
+    const char* db_filename = "prepared_invalid.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     

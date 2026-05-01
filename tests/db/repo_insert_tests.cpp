@@ -9,8 +9,8 @@
 #include "domain/log_entry.h"
 
 
-TEST(RepoTests, repo_insert) {
-    const char* db_filename = "repo_insert.sqlite";
+TEST(Repo, insert) {
+    const char* db_filename = "insert.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     SqlLogRepository repo(*test_db.get());
@@ -36,8 +36,8 @@ TEST(RepoTests, repo_insert) {
     std::filesystem::remove(db_filename);
 }
 
-TEST(RepoTests, repo_batch_insert) {
-    const char* db_filename = "repo_batch_insert.sqlite";
+TEST(Repo, batch_insert) {
+    const char* db_filename = "batch_insert.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     SqlLogRepository repo(*test_db.get());

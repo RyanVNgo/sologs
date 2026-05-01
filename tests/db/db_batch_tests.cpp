@@ -9,8 +9,8 @@
 #include "db/database.h"
 
 
-TEST(DatabaseTests, db_batched_valid) {
-    const char* db_filename = "db_batched_valid.sqlite";
+TEST(Database, batched_valid) {
+    const char* db_filename = "batched_valid.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     
@@ -48,8 +48,8 @@ TEST(DatabaseTests, db_batched_valid) {
     std::filesystem::remove(db_filename);
 }
 
-TEST(DatabaseTests, db_batched_invalid_query) {
-    const char* db_filename = "db_batched_invalid_query.sqlite";
+TEST(Database, batched_invalid_query) {
+    const char* db_filename = "batched_invalid_query.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     
@@ -96,8 +96,8 @@ TEST(DatabaseTests, db_batched_invalid_query) {
     std::filesystem::remove(db_filename);
 }
 
-TEST(DatabaseTests, db_batched_invalid_data) {
-    const char* db_filename = "db_batched_invalid_data.sqlite";
+TEST(Database, batched_invalid_data) {
+    const char* db_filename = "batched_invalid_data.sqlite";
     std::unique_ptr<SQLiteDatabase> test_db;
     ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
     

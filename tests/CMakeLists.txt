@@ -80,7 +80,7 @@ gtest_discover_tests(repo_tests
 # Service Tests
 # ------------------------------------------------------------
 add_executable(service_tests
-    service/log_service_init_tests.cpp
+    service/log_service_create_log_tests.cpp
 )
 target_link_libraries(service_tests
     PRIVATE
@@ -88,6 +88,7 @@ target_link_libraries(service_tests
     test_utils
     sqlite3
     GTest::gtest_main
+    GTest::gmock
 )
 target_include_directories(service_tests
     PRIVATE

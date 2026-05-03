@@ -2,12 +2,13 @@
 #include "server.h"
 
 
-SOLogSServer::SOLogSServer(LogService& service)
+SOLogSServer::SOLogSServer(ILogService& service)
     : m_service(service)
 {
     m_server.Get(
         "/health",
         [](const httplib::Request& req, httplib::Response& res){
+            res.status = 200;
             res.set_content("OK", "text/plain");
         }
     );
@@ -37,7 +38,7 @@ SOLogSServer::SOLogSServer(LogService& service)
 }
 
 void SOLogSServer::start(int port) {
-    m_server.listen("0.0.0.0", port);
+    m_server.listen("127.0.0.1", port);
 }
 
 void SOLogSServer::stop() {

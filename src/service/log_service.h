@@ -14,13 +14,20 @@
 
 using json = nlohmann::json;
 
-class LogService {
+class ILogService {
+    public:
+        virtual ~ILogService() {};
+        virtual bool create_log(const json& body) = 0;
+        virtual json get_logs() = 0;
+};
+
+class LogService : public ILogService {
     public:
         LogService(ILogRepository& repo);
         ~LogService();
 
-        bool create_log(const json& body);
-        json get_logs();
+        bool create_log(const json& body) override;
+        json get_logs() override;
 
     private:
         ILogRepository& m_repo;

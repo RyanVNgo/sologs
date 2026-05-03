@@ -9,14 +9,14 @@
 
 class SOLogSServer {
     public:
-        explicit SOLogSServer(LogService& service);
+        explicit SOLogSServer(ILogService& service);
 
         void start(int port);
         void stop();
 
     private:
         httplib::Server m_server;
-        LogService& m_service;
+        ILogService& m_service;
 
 };
 

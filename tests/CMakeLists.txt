@@ -85,8 +85,6 @@ add_executable(service_tests
 target_link_libraries(service_tests
     PRIVATE
     sologs_service
-    test_utils
-    sqlite3
     GTest::gtest_main
     GTest::gmock
 )
@@ -96,5 +94,28 @@ target_include_directories(service_tests
 )
 gtest_discover_tests(service_tests
     WORKING_DIRECTORY $<TARGET_FILE_DIR:service_tests>
+)
+
+# ------------------------------------------------------------
+# API Tests
+# ------------------------------------------------------------
+add_executable(server_tests
+    api/server_post_tests.cpp
+    api/server_get_tests.cpp
+)
+target_link_libraries(server_tests
+    PRIVATE
+    sologs_server
+    httplib
+    test_utils
+    GTest::gtest_main
+    GTest::gmock
+)
+target_include_directories(server_tests
+    PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/
+)
+gtest_discover_tests(server_tests
+    WORKING_DIRECTORY $<TARGET_FILE_DIR:server_tests>
 )
 

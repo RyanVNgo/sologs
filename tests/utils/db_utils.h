@@ -21,3 +21,11 @@ bool util_validate_rows_exist(
         const std::vector<std::vector<std::string>>& rows
 );
 
+bool util_insert_log(
+        sqlite3* db,
+        const std::string& message,
+        const std::string& level,
+        const std::string& source,
+        const std::string& timestamp = ""
+);
+

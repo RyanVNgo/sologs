@@ -18,7 +18,7 @@ class ILogService {
     public:
         virtual ~ILogService() {};
         virtual bool create_log(const json& body) = 0;
-        virtual json get_logs() = 0;
+        virtual json get_logs(FilterParams params) = 0;
 };
 
 class LogService : public ILogService {
@@ -27,7 +27,7 @@ class LogService : public ILogService {
         ~LogService();
 
         bool create_log(const json& body) override;
-        json get_logs() override;
+        json get_logs(FilterParams params) override;
 
     private:
         ILogRepository& m_repo;

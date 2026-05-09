@@ -31,7 +31,28 @@ SOLogSServer::SOLogSServer(ILogService& service)
     m_server.Get(
         "/logs",
         [this](const httplib::Request& req, httplib::Response& res){
-            auto logs = m_service.get_logs();
+            FilterParams params;
+
+            if (auto it = req.params.find("level"); it != req.params.end()) {
+                params.level = it->second;
+            }
+            if (auto it = req.params.find("source"); it != req.params.end()) {
+                params.source = it->second;
+            }
+            if (auto it = req.params.find("since"); it != req.params.end()) {
+                params.since = it->second;
+            }
+            if (auto it = req.params.find("until"); it != req.params.end()) {
+                params.until = it->second;
+            }
+            if (auto it = req.params.find("limit"); it != req.params.end()) {
+                try {
+                    params.limit = std::stoi(it->second);
+                } catch (...) {
+                }
+            }
+
+            auto logs = m_service.get_logs(params);
             res.set_content(logs.dump(), "application/json");
         }
     );

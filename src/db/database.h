@@ -39,6 +39,7 @@ class SQLiteDatabase {
         );
 
         QueryResult query(const std::string& query);
+        QueryResult query(const std::string& query, const Row& params);
 
     private:
         struct Impl;

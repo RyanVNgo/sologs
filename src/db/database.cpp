@@ -146,3 +146,40 @@ QueryResult SQLiteDatabase::query(const std::string& query) {
     return results;
 }
 
+QueryResult SQLiteDatabase::query(const std::string& query, const Row& params) {
+    QueryResult results;
+    sqlite3_stmt* stmt = nullptr;
+
+    if (sqlite3_prepare_v2(m_pimpl->db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "SQLiteDatabase | Failed to prepare stmt" << std::endl;
+        std::cerr << "  SQL: " << query << "\n";
+        std::cout << "  Error: " << sqlite3_errmsg(m_pimpl->db) << std::endl;
+        return results;
+    }
+
+    for (size_t i = 0; i < params.size(); ++i) {
+        if (sqlite3_bind_text(stmt, static_cast<int>(i + 1), params[i].c_str(), -1, SQLITE_TRANSIENT) != SQLITE_OK) {
+            sqlite3_finalize(stmt);
+            return results;
+        }
+    }
+
+    int cols = sqlite3_column_count(stmt);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        Row row;
+        for (int i = 0; i < cols; i++) {
+            if (sqlite3_column_type(stmt, i) == SQLITE_NULL) {
+                row.emplace_back("");
+            } else {
+                const unsigned char* str_value = sqlite3_column_text(stmt, i);
+                row.emplace_back(reinterpret_cast<const char*>(str_value));
+            }
+        }
+        results.push_back(row);
+    }
+
+    sqlite3_finalize(stmt);
+    return results;
+}
+

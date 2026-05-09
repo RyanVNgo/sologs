@@ -9,7 +9,7 @@ class LogRepositoryMock : public ILogRepository {
     public:
         MOCK_METHOD(bool, insert, (const LogEntry& entry), (override));
         MOCK_METHOD(bool, insert_batch, (const std::vector<LogEntry>& entries), (override));
-        MOCK_METHOD(std::vector<LogEntry>, get_all, (), (override));
+        MOCK_METHOD(std::vector<LogEntry>, get_all, (FilterParams params), (override));
 };
 
 TEST(LogService, create_log_valid) {

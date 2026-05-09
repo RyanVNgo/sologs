@@ -3,6 +3,7 @@
 
 
 #include <string>
+#include <optional>
 
 
 struct LogEntry {
@@ -11,5 +12,13 @@ struct LogEntry {
     std::string level;
     std::string source;
     std::string timestamp;
+};
+
+struct FilterParams {
+    std::optional<std::string> level;
+    std::optional<std::string> source;
+    std::optional<std::string> since;
+    std::optional<std::string> until;
+    std::optional<int> limit;
 };
 

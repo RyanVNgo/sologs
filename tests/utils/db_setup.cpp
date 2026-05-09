@@ -1,6 +1,8 @@
 
 #include "db_utils.h"
 
+#include <format>
+
 
 SqliteHandle util_open_database(const char* path) {
     sqlite3* db = nullptr;
@@ -30,5 +32,31 @@ bool util_exec_query(sqlite3* db, const char* query) {
     }
 
     return true;
+}
+
+bool util_insert_log(
+        sqlite3* db,
+        const std::string& message,
+        const std::string& level,
+        const std::string& source,
+        const std::string& timestamp
+) {
+    std::string query;
+    if (timestamp.empty()) {
+        query = std::format(R"(
+            INSERT INTO logs (message, level, source)
+            VALUES ('{}', '{}', '{}');
+            )",
+            message, level, source
+        );
+    } else {
+        query = std::format(R"(
+            INSERT INTO logs (message, level, source, timestamp)
+            VALUES ('{}', '{}', '{}', '{}');
+            )",
+            message, level, source, timestamp
+        );
+    }
+    return util_exec_query(db, query.c_str());
 }
 

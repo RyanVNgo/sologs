@@ -2,6 +2,8 @@
 
 #include "log_repository.h"
 
+#include <sstream>
+
 
 SqlLogRepository::SqlLogRepository(SQLiteDatabase& db) 
     : m_database(db)
@@ -50,13 +52,48 @@ bool SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) {
     return m_database.execute_prepared_batched(sql, data);
 }
 
-std::vector<LogEntry> SqlLogRepository::get_all() {
-    const char* sql = 
-        "SELECT id, message, level, source, timestamp FROM logs "
-        "ORDER BY id DESC "
-        "LIMIT 100;";
+std::vector<LogEntry> SqlLogRepository::get_all(FilterParams params) {
+    std::ostringstream sql;
+    sql << "SELECT id, message, level, source, timestamp FROM logs";
 
-    QueryResult results = m_database.query(sql);
+    Row bound_params;
+
+    if (params.level || params.source || params.since || params.until) {
+        sql << " WHERE";
+        bool first = true;
+
+        if (params.level) {
+            sql << (first ? "" : " AND") << " level = ?";
+            bound_params.push_back(*params.level);
+            first = false;
+        }
+        if (params.source) {
+            sql << (first ? "" : " AND") << " source = ?";
+            bound_params.push_back(*params.source);
+            first = false;
+        }
+        if (params.since) {
+            sql << (first ? "" : " AND") << " timestamp >= ?";
+            bound_params.push_back(*params.since);
+            first = false;
+        }
+        if (params.until) {
+            sql << (first ? "" : " AND") << " timestamp <= ?";
+            bound_params.push_back(*params.until);
+            first = false;
+        }
+    }
+
+    sql << " ORDER BY id DESC";
+
+    if (params.limit) {
+        sql << " LIMIT " << *params.limit;
+    } else {
+        sql << " LIMIT 100";
+    }
+    sql << ";";
+
+    QueryResult results = m_database.query(sql.str(), bound_params);
     std::vector<LogEntry> logs;
     logs.reserve(results.size());
     for (const auto& row : results) {

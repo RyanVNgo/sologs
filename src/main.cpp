@@ -1,7 +1,9 @@
 
 #include "db/database.h"
 #include "db/log_repository.h"
+#include "db/auth_repository.h"
 #include "service/log_service.h"
+#include "service/auth_service.h"
 #include "api/server.h"
 
 
@@ -15,10 +17,14 @@ int main(void) {
     try {
         int port = 8080;
 
-        SQLiteDatabase db("./sologs.sqlite");
-        SqlLogRepository log_repo(db);
+        SQLiteDatabase log_db("./sologs.sqlite");
+        SQLiteDatabase auth_db("./sologs-auth.sqlite");
+        SqlLogRepository log_repo(log_db);
+        SqlAuthRepository auth_repo(auth_db);
         LogService log_service(log_repo);
-        SOLogSServer server(log_service);
+        Authorizer authorizer;
+        Authenticator authenticator(auth_repo);
+        SOLogSServer server(log_service, authorizer, authenticator);
 
         std::signal(SIGINT, sig_handler);
         std::signal(SIGTERM, sig_handler);

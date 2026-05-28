@@ -68,5 +68,5 @@ vcpkg_installed/
 Testing/
 .cache/
 
-sologs.sqlite
+*.sqlite
 

@@ -1,6 +1,9 @@
 
+find_package(OpenSSL REQUIRED)
+
 add_library(sologs_service
     log_service.cpp
+    auth_service.cpp
 )
 
 target_include_directories(sologs_service
@@ -13,6 +16,7 @@ target_link_libraries(sologs_service
     sologs_db
     sologs_domain
     jsonlib
+    OpenSSL::Crypto
 )
 
 target_compile_features(sologs_service PUBLIC cxx_std_20)

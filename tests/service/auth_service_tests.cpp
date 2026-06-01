@@ -12,6 +12,7 @@ class AuthRepositoryMock : public IAuthRepository {
         MOCK_METHOD(bool, insert, (const AuthorizationEntry&), (override));
         MOCK_METHOD(bool, insert_batch, (const std::vector<AuthorizationEntry>&), (override));
         MOCK_METHOD(std::optional<AuthorizationEntry>, get_by_key_hash, (const std::string&), (override));
+        MOCK_METHOD(bool, has_any_admin, (), (override));
 };
 
 

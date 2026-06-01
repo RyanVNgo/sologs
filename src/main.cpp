@@ -4,6 +4,7 @@
 #include "db/auth_repository.h"
 #include "service/log_service.h"
 #include "service/auth_service.h"
+#include "service/bootstrap_service.h"
 #include "api/server.h"
 
 
@@ -21,6 +22,7 @@ int main(void) {
         SQLiteDatabase auth_db("./sologs-auth.sqlite");
         SqlLogRepository log_repo(log_db);
         SqlAuthRepository auth_repo(auth_db);
+        BootstrapService::try_bootstrap(auth_repo);
         LogService log_service(log_repo);
         Authorizer authorizer;
         Authenticator authenticator(auth_repo);

@@ -18,7 +18,9 @@ class IAuthRepository {
         virtual std::optional<AuthorizationEntry> get_by_key_hash(
             const std::string& hash
         ) = 0;
-};
+
+        virtual bool has_any_admin() = 0;
+    };
 
 class SqlAuthRepository : public IAuthRepository {
     public:
@@ -31,6 +33,8 @@ class SqlAuthRepository : public IAuthRepository {
         std::optional<AuthorizationEntry> get_by_key_hash(
             const std::string& hash
         ) override;
+
+        bool has_any_admin() override;
 
     private:
         SQLiteDatabase& m_database;

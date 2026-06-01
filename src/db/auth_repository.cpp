@@ -139,3 +139,16 @@ std::optional<AuthorizationEntry> SqlAuthRepository::get_by_key_hash(
     return entry;
 }
 
+bool SqlAuthRepository::has_any_admin() {
+    const char* sql = "SELECT COUNT(*) FROM auth_keys WHERE permissions LIKE '%Admin%';";
+
+    QueryResult results = m_database.query(sql, {});
+
+    if (results.empty()) {
+        return false;
+    }
+
+    int count = std::stoi(results[0].at(0));
+    return count > 0;
+}
+

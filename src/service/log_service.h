@@ -16,9 +16,9 @@ using json = nlohmann::json;
 
 class ILogService {
     public:
-        virtual ~ILogService() {};
-        virtual bool create_log(const json& body) = 0;
-        virtual json get_logs(FilterParams params) = 0;
+        virtual ~ILogService() = default;
+        virtual auto create_log(const json& body) -> bool = 0;
+        virtual auto get_logs(FilterParams params) -> json = 0;
 };
 
 class LogService : public ILogService {
@@ -26,10 +26,12 @@ class LogService : public ILogService {
         LogService(ILogRepository& repo);
         ~LogService();
 
-        bool create_log(const json& body) override;
-        json get_logs(FilterParams params) override;
+        auto create_log(const json& body) -> bool override;
+        auto get_logs(FilterParams params) -> json override;
 
     private:
+        auto worker() -> void ;
+        
         ILogRepository& m_repo;
         std::thread m_worker_thread;
         std::vector<LogEntry> m_log_buffer;
@@ -37,8 +39,6 @@ class LogService : public ILogService {
         std::condition_variable m_cv;
         bool m_running = true;
 
-        void worker();
-        
 };
 
 

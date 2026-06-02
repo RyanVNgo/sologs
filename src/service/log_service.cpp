@@ -2,9 +2,10 @@
 #include "log_service.h"
 
 
-LogService::LogService(ILogRepository& repo)
-    : m_repo(repo),
-      m_worker_thread(&LogService::worker, this)
+LogService::LogService(
+        ILogRepository& repo
+) : m_repo(repo),
+    m_worker_thread(&LogService::worker, this)
 { }
 
 LogService::~LogService() {
@@ -16,8 +17,11 @@ LogService::~LogService() {
     m_worker_thread.join();
 }
 
-bool LogService::create_log(const json& body) {
-    if (!body.contains("message") || !body.contains("level") || !body.contains("source")) {
+auto LogService::create_log(const json& body) -> bool {
+    if (!body.contains("message") || 
+        !body.contains("level") || 
+        !body.contains("source")
+    ) {
         return false;
     }
 
@@ -41,7 +45,7 @@ bool LogService::create_log(const json& body) {
     return true;
 }
 
-json LogService::get_logs(FilterParams params) {
+auto LogService::get_logs(FilterParams params) -> json {
     std::vector<LogEntry> logs = m_repo.get_all(params);
     json arr = json::array();
 
@@ -60,7 +64,7 @@ json LogService::get_logs(FilterParams params) {
     return arr;
 }
 
-void LogService::worker() {
+auto LogService::worker() -> void {
     std::vector<LogEntry> batch;
     const size_t max_batch_size = 1024 * 4;
     batch.reserve(max_batch_size);

@@ -15,27 +15,29 @@ class IKeyService {
             AuthorizationEntry entry;
         };
 
-        virtual ~IKeyService() {};
-        virtual CreateKeyResult create_key(
+        virtual ~IKeyService() = default;
+
+        virtual auto create_key(
             const std::string& name,
             const std::vector<Permissions>& permissions,
             const std::string& expires_at
-        ) = 0;
+        ) -> CreateKeyResult = 0;
+
 };
 
 class KeyService: public IKeyService {
     public:
         explicit KeyService (IAuthRepository& auth_repo);
 
-        CreateKeyResult create_key(
-            const std::string& name,
-            const std::vector<Permissions>& permissions,
-            const std::string& expires_at
-        ) override;
+        auto create_key(
+                const std::string& name,
+                const std::vector<Permissions>& permissions,
+                const std::string& expires_at
+        ) -> CreateKeyResult override;
 
     private:
-        IAuthRepository& m_auth_repo;
+        static auto current_timestamp() -> std::string;
 
-        static std::string current_timestamp();
+        IAuthRepository& m_auth_repo;
 
 };

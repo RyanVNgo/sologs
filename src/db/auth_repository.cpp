@@ -51,8 +51,9 @@ static std::vector<Permissions> parse_permissions(const std::string& str) {
     return result;
 }
 
-SqlAuthRepository::SqlAuthRepository(SQLiteDatabase& db)
-    :   m_database(db)
+SqlAuthRepository::SqlAuthRepository(
+        SQLiteDatabase& db
+) : m_database(db)
 {
     const char* sql =
         "CREATE TABLE IF NOT EXISTS auth_keys ("
@@ -68,7 +69,7 @@ SqlAuthRepository::SqlAuthRepository(SQLiteDatabase& db)
     m_database.execute(sql);
 }
 
-bool SqlAuthRepository::insert(const AuthorizationEntry& entry) {
+auto SqlAuthRepository::insert(const AuthorizationEntry& entry) -> bool {
     const char* sql =
         "INSERT INTO auth_keys (uuid, key_hash, name, permissions, "
         "created_at, expires_at, is_valid) "
@@ -86,9 +87,9 @@ bool SqlAuthRepository::insert(const AuthorizationEntry& entry) {
     return m_database.execute_prepared(sql, row_data);
 }
 
-bool SqlAuthRepository::insert_batch(
-    const std::vector<AuthorizationEntry>& entries
-) {
+auto SqlAuthRepository::insert_batch(
+        const std::vector<AuthorizationEntry>& entries
+) -> bool {
     std::string sql =
         "INSERT INTO auth_keys (uuid, key_hash, name, permissions, "
         "created_at, expires_at, is_valid) "
@@ -110,9 +111,9 @@ bool SqlAuthRepository::insert_batch(
     return m_database.execute_prepared_batched(sql, data);
 }
 
-std::optional<AuthorizationEntry> SqlAuthRepository::get_by_key_hash(
+auto SqlAuthRepository::get_by_key_hash(
     const std::string& hash
-) {
+) -> std::optional<AuthorizationEntry> {
     const char* sql =
         "SELECT uuid, key_hash, name, permissions, "
         "created_at, expires_at, is_valid "
@@ -139,8 +140,10 @@ std::optional<AuthorizationEntry> SqlAuthRepository::get_by_key_hash(
     return entry;
 }
 
-bool SqlAuthRepository::has_any_admin() {
-    const char* sql = "SELECT COUNT(*) FROM auth_keys WHERE permissions LIKE '%Admin%';";
+auto SqlAuthRepository::has_any_admin() -> bool {
+    const char* sql = 
+        "SELECT COUNT(*) FROM auth_keys"
+        "WHERE permissions LIKE '%Admin%';";
 
     QueryResult results = m_database.query(sql, {});
 

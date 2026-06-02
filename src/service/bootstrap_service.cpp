@@ -13,7 +13,7 @@
 #include "auth.h"
 
 
-void BootstrapService::try_bootstrap(IAuthRepository& auth_repo) {
+auto BootstrapService::try_bootstrap(IAuthRepository& auth_repo) -> void {
     if (auth_repo.has_any_admin()) {
         return;
     }

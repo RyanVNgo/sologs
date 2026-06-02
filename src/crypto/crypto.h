@@ -6,11 +6,11 @@
 
 namespace sologs::crypto {
 
-    std::string sha256_hex(const std::string& input);
+    auto sha256_hex(const std::string& input) -> std::string;
 
-    std::string generate_uuid();
+    auto generate_uuid() -> std::string;
 
-    std::string generate_key();
+    auto generate_key() -> std::string;
 
 } // sologs::crypto
 

@@ -26,20 +26,24 @@ class SQLiteDatabase {
         SQLiteDatabase(const std::string& db_path);
         ~SQLiteDatabase();
 
-        bool execute(const std::string& query);
+        auto execute(const std::string& query) -> bool;
 
-        bool execute_prepared(
+        auto execute_prepared(
                 const std::string& query,
                 const Row& values
-        );
+        ) -> bool;
 
-        bool execute_prepared_batched(
+        auto execute_prepared_batched(
                 const std::string& query,
                 const std::vector<Row>& rows
-        );
+        ) -> bool;
 
-        QueryResult query(const std::string& query);
-        QueryResult query(const std::string& query, const Row& params);
+        auto query(const std::string& query) -> QueryResult;
+
+        auto query(
+                const std::string& query,
+                const Row& params
+        ) -> QueryResult;
 
     private:
         struct Impl;

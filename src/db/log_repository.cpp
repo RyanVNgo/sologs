@@ -5,8 +5,9 @@
 #include <sstream>
 
 
-SqlLogRepository::SqlLogRepository(SQLiteDatabase& db) 
-    : m_database(db)
+SqlLogRepository::SqlLogRepository(
+        SQLiteDatabase& db
+) : m_database(db)
 {
     const char* sql =
         "CREATE TABLE IF NOT EXISTS logs ("
@@ -22,7 +23,7 @@ SqlLogRepository::SqlLogRepository(SQLiteDatabase& db)
     return;
 }
 
-bool SqlLogRepository::insert(const LogEntry& entry) {
+auto SqlLogRepository::insert(const LogEntry& entry) -> bool {
     const char* sql =
         "INSERT INTO logs (message, level, source)"
         "VALUES (?, ?, ?);";
@@ -35,7 +36,7 @@ bool SqlLogRepository::insert(const LogEntry& entry) {
     return m_database.execute_prepared(sql, row_data);
 }
 
-bool SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) {
+auto SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) -> bool {
     std::string sql =
         "INSERT INTO logs (message, level, source)"
         "VALUES (?, ?, ?);";
@@ -52,7 +53,7 @@ bool SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) {
     return m_database.execute_prepared_batched(sql, data);
 }
 
-std::vector<LogEntry> SqlLogRepository::get_all(FilterParams params) {
+auto SqlLogRepository::get_all(FilterParams params) -> std::vector<LogEntry> {
     std::ostringstream sql;
     sql << "SELECT id, message, level, source, timestamp FROM logs";
 

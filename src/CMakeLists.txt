@@ -3,6 +3,7 @@ add_subdirectory(db)
 add_subdirectory(api)
 add_subdirectory(domain)
 add_subdirectory(service)
+add_subdirectory(crypto)
 
 add_executable(sologs main.cpp)
 

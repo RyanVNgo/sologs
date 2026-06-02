@@ -60,6 +60,7 @@ add_executable(repo_tests
     db/repo_init_tests.cpp
     db/repo_insert_tests.cpp
     db/repo_get_tests.cpp
+    db/auth_repo_tests.cpp
 )
 target_link_libraries(repo_tests
     PRIVATE
@@ -81,6 +82,7 @@ gtest_discover_tests(repo_tests
 # ------------------------------------------------------------
 add_executable(service_tests
     service/log_service_create_log_tests.cpp
+    service/auth_service_tests.cpp
 )
 target_link_libraries(service_tests
     PRIVATE

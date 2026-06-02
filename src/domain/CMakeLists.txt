@@ -6,5 +6,5 @@ target_include_directories(sologs_domain
     "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-target_compile_features(sologs_domain INTERFACE cxx_std_20)
+target_compile_features(sologs_domain INTERFACE cxx_std_17)
 

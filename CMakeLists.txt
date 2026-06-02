@@ -5,7 +5,7 @@ project(sologs
     LANGUAGES C CXX
 )
 
-set(CMAKE_CXX_STANDARD              20)
+set(CMAKE_CXX_STANDARD              17)
 set(CMAKE_CXX_STANDARD_REQUIRED     ON)
 set(CMAKE_CXX_EXTENSIONS           OFF)
 
@@ -21,6 +21,9 @@ target_include_directories(httplib INTERFACE external/httplib)
 
 add_library(jsonlib INTERFACE)
 target_include_directories(jsonlib INTERFACE external/json)
+
+add_library(boost_uuid INTERFACE)
+target_include_directories(boost_uuid INTERFACE external/boost)
 
 add_library(sqlite3 STATIC external/sqlite/sqlite3.c)
 target_include_directories(sqlite3 PUBLIC external/sqlite)

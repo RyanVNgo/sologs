@@ -1,12 +1,13 @@
 
 #include "auth_service.h"
-#include "sha256.h"
 
 #include <algorithm>
 #include <chrono>
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+
+#include "crypto.h"
 
 
 Authorizer::Authorizer() { }
@@ -48,7 +49,7 @@ Authenticator::Authenticator(IAuthRepository& auth_repo)
 std::optional<Subject> Authenticator::authenticate(
     const std::string& key
 ) const {
-    auto hash = sha256_hex(key);
+    auto hash = sologs::crypto::sha256_hex(key);
     auto entry = m_auth_repo.get_by_key_hash(hash);
     if (!entry.has_value() || !entry->is_valid) {
         return {};

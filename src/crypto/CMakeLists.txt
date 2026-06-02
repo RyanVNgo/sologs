@@ -2,7 +2,7 @@
 find_package(OpenSSL REQUIRED)
 
 add_library(sologs_crypto
-    sha256.cpp
+    crypto.cpp
 )
 
 target_include_directories(sologs_crypto

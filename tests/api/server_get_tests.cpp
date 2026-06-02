@@ -38,11 +38,31 @@ class AuthenticatorMock : public IAuthenticator {
         );
 };
 
+class KeyServiceMock : public IKeyService {
+    public:
+        MOCK_METHOD(
+            CreateKeyResult,
+            create_key,
+            (
+                const std::string& name,
+                const std::vector<Permissions>& permissions,
+                const std::string& expires_at
+            ),
+            (override)
+        );
+};
+
 TEST(Server, get_health) {
     LogServiceMock mock_service;
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
-    SOLogSServer server(mock_service, mock_authorizer, mock_authenticator);
+    KeyServiceMock mock_key_service;
+    SOLogSServer server(
+            mock_service,
+            mock_authorizer,
+            mock_authenticator,
+            mock_key_service
+    );
 
     std::thread t([&]() {
         server.start(8080);
@@ -62,7 +82,13 @@ TEST(Server, get_logs) {
     LogServiceMock mock_service;
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
-    SOLogSServer server(mock_service, mock_authorizer, mock_authenticator);
+    KeyServiceMock mock_key_service;
+    SOLogSServer server(
+            mock_service,
+            mock_authorizer,
+            mock_authenticator,
+            mock_key_service
+    );
 
     const int port = 8080;
     std::thread t([&]() {
@@ -95,7 +121,13 @@ TEST(Server, get_logs_with_level_param) {
     LogServiceMock mock_service;
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
-    SOLogSServer server(mock_service, mock_authorizer, mock_authenticator);
+    KeyServiceMock mock_key_service;
+    SOLogSServer server(
+            mock_service,
+            mock_authorizer,
+            mock_authenticator,
+            mock_key_service
+    );
 
     std::thread t([&]() {
         server.start(8080);
@@ -132,7 +164,13 @@ TEST(Server, get_logs_with_source_param) {
     LogServiceMock mock_service;
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
-    SOLogSServer server(mock_service, mock_authorizer, mock_authenticator);
+    KeyServiceMock mock_key_service;
+    SOLogSServer server(
+            mock_service,
+            mock_authorizer,
+            mock_authenticator,
+            mock_key_service
+    );
 
     std::thread t([&]() {
         server.start(8080);
@@ -169,7 +207,13 @@ TEST(Server, get_logs_with_limit_param) {
     LogServiceMock mock_service;
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
-    SOLogSServer server(mock_service, mock_authorizer, mock_authenticator);
+    KeyServiceMock mock_key_service;
+    SOLogSServer server(
+            mock_service,
+            mock_authorizer,
+            mock_authenticator,
+            mock_key_service
+    );
 
     std::thread t([&]() {
         server.start(8080);
@@ -206,7 +250,13 @@ TEST(Server, get_logs_with_multiple_params) {
     LogServiceMock mock_service;
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
-    SOLogSServer server(mock_service, mock_authorizer, mock_authenticator);
+    KeyServiceMock mock_key_service;
+    SOLogSServer server(
+            mock_service,
+            mock_authorizer,
+            mock_authenticator,
+            mock_key_service
+    );
 
     std::thread t([&]() {
         server.start(8080);
@@ -243,7 +293,13 @@ TEST(Server, get_logs_with_invalid_limit) {
     LogServiceMock mock_service;
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
-    SOLogSServer server(mock_service, mock_authorizer, mock_authenticator);
+    KeyServiceMock mock_key_service;
+    SOLogSServer server(
+            mock_service,
+            mock_authorizer,
+            mock_authenticator,
+            mock_key_service
+    );
 
     std::thread t([&]() {
         server.start(8080);

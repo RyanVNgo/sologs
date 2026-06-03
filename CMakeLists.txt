@@ -16,11 +16,22 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # Options 
 option(BUILD_TESTS "Build the test suite" OFF)
 
-add_library(httplib INTERFACE)
-target_include_directories(httplib INTERFACE external/httplib)
+include(FetchContent)
 
-add_library(jsonlib INTERFACE)
-target_include_directories(jsonlib INTERFACE external/json)
+set(HTTPLIB_COMPILE ON)
+FetchContent_Declare(
+    httplib
+    GIT_REPOSITORY  https://github.com/yhirose/cpp-httplib.git
+    GIT_TAG         v0.46.0
+)
+FetchContent_MakeAvailable(httplib)
+
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY  https://github.com/nlohmann/json.git
+    GIT_TAG         v3.12.0
+)
+FetchContent_MakeAvailable(nlohmann_json)
 
 add_library(boost_uuid INTERFACE)
 target_include_directories(boost_uuid INTERFACE external/boost)

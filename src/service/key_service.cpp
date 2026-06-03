@@ -9,15 +9,16 @@
 #include "crypto.h"
 
 
-KeyService::KeyService(IAuthRepository& auth_repo)
-    : m_auth_repo(auth_repo)
+KeyService::KeyService(
+        IAuthRepository& auth_repo
+) : auth_repo_(auth_repo)
 { }
 
-KeyService::CreateKeyResult KeyService::create_key(
-    const std::string& name,
-    const std::vector<Permissions>& permissions,
-    const std::string& expires_at
-) {
+auto KeyService::create_key(
+        const std::string& name,
+        const std::vector<Permissions>& permissions,
+        const std::string& expires_at
+) -> CreateKeyResult {
     std::string raw_key = sologs::crypto::generate_key();
     std::string key_hash = sologs::crypto::sha256_hex(raw_key);
 
@@ -31,12 +32,12 @@ KeyService::CreateKeyResult KeyService::create_key(
         .is_valid = true
     };
 
-    m_auth_repo.insert(entry);
+    auth_repo_.insert(entry);
 
     return {raw_key, entry};
 }
 
-std::string KeyService::current_timestamp() {
+auto KeyService::current_timestamp() -> std::string {
     auto now = std::chrono::system_clock::now();
     auto now_c = std::chrono::system_clock::to_time_t(now);
     std::ostringstream ss;

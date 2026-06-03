@@ -8,22 +8,22 @@
 
 class ILogRepository {
     public:
-        virtual ~ILogRepository() {};
-        virtual bool insert(const LogEntry& entry) = 0;
-        virtual bool insert_batch(const std::vector<LogEntry>& entries) = 0;
-        virtual std::vector<LogEntry> get_all(FilterParams params) = 0;
+        virtual ~ILogRepository() = default;
+        virtual auto insert(const LogEntry& entry) -> bool = 0;
+        virtual auto insert_batch(const std::vector<LogEntry>& entries) -> bool = 0;
+        virtual auto get_all(FilterParams params) -> std::vector<LogEntry> = 0;
 };
 
 class SqlLogRepository : public ILogRepository {
     public:
         SqlLogRepository(SQLiteDatabase& db);
 
-        bool insert(const LogEntry& entry) override;
-        bool insert_batch(const std::vector<LogEntry>& entries) override;
-        std::vector<LogEntry> get_all(FilterParams params) override;
+        auto insert(const LogEntry& entry) -> bool override;
+        auto insert_batch(const std::vector<LogEntry>& entries) -> bool override;
+        auto get_all(FilterParams params) -> std::vector<LogEntry> override;
 
     private:
-        SQLiteDatabase& m_database;
+        SQLiteDatabase& database_;
 
 };
 

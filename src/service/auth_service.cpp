@@ -12,11 +12,11 @@
 
 Authorizer::Authorizer() { }
 
-bool Authorizer::has_permissions(
-    const Subject& subject,
-    const std::vector<Permissions>& valid_permissions,
-    PermissionMode mode
-) const {
+auto Authorizer::has_permissions(
+        const Subject& subject,
+        const std::vector<Permissions>& valid_permissions,
+        PermissionMode mode
+) const -> bool {
     auto& subj_perms = subject.permissions;
 
     if (valid_permissions.empty()) {
@@ -42,15 +42,16 @@ bool Authorizer::has_permissions(
     return false;
 }
 
-Authenticator::Authenticator(IAuthRepository& auth_repo) 
-    :   m_auth_repo(auth_repo)
+Authenticator::Authenticator(
+        IAuthRepository& auth_repo
+) : auth_repo_(auth_repo)
 { }
 
-std::optional<Subject> Authenticator::authenticate(
-    const std::string& key
-) const {
+auto Authenticator::authenticate(
+        const std::string& key
+) const -> std::optional<Subject> {
     auto hash = sologs::crypto::sha256_hex(key);
-    auto entry = m_auth_repo.get_by_key_hash(hash);
+    auto entry = auth_repo_.get_by_key_hash(hash);
     if (!entry.has_value() || !entry->is_valid) {
         return {};
     }

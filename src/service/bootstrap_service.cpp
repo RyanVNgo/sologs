@@ -13,7 +13,7 @@
 #include "auth.h"
 
 
-void BootstrapService::try_bootstrap(IAuthRepository& auth_repo) {
+auto BootstrapService::try_bootstrap(IAuthRepository& auth_repo) -> void {
     if (auth_repo.has_any_admin()) {
         return;
     }
@@ -46,6 +46,5 @@ void BootstrapService::try_bootstrap(IAuthRepository& auth_repo) {
     auth_repo.insert(entry);
 
     std::cout << "Bootstrapped admin key from SOLOGS_BOOTSTRAP_KEY" << std::endl;
-    std::cout << "Also here's a random key: " << sologs::crypto::generate_key() << std::endl;
 }
 

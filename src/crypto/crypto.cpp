@@ -16,7 +16,7 @@
 
 namespace sologs::crypto {
 
-std::string sha256_hex(const std::string& input) {
+auto sha256_hex(const std::string& input) -> std::string {
     unsigned char hash[EVP_MAX_MD_SIZE];
     unsigned int hash_len = 0;
 
@@ -34,11 +34,11 @@ std::string sha256_hex(const std::string& input) {
     return oss.str();
 }
 
-std::string generate_uuid() {
+auto generate_uuid() -> std::string {
     return boost::uuids::to_string(boost::uuids::random_generator{}());
 }
 
-std::string generate_key() {
+auto generate_key() -> std::string {
     std::array<uint8_t, 32> bytes;
     if (getrandom(bytes.data(), bytes.size(), 0) != bytes.size()) {
         std::ifstream urandom("/dev/urandom", std::ios::binary);

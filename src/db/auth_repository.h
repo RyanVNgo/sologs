@@ -11,33 +11,38 @@ class IAuthRepository {
     public:
         virtual ~IAuthRepository() = default; 
 
-        virtual bool insert(const AuthorizationEntry& entry) = 0;
-        virtual bool insert_batch(
-            const std::vector<AuthorizationEntry>& entries
-        ) = 0;
-        virtual std::optional<AuthorizationEntry> get_by_key_hash(
-            const std::string& hash
-        ) = 0;
+        virtual auto insert(const AuthorizationEntry& entry) -> bool = 0;
 
-        virtual bool has_any_admin() = 0;
-    };
+        virtual auto insert_batch(
+                const std::vector<AuthorizationEntry>& entries
+        ) -> bool = 0;
+
+        virtual auto get_by_key_hash(
+                const std::string& hash
+        ) -> std::optional<AuthorizationEntry> = 0;
+
+        virtual auto has_any_admin() -> bool = 0;
+
+};
 
 class SqlAuthRepository : public IAuthRepository {
     public:
         SqlAuthRepository(SQLiteDatabase& db);
 
-        bool insert(const AuthorizationEntry& entry) override;
-        bool insert_batch(
-            const std::vector<AuthorizationEntry>& entries
-        ) override;
-        std::optional<AuthorizationEntry> get_by_key_hash(
-            const std::string& hash
-        ) override;
+        auto insert(const AuthorizationEntry& entry) -> bool override;
 
-        bool has_any_admin() override;
+        auto insert_batch(
+            const std::vector<AuthorizationEntry>& entries
+        ) -> bool override;
+
+        auto get_by_key_hash(
+            const std::string& hash
+        ) -> std::optional<AuthorizationEntry> override;
+
+        auto has_any_admin() -> bool override;
 
     private:
-        SQLiteDatabase& m_database;
+        SQLiteDatabase& database_;
 
 };
 

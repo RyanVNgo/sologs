@@ -6,6 +6,6 @@
 
 class BootstrapService {
     public:
-        static void try_bootstrap(IAuthRepository& auth_repo);
+        static auto try_bootstrap(IAuthRepository& auth_repo) -> void;
 };
 

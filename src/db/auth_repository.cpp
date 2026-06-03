@@ -1,58 +1,13 @@
 
 #include "auth_repository.h"
 
-#include <sstream>
+#include "utils.h"
 
 
-static std::string permission_label(Permissions perm) {
-    switch (perm) {
-        case Permissions::LogRead:    return "LogRead";
-        case Permissions::LogWrite:   return "LogWrite";
-        case Permissions::LogDelete:  return "LogDelete";
-        case Permissions::AuthRead:   return "AuthRead";
-        case Permissions::AuthWrite:  return "AuthWrite";
-        case Permissions::AuthDelete: return "AuthDelete";
-        case Permissions::Admin:      return "Admin";
-    }
-    return "";
-}
 
-static std::optional<Permissions> permission_from_label(const std::string& label) {
-    if (label == "LogRead")    return Permissions::LogRead;
-    if (label == "LogWrite")   return Permissions::LogWrite;
-    if (label == "LogDelete")  return Permissions::LogDelete;
-    if (label == "AuthRead")   return Permissions::AuthRead;
-    if (label == "AuthWrite")  return Permissions::AuthWrite;
-    if (label == "AuthDelete") return Permissions::AuthDelete;
-    if (label == "Admin")      return Permissions::Admin;
-    return {};
-}
-
-static std::string permissions_to_string(const std::vector<Permissions>& perms) {
-    std::ostringstream oss;
-    for (size_t i = 0; i < perms.size(); ++i) {
-        if (i > 0) oss << ",";
-        oss << permission_label(perms[i]);
-    }
-    return oss.str();
-}
-
-static std::vector<Permissions> parse_permissions(const std::string& str) {
-    std::vector<Permissions> result;
-    std::istringstream iss(str);
-    std::string token;
-    while (std::getline(iss, token, ',')) {
-        if (token.empty()) continue;
-        auto perm = permission_from_label(token);
-        if (perm.has_value()) {
-            result.push_back(perm.value());
-        }
-    }
-    return result;
-}
-
-SqlAuthRepository::SqlAuthRepository(SQLiteDatabase& db)
-    :   m_database(db)
+SqlAuthRepository::SqlAuthRepository(
+        SQLiteDatabase& db
+) : database_(db)
 {
     const char* sql =
         "CREATE TABLE IF NOT EXISTS auth_keys ("
@@ -65,10 +20,10 @@ SqlAuthRepository::SqlAuthRepository(SQLiteDatabase& db)
         "is_valid INTEGER NOT NULL DEFAULT 1"
         ");";
 
-    m_database.execute(sql);
+    database_.execute(sql);
 }
 
-bool SqlAuthRepository::insert(const AuthorizationEntry& entry) {
+auto SqlAuthRepository::insert(const AuthorizationEntry& entry) -> bool {
     const char* sql =
         "INSERT INTO auth_keys (uuid, key_hash, name, permissions, "
         "created_at, expires_at, is_valid) "
@@ -78,17 +33,17 @@ bool SqlAuthRepository::insert(const AuthorizationEntry& entry) {
     row_data.push_back(entry.uuid);
     row_data.push_back(entry.key_hash);
     row_data.push_back(entry.name);
-    row_data.push_back(permissions_to_string(entry.permissions));
+    row_data.push_back(sologs::utils::permissions_to_string(entry.permissions));
     row_data.push_back(entry.created_at);
     row_data.push_back(entry.expires_at);
     row_data.push_back(entry.is_valid ? "1" : "0");
 
-    return m_database.execute_prepared(sql, row_data);
+    return database_.execute_prepared(sql, row_data);
 }
 
-bool SqlAuthRepository::insert_batch(
-    const std::vector<AuthorizationEntry>& entries
-) {
+auto SqlAuthRepository::insert_batch(
+        const std::vector<AuthorizationEntry>& entries
+) -> bool {
     std::string sql =
         "INSERT INTO auth_keys (uuid, key_hash, name, permissions, "
         "created_at, expires_at, is_valid) "
@@ -100,19 +55,19 @@ bool SqlAuthRepository::insert_batch(
         row_data.push_back(entry.uuid);
         row_data.push_back(entry.key_hash);
         row_data.push_back(entry.name);
-        row_data.push_back(permissions_to_string(entry.permissions));
+        row_data.push_back(sologs::utils::permissions_to_string(entry.permissions));
         row_data.push_back(entry.created_at);
         row_data.push_back(entry.expires_at);
         row_data.push_back(entry.is_valid ? "1" : "0");
         data.push_back(row_data);
     }
 
-    return m_database.execute_prepared_batched(sql, data);
+    return database_.execute_prepared_batched(sql, data);
 }
 
-std::optional<AuthorizationEntry> SqlAuthRepository::get_by_key_hash(
+auto SqlAuthRepository::get_by_key_hash(
     const std::string& hash
-) {
+) -> std::optional<AuthorizationEntry> {
     const char* sql =
         "SELECT uuid, key_hash, name, permissions, "
         "created_at, expires_at, is_valid "
@@ -120,7 +75,7 @@ std::optional<AuthorizationEntry> SqlAuthRepository::get_by_key_hash(
 
     Row params;
     params.push_back(hash);
-    QueryResult results = m_database.query(sql, params);
+    QueryResult results = database_.query(sql, params);
 
     if (results.empty()) {
         return {};
@@ -131,7 +86,7 @@ std::optional<AuthorizationEntry> SqlAuthRepository::get_by_key_hash(
     entry.uuid = row.at(0);
     entry.key_hash = row.at(1);
     entry.name = row.at(2);
-    entry.permissions = parse_permissions(row.at(3));
+    entry.permissions = sologs::utils::parse_permissions(row.at(3));
     entry.created_at = row.at(4);
     entry.expires_at = row.at(5);
     entry.is_valid = (row.at(6) == "1");
@@ -139,10 +94,12 @@ std::optional<AuthorizationEntry> SqlAuthRepository::get_by_key_hash(
     return entry;
 }
 
-bool SqlAuthRepository::has_any_admin() {
-    const char* sql = "SELECT COUNT(*) FROM auth_keys WHERE permissions LIKE '%Admin%';";
+auto SqlAuthRepository::has_any_admin() -> bool {
+    const char* sql = 
+        "SELECT COUNT(*) FROM auth_keys "
+        "WHERE permissions LIKE '%Admin%';";
 
-    QueryResult results = m_database.query(sql, {});
+    QueryResult results = database_.query(sql, {});
 
     if (results.empty()) {
         return false;

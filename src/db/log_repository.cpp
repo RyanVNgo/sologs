@@ -5,8 +5,9 @@
 #include <sstream>
 
 
-SqlLogRepository::SqlLogRepository(SQLiteDatabase& db) 
-    : m_database(db)
+SqlLogRepository::SqlLogRepository(
+        SQLiteDatabase& db
+) : database_(db)
 {
     const char* sql =
         "CREATE TABLE IF NOT EXISTS logs ("
@@ -17,12 +18,12 @@ SqlLogRepository::SqlLogRepository(SQLiteDatabase& db)
         "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP"
         ");";
 
-    m_database.execute(sql);
+    database_.execute(sql);
 
     return;
 }
 
-bool SqlLogRepository::insert(const LogEntry& entry) {
+auto SqlLogRepository::insert(const LogEntry& entry) -> bool {
     const char* sql =
         "INSERT INTO logs (message, level, source)"
         "VALUES (?, ?, ?);";
@@ -32,10 +33,10 @@ bool SqlLogRepository::insert(const LogEntry& entry) {
     row_data.push_back(entry.level);
     row_data.push_back(entry.source);
 
-    return m_database.execute_prepared(sql, row_data);
+    return database_.execute_prepared(sql, row_data);
 }
 
-bool SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) {
+auto SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) -> bool {
     std::string sql =
         "INSERT INTO logs (message, level, source)"
         "VALUES (?, ?, ?);";
@@ -49,10 +50,10 @@ bool SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) {
         data.push_back(row_data);
     }
 
-    return m_database.execute_prepared_batched(sql, data);
+    return database_.execute_prepared_batched(sql, data);
 }
 
-std::vector<LogEntry> SqlLogRepository::get_all(FilterParams params) {
+auto SqlLogRepository::get_all(FilterParams params) -> std::vector<LogEntry> {
     std::ostringstream sql;
     sql << "SELECT id, message, level, source, timestamp FROM logs";
 
@@ -93,7 +94,7 @@ std::vector<LogEntry> SqlLogRepository::get_all(FilterParams params) {
     }
     sql << ";";
 
-    QueryResult results = m_database.query(sql.str(), bound_params);
+    QueryResult results = database_.query(sql.str(), bound_params);
     std::vector<LogEntry> logs;
     logs.reserve(results.size());
     for (const auto& row : results) {

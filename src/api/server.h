@@ -12,29 +12,53 @@
 class SOLogSServer {
     public:
         explicit SOLogSServer(
-            ILogService& log_service,
-            IAuthorizer& authorizer,
-            IAuthenticator& authenticator,
-            IKeyService& key_service
+                ILogService& log_service,
+                IAuthorizer& authorizer,
+                IAuthenticator& authenticator,
+                IKeyService& key_service
         );
 
-        void start(int port);
-        void stop();
+        auto start(int port) -> void;
+
+        auto stop() -> void;
 
     private:
-        std::string parse_auth_key(const httplib::Request& req) const;
-        bool authorize_user(
-            const httplib::Request& req,
-            httplib::Response& res,
-            const std::vector<Permissions>& perms,
-            const PermissionMode& mode
-        );
+        auto get_health_handler(
+                const httplib::Request& req,
+                httplib::Response& res
+        ) -> void;
+        
+        auto post_logs_handler(
+                const httplib::Request& req,
+                httplib::Response& res
+        ) -> void;
 
-        httplib::Server m_server;
-        ILogService& m_service;
-        IAuthorizer& m_authorizer;
-        IAuthenticator& m_authenticator;
-        IKeyService& m_key_service;
+        auto get_logs_handler(
+                const httplib::Request& req,
+                httplib::Response& res
+        ) -> void;
+
+        auto post_auth_handler(
+                const httplib::Request& req,
+                httplib::Response& res
+        ) -> void;
+
+        auto parse_auth_key(
+                const httplib::Request& req
+        ) const -> std::string;
+
+        auto authorize_user(
+                const httplib::Request& req,
+                httplib::Response& res,
+                const std::vector<Permissions>& perms,
+                const PermissionMode& mode
+        ) -> bool;
+
+        httplib::Server server_;
+        ILogService& log_service_;
+        IAuthorizer& authorizer_;
+        IAuthenticator& authenticator_;
+        IKeyService& key_service_;
 
 };
 

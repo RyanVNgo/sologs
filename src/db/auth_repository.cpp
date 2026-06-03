@@ -1,55 +1,9 @@
 
 #include "auth_repository.h"
 
-#include <sstream>
+#include "utils.h"
 
 
-static std::string permission_label(Permissions perm) {
-    switch (perm) {
-        case Permissions::LogRead:    return "LogRead";
-        case Permissions::LogWrite:   return "LogWrite";
-        case Permissions::LogDelete:  return "LogDelete";
-        case Permissions::AuthRead:   return "AuthRead";
-        case Permissions::AuthWrite:  return "AuthWrite";
-        case Permissions::AuthDelete: return "AuthDelete";
-        case Permissions::Admin:      return "Admin";
-    }
-    return "";
-}
-
-static std::optional<Permissions> permission_from_label(const std::string& label) {
-    if (label == "LogRead")    return Permissions::LogRead;
-    if (label == "LogWrite")   return Permissions::LogWrite;
-    if (label == "LogDelete")  return Permissions::LogDelete;
-    if (label == "AuthRead")   return Permissions::AuthRead;
-    if (label == "AuthWrite")  return Permissions::AuthWrite;
-    if (label == "AuthDelete") return Permissions::AuthDelete;
-    if (label == "Admin")      return Permissions::Admin;
-    return {};
-}
-
-static std::string permissions_to_string(const std::vector<Permissions>& perms) {
-    std::ostringstream oss;
-    for (size_t i = 0; i < perms.size(); ++i) {
-        if (i > 0) oss << ",";
-        oss << permission_label(perms[i]);
-    }
-    return oss.str();
-}
-
-static std::vector<Permissions> parse_permissions(const std::string& str) {
-    std::vector<Permissions> result;
-    std::istringstream iss(str);
-    std::string token;
-    while (std::getline(iss, token, ',')) {
-        if (token.empty()) continue;
-        auto perm = permission_from_label(token);
-        if (perm.has_value()) {
-            result.push_back(perm.value());
-        }
-    }
-    return result;
-}
 
 SqlAuthRepository::SqlAuthRepository(
         SQLiteDatabase& db
@@ -79,7 +33,7 @@ auto SqlAuthRepository::insert(const AuthorizationEntry& entry) -> bool {
     row_data.push_back(entry.uuid);
     row_data.push_back(entry.key_hash);
     row_data.push_back(entry.name);
-    row_data.push_back(permissions_to_string(entry.permissions));
+    row_data.push_back(sologs::utils::permissions_to_string(entry.permissions));
     row_data.push_back(entry.created_at);
     row_data.push_back(entry.expires_at);
     row_data.push_back(entry.is_valid ? "1" : "0");
@@ -101,7 +55,7 @@ auto SqlAuthRepository::insert_batch(
         row_data.push_back(entry.uuid);
         row_data.push_back(entry.key_hash);
         row_data.push_back(entry.name);
-        row_data.push_back(permissions_to_string(entry.permissions));
+        row_data.push_back(sologs::utils::permissions_to_string(entry.permissions));
         row_data.push_back(entry.created_at);
         row_data.push_back(entry.expires_at);
         row_data.push_back(entry.is_valid ? "1" : "0");
@@ -132,7 +86,7 @@ auto SqlAuthRepository::get_by_key_hash(
     entry.uuid = row.at(0);
     entry.key_hash = row.at(1);
     entry.name = row.at(2);
-    entry.permissions = parse_permissions(row.at(3));
+    entry.permissions = sologs::utils::parse_permissions(row.at(3));
     entry.created_at = row.at(4);
     entry.expires_at = row.at(5);
     entry.is_valid = (row.at(6) == "1");
@@ -142,7 +96,7 @@ auto SqlAuthRepository::get_by_key_hash(
 
 auto SqlAuthRepository::has_any_admin() -> bool {
     const char* sql = 
-        "SELECT COUNT(*) FROM auth_keys"
+        "SELECT COUNT(*) FROM auth_keys "
         "WHERE permissions LIKE '%Admin%';";
 
     QueryResult results = database_.query(sql, {});

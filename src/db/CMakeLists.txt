@@ -13,6 +13,7 @@ target_include_directories(sologs_db
 target_link_libraries(sologs_db
     PUBLIC
     sologs_domain
+    sologs_utils
 
     PRIVATE
     sqlite3

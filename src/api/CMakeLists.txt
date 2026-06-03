@@ -11,6 +11,7 @@ target_include_directories(sologs_server
 target_link_libraries(sologs_server
     PUBLIC
     sologs_service
+    sologs_utils
     httplib
 )
 

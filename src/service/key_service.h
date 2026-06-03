@@ -38,6 +38,6 @@ class KeyService: public IKeyService {
     private:
         static auto current_timestamp() -> std::string;
 
-        IAuthRepository& m_auth_repo;
+        IAuthRepository& auth_repo_;
 
 };

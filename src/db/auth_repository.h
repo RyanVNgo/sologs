@@ -42,7 +42,7 @@ class SqlAuthRepository : public IAuthRepository {
         auto has_any_admin() -> bool override;
 
     private:
-        SQLiteDatabase& m_database;
+        SQLiteDatabase& database_;
 
 };
 

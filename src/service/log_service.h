@@ -32,12 +32,12 @@ class LogService : public ILogService {
     private:
         auto worker() -> void ;
         
-        ILogRepository& m_repo;
-        std::thread m_worker_thread;
-        std::vector<LogEntry> m_log_buffer;
-        std::mutex m_mtx;
-        std::condition_variable m_cv;
-        bool m_running = true;
+        ILogRepository& log_repo_;
+        std::thread worker_thread_;
+        std::vector<LogEntry> log_buffer_;
+        std::mutex mtx_;
+        std::condition_variable cv_;
+        bool running_ = true;
 
 };
 

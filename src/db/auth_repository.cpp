@@ -53,7 +53,7 @@ static std::vector<Permissions> parse_permissions(const std::string& str) {
 
 SqlAuthRepository::SqlAuthRepository(
         SQLiteDatabase& db
-) : m_database(db)
+) : database_(db)
 {
     const char* sql =
         "CREATE TABLE IF NOT EXISTS auth_keys ("
@@ -66,7 +66,7 @@ SqlAuthRepository::SqlAuthRepository(
         "is_valid INTEGER NOT NULL DEFAULT 1"
         ");";
 
-    m_database.execute(sql);
+    database_.execute(sql);
 }
 
 auto SqlAuthRepository::insert(const AuthorizationEntry& entry) -> bool {
@@ -84,7 +84,7 @@ auto SqlAuthRepository::insert(const AuthorizationEntry& entry) -> bool {
     row_data.push_back(entry.expires_at);
     row_data.push_back(entry.is_valid ? "1" : "0");
 
-    return m_database.execute_prepared(sql, row_data);
+    return database_.execute_prepared(sql, row_data);
 }
 
 auto SqlAuthRepository::insert_batch(
@@ -108,7 +108,7 @@ auto SqlAuthRepository::insert_batch(
         data.push_back(row_data);
     }
 
-    return m_database.execute_prepared_batched(sql, data);
+    return database_.execute_prepared_batched(sql, data);
 }
 
 auto SqlAuthRepository::get_by_key_hash(
@@ -121,7 +121,7 @@ auto SqlAuthRepository::get_by_key_hash(
 
     Row params;
     params.push_back(hash);
-    QueryResult results = m_database.query(sql, params);
+    QueryResult results = database_.query(sql, params);
 
     if (results.empty()) {
         return {};
@@ -145,7 +145,7 @@ auto SqlAuthRepository::has_any_admin() -> bool {
         "SELECT COUNT(*) FROM auth_keys"
         "WHERE permissions LIKE '%Admin%';";
 
-    QueryResult results = m_database.query(sql, {});
+    QueryResult results = database_.query(sql, {});
 
     if (results.empty()) {
         return false;

@@ -4,17 +4,17 @@
 
 LogService::LogService(
         ILogRepository& repo
-) : m_repo(repo),
-    m_worker_thread(&LogService::worker, this)
+) : log_repo_(repo),
+    worker_thread_(&LogService::worker, this)
 { }
 
 LogService::~LogService() {
     {
-        std::lock_guard<std::mutex> lock(m_mtx);
-        m_running = false;
+        std::lock_guard<std::mutex> lock(mtx_);
+        running_ = false;
     }
-    m_cv.notify_all();
-    m_worker_thread.join();
+    cv_.notify_all();
+    worker_thread_.join();
 }
 
 auto LogService::create_log(const json& body) -> bool {
@@ -33,20 +33,20 @@ auto LogService::create_log(const json& body) -> bool {
 
     bool was_empty;
     {
-        std::lock_guard<std::mutex> lock(m_mtx);
-        was_empty = m_log_buffer.empty();
-        m_log_buffer.push_back(std::move(new_entry));
+        std::lock_guard<std::mutex> lock(mtx_);
+        was_empty = log_buffer_.empty();
+        log_buffer_.push_back(std::move(new_entry));
     }
 
     if (was_empty) {
-        m_cv.notify_one();
+        cv_.notify_one();
     }
 
     return true;
 }
 
 auto LogService::get_logs(FilterParams params) -> json {
-    std::vector<LogEntry> logs = m_repo.get_all(params);
+    std::vector<LogEntry> logs = log_repo_.get_all(params);
     json arr = json::array();
 
     for (auto& log : logs) {
@@ -70,42 +70,42 @@ auto LogService::worker() -> void {
     batch.reserve(max_batch_size);
 
     while (true) {
-        std::unique_lock<std::mutex> lock(m_mtx);
+        std::unique_lock<std::mutex> lock(mtx_);
 
-        m_cv.wait(
+        cv_.wait(
             lock, 
             [&] {
-                return !m_log_buffer.empty() || !m_running;
+                return !log_buffer_.empty() || !running_;
             }
         );
         
-        if (!m_running && m_log_buffer.empty()) {
+        if (!running_ && log_buffer_.empty()) {
             break;
         }
 
-        if (m_log_buffer.size() > max_batch_size) {
+        if (log_buffer_.size() > max_batch_size) {
             batch.insert(
                     batch.begin(),
-                    m_log_buffer.begin(),
-                    m_log_buffer.begin() + max_batch_size
+                    log_buffer_.begin(),
+                    log_buffer_.begin() + max_batch_size
             );
-            m_log_buffer.erase(
-                    m_log_buffer.begin(),
-                    m_log_buffer.begin() + max_batch_size
+            log_buffer_.erase(
+                    log_buffer_.begin(),
+                    log_buffer_.begin() + max_batch_size
             );
         } else {
             batch.insert(
                     batch.begin(),
-                    m_log_buffer.begin(),
-                    m_log_buffer.end()
+                    log_buffer_.begin(),
+                    log_buffer_.end()
             );
-            m_log_buffer.clear();
+            log_buffer_.clear();
         }
 
         lock.unlock();
 
         if (!batch.empty()) {
-            m_repo.insert_batch(batch);
+            log_repo_.insert_batch(batch);
             batch.clear();
         }
 

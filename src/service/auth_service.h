@@ -49,7 +49,7 @@ class Authenticator : public IAuthenticator {
         ) const -> std::optional<Subject> override;
 
     private:
-        IAuthRepository& m_auth_repo;
+        IAuthRepository& auth_repo_;
 };
 
 

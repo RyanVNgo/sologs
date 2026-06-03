@@ -23,7 +23,7 @@ class SqlLogRepository : public ILogRepository {
         auto get_all(FilterParams params) -> std::vector<LogEntry> override;
 
     private:
-        SQLiteDatabase& m_database;
+        SQLiteDatabase& database_;
 
 };
 

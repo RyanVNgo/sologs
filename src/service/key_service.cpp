@@ -11,7 +11,7 @@
 
 KeyService::KeyService(
         IAuthRepository& auth_repo
-) : m_auth_repo(auth_repo)
+) : auth_repo_(auth_repo)
 { }
 
 auto KeyService::create_key(
@@ -32,7 +32,7 @@ auto KeyService::create_key(
         .is_valid = true
     };
 
-    m_auth_repo.insert(entry);
+    auth_repo_.insert(entry);
 
     return {raw_key, entry};
 }

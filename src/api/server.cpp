@@ -7,33 +7,33 @@ SOLogSServer::SOLogSServer(
         IAuthorizer& authorizer,
         IAuthenticator& authenticator,
         IKeyService& key_service
-) : m_service(log_service),
-    m_authorizer(authorizer),
-    m_authenticator(authenticator),
-    m_key_service(key_service)
+) : log_service_(log_service),
+    authorizer_(authorizer),
+    authenticator_(authenticator),
+    key_service_(key_service)
 {
-    m_server.Get(
+    server_.Get(
         "/health",
         [this](const httplib::Request& req, httplib::Response& res) {
             this->get_health_handler(req, res);
         }
     );
 
-    m_server.Post(
+    server_.Post(
         "/logs",
         [this](const httplib::Request& req, httplib::Response& res) {
             this->post_logs_handler(req, res);
         }
     );
 
-    m_server.Get(
+    server_.Get(
         "/logs",
         [this](const httplib::Request& req, httplib::Response& res){
             this->get_logs_handler(req, res);
         }
     );
 
-    m_server.Post(
+    server_.Post(
         "/auth",
         [this](const httplib::Request& req, httplib::Response& res) {
             this->post_auth_handler(req, res);
@@ -43,12 +43,12 @@ SOLogSServer::SOLogSServer(
 }
 
 auto SOLogSServer::start(int port) -> void {
-    m_server.listen("127.0.0.1", port);
+    server_.listen("127.0.0.1", port);
 }
 
 auto SOLogSServer::stop() -> void {
-    m_server.wait_until_ready();
-    m_server.stop();
+    server_.wait_until_ready();
+    server_.stop();
     std::cout << "Server stopped" << std::endl;
 }
 
@@ -79,7 +79,7 @@ auto SOLogSServer::post_logs_handler(
         return;
     }
 
-    m_service.create_log(body);
+    log_service_.create_log(body);
     res.status = 202;
     res.set_content("Accepted", "text/plain");
 }
@@ -115,7 +115,7 @@ auto SOLogSServer::get_logs_handler(
         }
     }
 
-    auto logs = m_service.get_logs(params);
+    auto logs = log_service_.get_logs(params);
     res.status = 200;
     res.set_content(logs.dump(), "application/json");
 }
@@ -164,7 +164,7 @@ auto SOLogSServer::post_auth_handler(
         expires_at = body["expires_at"];
     }
 
-    auto result = m_key_service.create_key(name, permissions, expires_at);
+    auto result = key_service_.create_key(name, permissions, expires_at);
 
     json resp;
     resp["key"] = result.raw_key;
@@ -216,14 +216,14 @@ auto SOLogSServer::authorize_user(
         return false;
     }
 
-    auto subject = m_authenticator.authenticate(auth_key);
+    auto subject = authenticator_.authenticate(auth_key);
     if (!subject.has_value()) {
         res.status = 401;
         res.set_content("Unauthorized", "text/plain");
         return false;
     }
 
-    if (!m_authorizer.has_permissions(
+    if (!authorizer_.has_permissions(
             subject.value(),
             perms,
             mode

@@ -47,7 +47,7 @@ class SQLiteDatabase {
 
     private:
         struct Impl;
-        std::unique_ptr<Impl> m_pimpl;
+        std::unique_ptr<Impl> pimpl_;
 
 };
 

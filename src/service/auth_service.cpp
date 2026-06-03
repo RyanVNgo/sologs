@@ -44,14 +44,14 @@ auto Authorizer::has_permissions(
 
 Authenticator::Authenticator(
         IAuthRepository& auth_repo
-) : m_auth_repo(auth_repo)
+) : auth_repo_(auth_repo)
 { }
 
 auto Authenticator::authenticate(
         const std::string& key
 ) const -> std::optional<Subject> {
     auto hash = sologs::crypto::sha256_hex(key);
-    auto entry = m_auth_repo.get_by_key_hash(hash);
+    auto entry = auth_repo_.get_by_key_hash(hash);
     if (!entry.has_value() || !entry->is_valid) {
         return {};
     }

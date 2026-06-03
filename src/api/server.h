@@ -54,11 +54,11 @@ class SOLogSServer {
                 const PermissionMode& mode
         ) -> bool;
 
-        httplib::Server m_server;
-        ILogService& m_service;
-        IAuthorizer& m_authorizer;
-        IAuthenticator& m_authenticator;
-        IKeyService& m_key_service;
+        httplib::Server server_;
+        ILogService& log_service_;
+        IAuthorizer& authorizer_;
+        IAuthenticator& authenticator_;
+        IKeyService& key_service_;
 
 };
 

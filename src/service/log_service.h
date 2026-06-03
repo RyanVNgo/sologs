@@ -7,7 +7,7 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
 #include "log_repository.h"
 

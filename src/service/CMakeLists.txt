@@ -16,8 +16,8 @@ target_link_libraries(sologs_service
     sologs_db
     sologs_domain
     sologs_crypto
-    jsonlib
     boost_uuid
+    nlohmann_json::nlohmann_json
 )
 
 target_compile_features(sologs_service PUBLIC cxx_std_17)

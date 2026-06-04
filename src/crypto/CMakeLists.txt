@@ -15,5 +15,5 @@ target_link_libraries(sologs_crypto
     OpenSSL::Crypto
 )
 
-target_compile_features(sologs_crypto PUBLIC cxx_std_17)
+target_compile_features(sologs_crypto PUBLIC cxx_std_20)
 

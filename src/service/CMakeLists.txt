@@ -20,5 +20,5 @@ target_link_libraries(sologs_service
     nlohmann_json::nlohmann_json
 )
 
-target_compile_features(sologs_service PUBLIC cxx_std_17)
+target_compile_features(sologs_service PUBLIC cxx_std_20)
 

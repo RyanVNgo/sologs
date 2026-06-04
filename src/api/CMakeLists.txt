@@ -1,6 +1,7 @@
 
 add_library(sologs_server
     server.cpp
+    server-drogon.cpp
 )
 
 target_include_directories(sologs_server
@@ -13,6 +14,7 @@ target_link_libraries(sologs_server
     sologs_service
     sologs_utils
     httplib
+    drogon
 )
 
 target_compile_features(sologs_server PUBLIC cxx_std_20)

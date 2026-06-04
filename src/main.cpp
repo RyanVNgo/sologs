@@ -9,11 +9,11 @@
 #include "api/server.h"
 
 
-std::atomic<bool> shutdown_requested = false;
+// std::atomic<bool> shutdown_requested = false;
 
-void sig_handler(int sig) {
-    shutdown_requested = true;
-}
+// void sig_handler(int sig) {
+//     shutdown_requested = true;
+// }
 
 int main(void) {
     try {
@@ -31,16 +31,23 @@ int main(void) {
         KeyService key_service(auth_repo);
         LogService log_service(log_repo);
 
-        SOLogSServer server(
+        // SOLogSServer server(
+        //     log_service,
+        //     authorizer,
+        //     authenticator,
+        //     key_service
+        // );
+        SOLogSServerDrogon server(
             log_service,
             authorizer,
             authenticator,
             key_service
         );
 
-        std::signal(SIGINT, sig_handler);
-        std::signal(SIGTERM, sig_handler);
+        // std::signal(SIGINT, sig_handler);
+        // std::signal(SIGTERM, sig_handler);
 
+        /*
         std::thread shutdown_watcher(
             [&]() {
                 while (!shutdown_requested) {
@@ -50,12 +57,14 @@ int main(void) {
                 server.stop();
             }
         );
+        */
 
         std::cout << "Listening on port " << port << '\n';
         server.start(port);
 
-        shutdown_watcher.join();
+        // shutdown_watcher.join();
 
+        server.stop();
         std::cout << "Server shutdown successful" << std::endl;
 
     } catch (const std::exception& e) {

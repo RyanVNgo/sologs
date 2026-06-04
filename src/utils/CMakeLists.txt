@@ -13,5 +13,5 @@ target_link_libraries(sologs_utils
     sologs_domain
 )
 
-target_compile_features(sologs_utils INTERFACE cxx_std_17)
+target_compile_features(sologs_utils INTERFACE cxx_std_20)
 

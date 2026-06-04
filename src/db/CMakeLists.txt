@@ -19,5 +19,5 @@ target_link_libraries(sologs_db
     sqlite3
 )
 
-target_compile_features(sologs_db PUBLIC cxx_std_17)
+target_compile_features(sologs_db PUBLIC cxx_std_20)
 

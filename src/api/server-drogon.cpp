@@ -100,6 +100,7 @@ auto SOLogSServerDrogon::post_logs_handler(
         );
         resp->setBody("Invalid JSON");
         callback(resp);
+        return;
     } catch (...) {
         auto resp = drogon::HttpResponse::newHttpResponse(
                 drogon::k500InternalServerError,
@@ -107,6 +108,7 @@ auto SOLogSServerDrogon::post_logs_handler(
         );
         resp->setBody("Internal Server Error");
         callback(resp);
+        return;
     }
 
     log_service_.create_log(body);

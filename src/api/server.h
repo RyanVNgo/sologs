@@ -77,7 +77,6 @@ class SOLogSServerDrogon {
 
         auto stop() -> void;
 
-    private:
         auto get_health(
                 const drogon::HttpRequestPtr &req,
                 std::function<void (const drogon::HttpResponsePtr &)> &&callback
@@ -98,6 +97,7 @@ class SOLogSServerDrogon {
                 std::function<void (const drogon::HttpResponsePtr &)> &&callback
         ) -> void;
 
+    private:
         auto parse_auth_key(
                 const drogon::HttpRequestPtr &req
         ) const -> std::string;

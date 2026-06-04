@@ -1,6 +1,4 @@
 
-#include <thread>
-
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -56,18 +54,12 @@ TEST(Server, post_valid) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServer server(
+    SOLogSServerDrogon server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
             mock_key_service
     );
-
-    std::thread t([&]() {
-        server.start(8080);
-    });
-
-    httplib::Client client("localhost", 8080);
 
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
@@ -77,27 +69,30 @@ TEST(Server, post_valid) {
     EXPECT_CALL(mock_authorizer, has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
-
     EXPECT_CALL(mock_service, create_log).Times(testing::Exactly(1));
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Post(
-            "/logs",
-            headers,
+
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/logs");
+    req->setBody(
             R"(
                 {
                     "message": "test log",
                     "level": "INFO",
                     "source": "sologs-benchmark"
                 }
-            )",
-            "application/json"
+            )"
+    );
+    req->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+    req->setMethod(drogon::Post);
+    req->addHeader("Authorization", "Bearer test-key");
+
+    drogon::HttpResponsePtr resp;
+    server.post_logs_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
     );
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 202);
-
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k202Accepted);
 }
 
 TEST(Server, post_invalid) {
@@ -105,19 +100,12 @@ TEST(Server, post_invalid) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServer server(
+    SOLogSServerDrogon server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
             mock_key_service
     );
-
-    const int port = 8080;
-    std::thread t([&]() {
-        server.start(port);
-    });
-
-    httplib::Client client("localhost", port);
 
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
@@ -127,25 +115,28 @@ TEST(Server, post_invalid) {
     EXPECT_CALL(mock_authorizer, has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
-
     EXPECT_CALL(mock_service, create_log).Times(testing::Exactly(0));
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Post(
-            "/logs",
-            headers,
+
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/logs");
+    req->setBody(
             R"(
                 {
                     "message": "test log",
                     "level": "INFO",
-            )",
-            "application/json"
+            )"
+    );
+    req->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+    req->setMethod(drogon::Post);
+    req->addHeader("Authorization", "Bearer test-key");
+
+    drogon::HttpResponsePtr resp;
+    server.post_logs_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
     );
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 400);
-
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k400BadRequest);
 }
 
 TEST(Server, post_auth_valid_json) {
@@ -153,19 +144,12 @@ TEST(Server, post_auth_valid_json) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServer server(
+    SOLogSServerDrogon server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
             mock_key_service
     );
-
-    const int port = 8080;
-    std::thread t([&]() {
-        server.start(port);
-    });
-
-    httplib::Client client("localhost", port);
 
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
@@ -180,30 +164,32 @@ TEST(Server, post_auth_valid_json) {
         Permissions::LogRead,
         Permissions::LogWrite
     };
-
     EXPECT_CALL(mock_key_service, create_key(
         "test_name", exp_perms, "2027-01-01 00:00:00"
     )).Times(testing::Exactly(1));
 
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Post(
-        "/auth",
-        headers,
-        R"(
-            {
-                "name": "test_name",
-                "permissions": ["LogRead", "LogWrite"],
-                "expires_at": "2027-01-01 00:00:00"
-            }
-        )",
-        "application/json"
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/auth");
+    req->setBody(
+            R"(
+                {
+                    "name": "test_name",
+                    "permissions": ["LogRead", "LogWrite"],
+                    "expires_at": "2027-01-01 00:00:00"
+                }
+            )"
+    );
+    req->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+    req->setMethod(drogon::Post);
+    req->addHeader("Authorization", "Bearer test-key");
+
+    drogon::HttpResponsePtr resp;
+    server.post_auth_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
     );
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 201);
-
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k201Created);
 }
 
 TEST(Server, post_auth_invalid_json) {
@@ -211,19 +197,12 @@ TEST(Server, post_auth_invalid_json) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServer server(
+    SOLogSServerDrogon server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
             mock_key_service
     );
-
-    const int port = 8080;
-    std::thread t([&]() {
-        server.start(port);
-    });
-
-    httplib::Client client("localhost", port);
 
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
@@ -238,23 +217,26 @@ TEST(Server, post_auth_invalid_json) {
         testing::_,testing::_,testing::_
     )).Times(testing::Exactly(0));
 
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Post(
-        "/auth",
-        headers,
-        R"(
-            {
-                "name": "test_name",
-                "permissions": ["LogRead", "LogWrite"],
-        )",
-        "application/json"
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/auth");
+    req->setBody(
+            R"(
+                {
+                    "name": "test_name",
+                    "permissions": ["LogRead", "LogWrite"],
+            )"
+    );
+    req->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+    req->setMethod(drogon::Post);
+    req->addHeader("Authorization", "Bearer test-key");
+
+    drogon::HttpResponsePtr resp;
+    server.post_auth_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
     );
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 400);
-
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k400BadRequest);
 }
 
 TEST(Server, post_auth_missing_field) {
@@ -262,19 +244,12 @@ TEST(Server, post_auth_missing_field) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServer server(
+    SOLogSServerDrogon server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
             mock_key_service
     );
-
-    const int port = 8080;
-    std::thread t([&]() {
-        server.start(port);
-    });
-
-    httplib::Client client("localhost", port);
 
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
@@ -289,23 +264,26 @@ TEST(Server, post_auth_missing_field) {
         testing::_,testing::_,testing::_
     )).Times(testing::Exactly(0));
 
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Post(
-        "/auth",
-        headers,
-        R"(
-            {
-                "permissions": ["LogRead", "LogWrite"]
-                "expires_at": "2027-01-01 00:00:00"
-            }
-        )",
-        "application/json"
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/auth");
+    req->setBody(
+            R"(
+                {
+                    "permissions": ["LogRead", "LogWrite"]
+                    "expires_at": "2027-01-01 00:00:00"
+                }
+            )"
+    );
+    req->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+    req->setMethod(drogon::Post);
+    req->addHeader("Authorization", "Bearer test-key");
+
+    drogon::HttpResponsePtr resp;
+    server.post_auth_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
     );
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 400);
-
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k400BadRequest);
 }
 

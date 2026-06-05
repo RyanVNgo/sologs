@@ -34,14 +34,6 @@ CPMAddPackage(
     GIT_TAG v1.9.13
 )
 
-set(HTTPLIB_COMPILE ON)
-FetchContent_Declare(
-    httplib
-    GIT_REPOSITORY  https://github.com/yhirose/cpp-httplib.git
-    GIT_TAG         v0.46.0
-)
-FetchContent_MakeAvailable(httplib)
-
 FetchContent_Declare(
     nlohmann_json
     GIT_REPOSITORY  https://github.com/nlohmann/json.git

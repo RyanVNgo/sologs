@@ -1,6 +1,5 @@
 
 add_library(sologs_server
-    server.cpp
     server-drogon.cpp
 )
 
@@ -13,7 +12,6 @@ target_link_libraries(sologs_server
     PUBLIC
     sologs_service
     sologs_utils
-    httplib
     drogon
 )
 

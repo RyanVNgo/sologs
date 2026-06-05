@@ -5,7 +5,7 @@ project(sologs
     LANGUAGES C CXX
 )
 
-set(CMAKE_CXX_STANDARD              17)
+set(CMAKE_CXX_STANDARD              20)
 set(CMAKE_CXX_STANDARD_REQUIRED     ON)
 set(CMAKE_CXX_EXTENSIONS           OFF)
 
@@ -17,14 +17,22 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 option(BUILD_TESTS "Build the test suite" OFF)
 
 include(FetchContent)
+include(cmake/CPM.cmake)
 
-set(HTTPLIB_COMPILE ON)
-FetchContent_Declare(
-    httplib
-    GIT_REPOSITORY  https://github.com/yhirose/cpp-httplib.git
-    GIT_TAG         v0.46.0
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BUILD_CTL OFF CACHE BOOL "" FORCE)
+set(BUILD_DOC OFF CACHE BOOL "" FORCE)
+set(BUILD_ORM OFF CACHE BOOL "" FORCE)
+set(BUILD_REDIS OFF CACHE BOOL "" FORCE)
+set(BUILD_MYSQL OFF CACHE BOOL "" FORCE)
+set(BUILD_POSTGRESQL OFF CACHE BOOL "" FORCE)
+set(BUILD_SQLITE OFF CACHE BOOL "" FORCE)
+CPMAddPackage(
+    NAME drogon
+    VERSION 1.9.13
+    GITHUB_REPOSITORY drogonframework/drogon
+    GIT_TAG v1.9.13
 )
-FetchContent_MakeAvailable(httplib)
 
 FetchContent_Declare(
     nlohmann_json

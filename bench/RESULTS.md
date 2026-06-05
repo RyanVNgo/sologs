@@ -56,3 +56,51 @@
 | 384   | 1717896   | ~27            |
 | 512   | 1719440   | ~33            |
 
+
+## 2edd941 (enhancement/to-drogon) - 2026-06-04
+
+### Changes
+- switched from httplib to Drogon for API surface
+
+### Summary
+- consistent latency growth on increased concurrency across P values
+- Zero timeouts across tested concurrency
+- ~50% increase in RPS ingest throughput compared to previous impl
+
+### Environment
+- Machine:
+    - Intel i5-10400
+    - 16 GB DDR4 RAM
+    - 1 TB WD Black SN770 NVMe SSD
+- OS: Linux Mint 22.3
+- Build: Release
+- Connection Type: Local Machine
+
+### Benchmark Setup
+- Tool: bombardier
+- Duration: 10s
+- Concurrency: 32, 64, 128, 256, 384, 512
+- Flags: -m POST -f test_body.json -c ### -d 10s -l http://localhost:8080/logs
+- Test JSON:
+```json
+{
+    "message": "test log",
+    "level": "INFO",
+    "source": "sologs-benchmark"
+}
+```
+
+### Results
+
+#### Making POST Requests on /logs
+##### RPS and Latency
+| Conc. | RPS       | P50 (us)  | P95 (us)  | P99 (us)  | Timeouts |
+| ----- | --------- | --------- | --------- | --------- | -------- |
+| 32    | 225343    | 106       | 335       | 609       | 0        |
+| 64    | 258308    | 156       | 688       | 1400      | 0        |
+| 128   | 270749    | 274       | 1430      | 2940      | 0        |
+| 256   | 276461    | 523       | 3002      | 5007      | 0        |
+| 384   | 271293    | 803       | 4490      | 7009      | 0        |
+| 512   | 259480    | 1180      | 6000      | 9030      | 0        |
+
+

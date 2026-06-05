@@ -12,7 +12,7 @@ target_link_libraries(sologs_server
     PUBLIC
     sologs_service
     sologs_utils
-    httplib
+    drogon
 )
 
 target_compile_features(sologs_server PUBLIC cxx_std_20)

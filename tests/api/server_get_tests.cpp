@@ -1,6 +1,5 @@
 
 #include <optional>
-#include <thread>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -64,18 +63,16 @@ TEST(Server, get_health) {
             mock_key_service
     );
 
-    std::thread t([&]() {
-        server.start(8080);
-    });
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/path");
 
-    httplib::Client client("localhost", 8080);
+    drogon::HttpResponsePtr resp;
+    server.get_health(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
+    );
 
-    auto res = client.Get("/health");
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 200);
-
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k200OK);
 }
 
 TEST(Server, get_logs) {
@@ -90,13 +87,6 @@ TEST(Server, get_logs) {
             mock_key_service
     );
 
-    const int port = 8080;
-    std::thread t([&]() {
-        server.start(port);
-    });
-
-    httplib::Client client("localhost", port);
-
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<Subject>(
@@ -107,14 +97,19 @@ TEST(Server, get_logs) {
     )).Times(1).WillOnce(testing::Return(true));
 
     EXPECT_CALL(mock_service, get_logs).Times(testing::Exactly(1));
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Get("/logs", headers);
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 200);
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/logs");
+    req->setMethod(drogon::Get);
+    req->addHeader("Authorization", "Bearer test-key");
 
-    server.stop();
-    t.join();
+    drogon::HttpResponsePtr resp;
+    server.get_logs_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
+    );
+
+    EXPECT_EQ(resp->statusCode(), drogon::k200OK);
 }
 
 TEST(Server, get_logs_with_level_param) {
@@ -128,12 +123,6 @@ TEST(Server, get_logs_with_level_param) {
             mock_authenticator,
             mock_key_service
     );
-
-    std::thread t([&]() {
-        server.start(8080);
-    });
-
-    httplib::Client client("localhost", 8080);
 
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
@@ -150,14 +139,19 @@ TEST(Server, get_logs_with_level_param) {
         })
     )).Times(testing::Exactly(1));
 
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Get("/logs?level=ERROR", headers);
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/logs");
+    req->setParameter("level", "ERROR");
+    req->setMethod(drogon::Get);
+    req->addHeader("Authorization", "Bearer test-key");
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 200);
+    drogon::HttpResponsePtr resp;
+    server.get_logs_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
+    );
 
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k200OK);
 }
 
 TEST(Server, get_logs_with_source_param) {
@@ -171,12 +165,6 @@ TEST(Server, get_logs_with_source_param) {
             mock_authenticator,
             mock_key_service
     );
-
-    std::thread t([&]() {
-        server.start(8080);
-    });
-
-    httplib::Client client("localhost", 8080);
 
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
@@ -193,14 +181,19 @@ TEST(Server, get_logs_with_source_param) {
         })
     )).Times(testing::Exactly(1));
 
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Get("/logs?source=api", headers);
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/logs");
+    req->setParameter("source", "api");
+    req->setMethod(drogon::Get);
+    req->addHeader("Authorization", "Bearer test-key");
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 200);
+    drogon::HttpResponsePtr resp;
+    server.get_logs_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
+    );
 
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k200OK);
 }
 
 TEST(Server, get_logs_with_limit_param) {
@@ -214,12 +207,6 @@ TEST(Server, get_logs_with_limit_param) {
             mock_authenticator,
             mock_key_service
     );
-
-    std::thread t([&]() {
-        server.start(8080);
-    });
-
-    httplib::Client client("localhost", 8080);
 
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
@@ -236,14 +223,19 @@ TEST(Server, get_logs_with_limit_param) {
         })
     )).Times(testing::Exactly(1));
 
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Get("/logs?limit=10", headers);
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/logs");
+    req->setParameter("limit", "10");
+    req->setMethod(drogon::Get);
+    req->addHeader("Authorization", "Bearer test-key");
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 200);
+    drogon::HttpResponsePtr resp;
+    server.get_logs_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
+    );
 
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k200OK);
 }
 
 TEST(Server, get_logs_with_multiple_params) {
@@ -257,12 +249,6 @@ TEST(Server, get_logs_with_multiple_params) {
             mock_authenticator,
             mock_key_service
     );
-
-    std::thread t([&]() {
-        server.start(8080);
-    });
-
-    httplib::Client client("localhost", 8080);
 
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
@@ -279,14 +265,21 @@ TEST(Server, get_logs_with_multiple_params) {
         })
     )).Times(testing::Exactly(1));
 
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Get("/logs?level=WARN&source=cli&limit=50", headers);
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/logs");
+    req->setParameter("level", "WARN");
+    req->setParameter("source", "cli");
+    req->setParameter("limit", "50");
+    req->setMethod(drogon::Get);
+    req->addHeader("Authorization", "Bearer test-key");
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 200);
+    drogon::HttpResponsePtr resp;
+    server.get_logs_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
+    );
 
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k200OK);
 }
 
 TEST(Server, get_logs_with_invalid_limit) {
@@ -300,12 +293,6 @@ TEST(Server, get_logs_with_invalid_limit) {
             mock_authenticator,
             mock_key_service
     );
-
-    std::thread t([&]() {
-        server.start(8080);
-    });
-
-    httplib::Client client("localhost", 8080);
 
     EXPECT_CALL(mock_authenticator, authenticate(testing::_))
         .Times(1)
@@ -322,15 +309,18 @@ TEST(Server, get_logs_with_invalid_limit) {
         })
     )).Times(testing::Exactly(1));
 
-    httplib::Headers headers = {{"Authorization", "Bearer test-key"}};
-    auto res = client.Get("/logs?limit=abc", headers);
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/logs");
+    req->setParameter("limit", "abc");
+    req->setMethod(drogon::Get);
+    req->addHeader("Authorization", "Bearer test-key");
 
-    ASSERT_TRUE(res);
-    EXPECT_EQ(res->status, 200);
+    drogon::HttpResponsePtr resp;
+    server.get_logs_handler(
+            req,
+            [&resp](const drogon::HttpResponsePtr& r) { resp = r; }
+    );
 
-    server.stop();
-    t.join();
+    EXPECT_EQ(resp->statusCode(), drogon::k200OK);
 }
-
-
 

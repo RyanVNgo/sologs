@@ -2,7 +2,8 @@
 #pragma once
 
 
-#include "httplib.h"
+#include <drogon/HttpAppFramework.h>
+#include <drogon/HttpController.h>
 
 #include "log_service.h"
 #include "auth_service.h"
@@ -22,39 +23,37 @@ class SOLogSServer {
 
         auto stop() -> void;
 
-    private:
-        auto get_health_handler(
-                const httplib::Request& req,
-                httplib::Response& res
+        auto get_health(
+                const drogon::HttpRequestPtr &req,
+                std::function<void (const drogon::HttpResponsePtr &)> &&callback
         ) -> void;
-        
+
         auto post_logs_handler(
-                const httplib::Request& req,
-                httplib::Response& res
+                const drogon::HttpRequestPtr &req,
+                std::function<void (const drogon::HttpResponsePtr &)> &&callback
         ) -> void;
 
         auto get_logs_handler(
-                const httplib::Request& req,
-                httplib::Response& res
+                const drogon::HttpRequestPtr &req,
+                std::function<void (const drogon::HttpResponsePtr &)> &&callback
         ) -> void;
 
         auto post_auth_handler(
-                const httplib::Request& req,
-                httplib::Response& res
+                const drogon::HttpRequestPtr &req,
+                std::function<void (const drogon::HttpResponsePtr &)> &&callback
         ) -> void;
 
+    private:
         auto parse_auth_key(
-                const httplib::Request& req
+                const drogon::HttpRequestPtr &req
         ) const -> std::string;
 
         auto authorize_user(
-                const httplib::Request& req,
-                httplib::Response& res,
+                const drogon::HttpRequestPtr &req,
                 const std::vector<Permissions>& perms,
                 const PermissionMode& mode
-        ) -> bool;
+        ) -> std::optional<drogon::HttpResponsePtr>;
 
-        httplib::Server server_;
         ILogService& log_service_;
         IAuthorizer& authorizer_;
         IAuthenticator& authenticator_;

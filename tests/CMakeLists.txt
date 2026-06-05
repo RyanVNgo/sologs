@@ -108,7 +108,6 @@ add_executable(server_tests
 target_link_libraries(server_tests
     PRIVATE
     sologs_server
-    httplib
     test_utils
     GTest::gtest_main
     GTest::gmock

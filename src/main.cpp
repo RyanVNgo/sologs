@@ -9,12 +9,6 @@
 #include "api/server.h"
 
 
-std::atomic<bool> shutdown_requested = false;
-
-void sig_handler(int sig) {
-    shutdown_requested = true;
-}
-
 int main(void) {
     try {
         int port = 8080;
@@ -38,24 +32,10 @@ int main(void) {
             key_service
         );
 
-        std::signal(SIGINT, sig_handler);
-        std::signal(SIGTERM, sig_handler);
-
-        std::thread shutdown_watcher(
-            [&]() {
-                while (!shutdown_requested) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                }
-                std::cout << "\nServer shutting down..." << std::endl;
-                server.stop();
-            }
-        );
-
         std::cout << "Listening on port " << port << '\n';
         server.start(port);
 
-        shutdown_watcher.join();
-
+        server.stop();
         std::cout << "Server shutdown successful" << std::endl;
 
     } catch (const std::exception& e) {

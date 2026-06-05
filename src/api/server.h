@@ -10,9 +10,9 @@
 #include "key_service.h"
 
 
-class SOLogSServerDrogon {
+class SOLogSServer {
     public:
-        explicit SOLogSServerDrogon(
+        explicit SOLogSServer(
                 ILogService& log_service,
                 IAuthorizer& authorizer,
                 IAuthenticator& authenticator,

@@ -1,6 +1,6 @@
 
 add_library(sologs_server
-    server-drogon.cpp
+    server.cpp
 )
 
 target_include_directories(sologs_server

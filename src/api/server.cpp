@@ -4,7 +4,7 @@
 #include "utils.h"
 
 
-SOLogSServerDrogon::SOLogSServerDrogon(
+SOLogSServer::SOLogSServer(
         ILogService& log_service,
         IAuthorizer& authorizer,
         IAuthenticator& authenticator,
@@ -51,19 +51,25 @@ SOLogSServerDrogon::SOLogSServerDrogon(
 
 }
 
-auto SOLogSServerDrogon::start(int port) -> void {
+auto SOLogSServer::start(int port) -> void {
+    if (drogon::app().isRunning()) {
+        return;
+    }
     drogon::app()
         .setThreadNum(std::thread::hardware_concurrency())
         .addListener("127.0.0.1", port)
         .run();
 }
 
-auto SOLogSServerDrogon::stop() -> void {
+auto SOLogSServer::stop() -> void {
+    if (!drogon::app().isRunning()) {
+        return;
+    }
     drogon::app().quit();
     std::cout << "Server stopped" << std::endl;
 }
 
-void SOLogSServerDrogon::get_health(
+void SOLogSServer::get_health(
         const drogon::HttpRequestPtr &req,
         std::function<void (const drogon::HttpResponsePtr &)> &&callback
 ) {
@@ -75,7 +81,7 @@ void SOLogSServerDrogon::get_health(
     callback(resp);
 }
 
-auto SOLogSServerDrogon::post_logs_handler(
+auto SOLogSServer::post_logs_handler(
         const drogon::HttpRequestPtr &req,
         std::function<void (const drogon::HttpResponsePtr &)> &&callback
 ) -> void {
@@ -120,7 +126,7 @@ auto SOLogSServerDrogon::post_logs_handler(
     callback(resp);
 }
 
-auto SOLogSServerDrogon::get_logs_handler(
+auto SOLogSServer::get_logs_handler(
         const drogon::HttpRequestPtr &req,
         std::function<void (const drogon::HttpResponsePtr &)> &&callback
 ) -> void {
@@ -166,7 +172,7 @@ auto SOLogSServerDrogon::get_logs_handler(
     callback(resp);
 }
 
-auto SOLogSServerDrogon::post_auth_handler(
+auto SOLogSServer::post_auth_handler(
         const drogon::HttpRequestPtr &req,
         std::function<void (const drogon::HttpResponsePtr &)> &&callback
 ) -> void {
@@ -239,7 +245,7 @@ auto SOLogSServerDrogon::post_auth_handler(
     callback(resp);
 }
 
-auto SOLogSServerDrogon::parse_auth_key(
+auto SOLogSServer::parse_auth_key(
         const drogon::HttpRequestPtr &req
 ) const -> std::string {
     auto auth_header = req->getHeader("Authorization");
@@ -249,7 +255,7 @@ auto SOLogSServerDrogon::parse_auth_key(
     return auth_header.substr(7);
 }
 
-auto SOLogSServerDrogon::authorize_user(
+auto SOLogSServer::authorize_user(
         const drogon::HttpRequestPtr &req,
         const std::vector<Permissions>& perms,
         const PermissionMode& mode

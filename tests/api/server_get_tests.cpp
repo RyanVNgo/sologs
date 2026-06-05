@@ -56,7 +56,7 @@ TEST(Server, get_health) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
@@ -80,7 +80,7 @@ TEST(Server, get_logs) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
@@ -117,7 +117,7 @@ TEST(Server, get_logs_with_level_param) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
@@ -159,7 +159,7 @@ TEST(Server, get_logs_with_source_param) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
@@ -201,7 +201,7 @@ TEST(Server, get_logs_with_limit_param) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
@@ -243,7 +243,7 @@ TEST(Server, get_logs_with_multiple_params) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
@@ -287,7 +287,7 @@ TEST(Server, get_logs_with_invalid_limit) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,

@@ -54,7 +54,7 @@ TEST(Server, post_valid) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
@@ -100,7 +100,7 @@ TEST(Server, post_invalid) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
@@ -144,7 +144,7 @@ TEST(Server, post_auth_valid_json) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
@@ -197,7 +197,7 @@ TEST(Server, post_auth_invalid_json) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,
@@ -244,7 +244,7 @@ TEST(Server, post_auth_missing_field) {
     AuthorizerMock mock_authorizer;
     AuthenticatorMock mock_authenticator;
     KeyServiceMock mock_key_service;
-    SOLogSServerDrogon server(
+    SOLogSServer server(
             mock_service,
             mock_authorizer,
             mock_authenticator,

@@ -8,11 +8,7 @@
 #include <fstream>
 #include <sys/random.h>
 
-
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
+#include <uuid.h>
 
 namespace sologs::crypto {
 
@@ -35,7 +31,14 @@ auto sha256_hex(const std::string& input) -> std::string {
 }
 
 auto generate_uuid() -> std::string {
-    return boost::uuids::to_string(boost::uuids::random_generator{}());
+    std::random_device rd;
+    auto seed_data = std::array<int, std::mt19937::state_size> {};
+    std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
+    std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+    std::mt19937 generator(seq);
+    uuids::uuid_random_generator gen{generator};
+    uuids::uuid const id = gen();
+    return uuids::to_string(id);
 }
 
 auto generate_key() -> std::string {

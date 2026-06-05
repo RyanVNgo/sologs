@@ -13,6 +13,7 @@ target_include_directories(sologs_crypto
 target_link_libraries(sologs_crypto
     PUBLIC
     OpenSSL::Crypto
+    stduuid
 )
 
 target_compile_features(sologs_crypto PUBLIC cxx_std_20)

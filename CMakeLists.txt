@@ -41,8 +41,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-add_library(boost_uuid INTERFACE)
-target_include_directories(boost_uuid INTERFACE external/boost)
+FetchContent_Declare(
+    stduuid
+    GIT_REPOSITORY  https://github.com/mariusbancila/stduuid.git
+    GIT_TAG         v1.2.3
+)
+FetchContent_MakeAvailable(stduuid)
 
 add_library(sqlite3 STATIC external/sqlite/sqlite3.c)
 target_include_directories(sqlite3 PUBLIC external/sqlite)

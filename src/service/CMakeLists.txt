@@ -16,7 +16,6 @@ target_link_libraries(sologs_service
     sologs_db
     sologs_domain
     sologs_crypto
-    boost_uuid
     nlohmann_json::nlohmann_json
 )
 

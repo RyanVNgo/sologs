@@ -24,6 +24,7 @@ target_include_directories(test_utils
 )
 target_link_libraries(test_utils
     sologs_db
+    sqlite3
 )
 target_compile_features(test_utils PUBLIC cxx_std_20)
 

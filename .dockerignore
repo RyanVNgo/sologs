@@ -1,0 +1,5 @@
+build/
+.cache/
+.git/
+.gitignore
+compile_commands.json

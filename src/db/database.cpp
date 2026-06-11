@@ -1,8 +1,6 @@
 
 #include "database.h"
 
-#include <iostream>
-
 #include <sqlite3.h>
 
 
@@ -135,7 +133,7 @@ auto SQLiteDatabase::execute_prepared_batched(
 
 [[nodiscard]] auto SQLiteDatabase::query(
         const std::string& query
-) -> QueryResult {
+) const -> QueryResult {
     QueryResult results;
     sqlite3_stmt* stmt = nullptr;
     
@@ -180,7 +178,7 @@ auto SQLiteDatabase::execute_prepared_batched(
 [[nodiscard]] auto SQLiteDatabase::query(
         const std::string& query,
         const Row& params
-) -> QueryResult {
+) const -> QueryResult {
     QueryResult results;
     sqlite3_stmt* stmt = nullptr;
 

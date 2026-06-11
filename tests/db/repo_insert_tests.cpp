@@ -28,7 +28,7 @@ TEST(Repo, insert) {
         "repo_insert test"
     };
 
-    EXPECT_TRUE(repo.insert(test_entry));
+    EXPECT_NO_THROW(repo.insert(test_entry));
     EXPECT_TRUE(util_validate_row_count(db.get(), "logs", 1));
     EXPECT_TRUE(util_validate_rows_exist(db.get(), "logs", {vector_entry}));
 
@@ -63,7 +63,7 @@ TEST(Repo, batch_insert) {
         );
     }
 
-    EXPECT_TRUE(repo.insert_batch(test_entries));
+    EXPECT_NO_THROW(repo.insert_batch(test_entries));
     EXPECT_TRUE(util_validate_row_count(db.get(), "logs", entry_count));
     EXPECT_TRUE(util_validate_rows_exist(db.get(), "logs", vector_entries));
 

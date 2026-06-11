@@ -28,12 +28,12 @@ class SQLiteDatabase {
                 const std::vector<Row>& rows
         ) -> void;
 
-        [[nodiscard]] auto query(const std::string& query) -> QueryResult;
+        [[nodiscard]] auto query(const std::string& query) const -> QueryResult;
 
         [[nodiscard]] auto query(
                 const std::string& query,
                 const Row& params
-        ) -> QueryResult;
+        ) const -> QueryResult;
 
     private:
         struct Impl;

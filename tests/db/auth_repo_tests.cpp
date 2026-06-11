@@ -40,7 +40,7 @@ TEST(AuthRepo, insert) {
         .is_valid = true
     };
 
-    EXPECT_TRUE(repo.insert(entry));
+    EXPECT_NO_THROW(repo.insert(entry));
     EXPECT_TRUE(util_validate_row_count(db.get(), "auth_keys", 1));
 
     EXPECT_TRUE(std::filesystem::exists(db_filename));
@@ -69,7 +69,7 @@ TEST(AuthRepo, insert_batch) {
         });
     }
 
-    EXPECT_TRUE(repo.insert_batch(entries));
+    EXPECT_NO_THROW(repo.insert_batch(entries));
     EXPECT_TRUE(util_validate_row_count(db.get(), "auth_keys", entry_count));
 
     EXPECT_TRUE(std::filesystem::exists(db_filename));
@@ -92,7 +92,7 @@ TEST(AuthRepo, get_by_key_hash_found) {
         .is_valid = true
     };
 
-    ASSERT_TRUE(repo.insert(entry));
+    ASSERT_NO_THROW(repo.insert(entry));
 
     auto result = repo.get_by_key_hash("testhash123");
     ASSERT_TRUE(result.has_value());
@@ -142,7 +142,7 @@ TEST(AuthRepo, permissions_round_trip) {
         .is_valid = true
     };
 
-    ASSERT_TRUE(repo.insert(entry));
+    ASSERT_NO_THROW(repo.insert(entry));
 
     auto result = repo.get_by_key_hash("permshash");
     ASSERT_TRUE(result.has_value());
@@ -171,7 +171,7 @@ TEST(AuthRepo, is_valid_false) {
         .is_valid = false
     };
 
-    ASSERT_TRUE(repo.insert(entry));
+    ASSERT_NO_THROW(repo.insert(entry));
 
     auto result = repo.get_by_key_hash("invalidhash");
     ASSERT_TRUE(result.has_value());
@@ -197,7 +197,7 @@ TEST(AuthRepo, empty_permissions) {
         .is_valid = true
     };
 
-    ASSERT_TRUE(repo.insert(entry));
+    ASSERT_NO_THROW(repo.insert(entry));
 
     auto result = repo.get_by_key_hash("emptypermshash");
     ASSERT_TRUE(result.has_value());
@@ -223,7 +223,7 @@ TEST(AuthRepo, unrecognized_permission_skipped) {
         .is_valid = true
     };
 
-    ASSERT_TRUE(repo.insert(entry));
+    ASSERT_NO_THROW(repo.insert(entry));
 
     auto db = util_open_database(db_filename);
 

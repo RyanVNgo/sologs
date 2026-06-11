@@ -37,7 +37,7 @@ TEST(Database, execute_valid) {
         std::format("INSERT INTO {} (message, level) VALUES ('test log', 'INFO');", table_name)
     };
     for (const auto& query : valid_queries) {
-        EXPECT_TRUE(test_db->execute(query)) << query;
+        EXPECT_NO_THROW(test_db->execute(query)) << query;
     }
 
     EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), 2));
@@ -74,7 +74,7 @@ TEST(Database, execute_invalid) {
         std::format("INSERT INTO {} (level, source) VALUES ('INFO', 'tests');", table_name)
     };
     for (const auto& query : invalid_queries) {
-        EXPECT_FALSE(test_db->execute(query)) << query;
+        EXPECT_THROW(test_db->execute(query), std::exception);
     }
 
     EXPECT_TRUE(util_validate_row_count(db.get(), "test_table", 0));

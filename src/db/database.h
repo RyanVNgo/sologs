@@ -9,16 +9,6 @@
 using Value = std::string;
 using Row = std::vector<Value>;
 
-using ColumnName = std::string;
-using ColumnType = std::string;
-struct Column {
-    ColumnName name;
-    ColumnType type;
-};
-
-using Schema = std::vector<Column>;
-using Tables = std::vector<std::string>;
-
 using QueryResult = std::vector<Row>;
 
 class SQLiteDatabase {
@@ -26,24 +16,24 @@ class SQLiteDatabase {
         SQLiteDatabase(const std::string& db_path);
         ~SQLiteDatabase();
 
-        auto execute(const std::string& query) -> bool;
+        auto execute(const std::string& query) -> void;
 
         auto execute_prepared(
                 const std::string& query,
                 const Row& values
-        ) -> bool;
+        ) -> void;
 
         auto execute_prepared_batched(
                 const std::string& query,
                 const std::vector<Row>& rows
-        ) -> bool;
+        ) -> void;
 
-        auto query(const std::string& query) -> QueryResult;
+        [[nodiscard]] auto query(const std::string& query) const -> QueryResult;
 
-        auto query(
+        [[nodiscard]] auto query(
                 const std::string& query,
                 const Row& params
-        ) -> QueryResult;
+        ) const -> QueryResult;
 
     private:
         struct Impl;

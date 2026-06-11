@@ -7,9 +7,9 @@
 
 class LogRepositoryMock : public ILogRepository {
     public:
-        MOCK_METHOD(bool, insert, (const LogEntry& entry), (override));
-        MOCK_METHOD(bool, insert_batch, (const std::vector<LogEntry>& entries), (override));
-        MOCK_METHOD(std::vector<LogEntry>, get_all, (FilterParams params), (override));
+        MOCK_METHOD(void, insert, (const LogEntry& entry), (override));
+        MOCK_METHOD(void, insert_batch, (const std::vector<LogEntry>& entries), (override));
+        MOCK_METHOD(std::vector<LogEntry>, get_all, (FilterParams params), (const override));
 };
 
 TEST(LogService, create_log_valid) {
@@ -29,7 +29,7 @@ TEST(LogService, create_log_valid) {
     };
 
     EXPECT_CALL(mock_repo, insert_batch).Times(testing::Exactly(1));
-    EXPECT_TRUE(service.create_log(valid_log));
+    EXPECT_NO_THROW(service.create_log(valid_log));
 }
 
 TEST(LogService, create_log_invalid) {
@@ -60,7 +60,7 @@ TEST(LogService, create_log_invalid) {
     EXPECT_CALL(mock_repo, insert_batch).Times(testing::Exactly(0));
 
     for (const auto& log: invalid_logs) {
-        EXPECT_FALSE(service.create_log(log));
+        EXPECT_THROW(service.create_log(log), std::invalid_argument);
     }
 }
 

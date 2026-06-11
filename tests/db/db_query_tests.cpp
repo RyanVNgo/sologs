@@ -131,14 +131,12 @@ TEST(Database, query_invalid) {
         )", 
         table_name
     );
-    QueryResult res = test_db->query(test_query);
-    EXPECT_EQ(res.size(), 0);
+    EXPECT_THROW(test_db->query(test_query), std::exception);
     }
 
     { // Empty query
     const std::string test_query = "";
-    QueryResult res = test_db->query(test_query);
-    EXPECT_EQ(res.size(), 0);
+    EXPECT_THROW(test_db->query(test_query), std::exception);
     }
 
     EXPECT_TRUE(std::filesystem::exists(db_filename));

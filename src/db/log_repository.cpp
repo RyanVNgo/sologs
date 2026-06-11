@@ -23,7 +23,7 @@ SqlLogRepository::SqlLogRepository(
     return;
 }
 
-auto SqlLogRepository::insert(const LogEntry& entry) -> bool {
+auto SqlLogRepository::insert(const LogEntry& entry) -> void {
     const char* sql =
         "INSERT INTO logs (message, level, source)"
         "VALUES (?, ?, ?);";
@@ -33,10 +33,10 @@ auto SqlLogRepository::insert(const LogEntry& entry) -> bool {
     row_data.push_back(entry.level);
     row_data.push_back(entry.source);
 
-    return database_.execute_prepared(sql, row_data);
+    database_.execute_prepared(sql, row_data);
 }
 
-auto SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) -> bool {
+auto SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) -> void {
     std::string sql =
         "INSERT INTO logs (message, level, source)"
         "VALUES (?, ?, ?);";
@@ -50,10 +50,10 @@ auto SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) -> boo
         data.push_back(row_data);
     }
 
-    return database_.execute_prepared_batched(sql, data);
+    database_.execute_prepared_batched(sql, data);
 }
 
-auto SqlLogRepository::get_all(FilterParams params) -> std::vector<LogEntry> {
+auto SqlLogRepository::get_all(FilterParams params) const -> std::vector<LogEntry> {
     std::ostringstream sql;
     sql << "SELECT id, message, level, source, timestamp FROM logs";
 

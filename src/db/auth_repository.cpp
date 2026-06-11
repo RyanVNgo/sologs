@@ -23,7 +23,7 @@ SqlAuthRepository::SqlAuthRepository(
     database_.execute(sql);
 }
 
-auto SqlAuthRepository::insert(const AuthorizationEntry& entry) -> bool {
+auto SqlAuthRepository::insert(const AuthorizationEntry& entry) -> void {
     const char* sql =
         "INSERT INTO auth_keys (uuid, key_hash, name, permissions, "
         "created_at, expires_at, is_valid) "
@@ -38,12 +38,12 @@ auto SqlAuthRepository::insert(const AuthorizationEntry& entry) -> bool {
     row_data.push_back(entry.expires_at);
     row_data.push_back(entry.is_valid ? "1" : "0");
 
-    return database_.execute_prepared(sql, row_data);
+    database_.execute_prepared(sql, row_data);
 }
 
 auto SqlAuthRepository::insert_batch(
         const std::vector<AuthorizationEntry>& entries
-) -> bool {
+) -> void {
     std::string sql =
         "INSERT INTO auth_keys (uuid, key_hash, name, permissions, "
         "created_at, expires_at, is_valid) "
@@ -62,12 +62,12 @@ auto SqlAuthRepository::insert_batch(
         data.push_back(row_data);
     }
 
-    return database_.execute_prepared_batched(sql, data);
+    database_.execute_prepared_batched(sql, data);
 }
 
 auto SqlAuthRepository::get_by_key_hash(
     const std::string& hash
-) -> std::optional<AuthorizationEntry> {
+) const -> std::optional<AuthorizationEntry> {
     const char* sql =
         "SELECT uuid, key_hash, name, permissions, "
         "created_at, expires_at, is_valid "
@@ -94,7 +94,7 @@ auto SqlAuthRepository::get_by_key_hash(
     return entry;
 }
 
-auto SqlAuthRepository::has_any_admin() -> bool {
+auto SqlAuthRepository::has_any_admin() const -> bool {
     const char* sql = 
         "SELECT COUNT(*) FROM auth_keys "
         "WHERE permissions LIKE '%Admin%';";

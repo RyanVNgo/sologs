@@ -11,7 +11,7 @@ class IAuthorizer {
     public:
         virtual ~IAuthorizer() = default;
 
-        virtual auto has_permissions(
+        [[nodiscard]] virtual auto has_permissions(
                 const Subject& subject,
                 const std::vector<Permissions>& valid_permissions,
                 PermissionMode mode
@@ -23,7 +23,7 @@ class Authorizer : public IAuthorizer {
     public:
         Authorizer();
 
-        auto has_permissions(
+        [[nodiscard]] auto has_permissions(
                 const Subject& subject,
                 const std::vector<Permissions>& valid_permissions,
                 PermissionMode mode
@@ -34,7 +34,7 @@ class IAuthenticator {
     public:
         virtual ~IAuthenticator() = default;
 
-        virtual auto authenticate(
+        [[nodiscard]] virtual auto authenticate(
                 const std::string& key
         ) const -> std::optional<Subject> = 0;
 
@@ -44,7 +44,7 @@ class Authenticator : public IAuthenticator {
     public:
         Authenticator(IAuthRepository& auth_repo);
 
-        auto authenticate(
+        [[nodiscard]] auto authenticate(
                 const std::string& key
         ) const -> std::optional<Subject> override;
 

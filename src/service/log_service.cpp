@@ -17,12 +17,14 @@ LogService::~LogService() {
     worker_thread_.join();
 }
 
-auto LogService::create_log(const json& body) -> bool {
+auto LogService::create_log(const json& body) -> void {
     if (!body.contains("message") || 
         !body.contains("level") || 
         !body.contains("source")
     ) {
-        return false;
+        throw std::invalid_argument(
+            "Missing required fields: message, level, source"
+        );
     }
 
     LogEntry new_entry{
@@ -41,11 +43,9 @@ auto LogService::create_log(const json& body) -> bool {
     if (was_empty) {
         cv_.notify_one();
     }
-
-    return true;
 }
 
-auto LogService::get_logs(FilterParams params) -> json {
+auto LogService::get_logs(FilterParams params) const -> json {
     std::vector<LogEntry> logs = log_repo_.get_all(params);
     json arr = json::array();
 
@@ -105,7 +105,10 @@ auto LogService::worker() -> void {
         lock.unlock();
 
         if (!batch.empty()) {
-            log_repo_.insert_batch(batch);
+            try {
+                log_repo_.insert_batch(batch);
+            } catch (const std::exception&) {
+            }
             batch.clear();
         }
 

@@ -6,7 +6,9 @@
 
 namespace sologs::utils {
 
-auto permission_label(Permissions perm) -> std::string {
+auto permission_label(
+        Permissions perm
+) noexcept -> std::string {
     switch (perm) {
         case Permissions::LogRead:    return "LogRead";
         case Permissions::LogWrite:   return "LogWrite";
@@ -21,7 +23,7 @@ auto permission_label(Permissions perm) -> std::string {
 
 auto permission_from_label(
         const std::string& label
-) -> std::optional<Permissions> {
+) noexcept -> std::optional<Permissions> {
     if (label == "LogRead")    return Permissions::LogRead;
     if (label == "LogWrite")   return Permissions::LogWrite;
     if (label == "LogDelete")  return Permissions::LogDelete;
@@ -34,7 +36,7 @@ auto permission_from_label(
 
 auto permissions_to_string(
         const std::vector<Permissions>& perms
-) -> std::string {
+) noexcept -> std::string {
     std::ostringstream oss;
     for (size_t i = 0; i < perms.size(); ++i) {
         if (i > 0) oss << ",";
@@ -43,7 +45,9 @@ auto permissions_to_string(
     return oss.str();
 }
 
-auto parse_permissions(const std::string& str) -> std::vector<Permissions> {
+auto parse_permissions(
+        const std::string& str
+) noexcept -> std::vector<Permissions> {
     std::vector<Permissions> result;
     std::istringstream iss(str);
     std::string token;

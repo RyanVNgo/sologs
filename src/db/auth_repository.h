@@ -35,11 +35,11 @@ class SqlAuthRepository : public IAuthRepository {
             const std::vector<AuthorizationEntry>& entries
         ) -> void override;
 
-        auto get_by_key_hash(
+        [[nodiscard]] auto get_by_key_hash(
             const std::string& hash
         ) const -> std::optional<AuthorizationEntry> override;
 
-        auto has_any_admin() const -> bool override;
+        [[nodiscard]] auto has_any_admin() const -> bool override;
 
     private:
         SQLiteDatabase& database_;

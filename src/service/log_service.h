@@ -17,16 +17,20 @@ using json = nlohmann::json;
 class ILogService {
     public:
         virtual ~ILogService() = default;
+
         [[nodiscard]] virtual auto create_log(const json& body) -> bool = 0;
+
         [[nodiscard]] virtual auto get_logs(FilterParams params) const -> json = 0;
 };
 
 class LogService : public ILogService {
     public:
         LogService(ILogRepository& repo);
+
         ~LogService();
 
         [[nodiscard]] auto create_log(const json& body) -> bool override;
+
         [[nodiscard]] auto get_logs(FilterParams params) const -> json override;
 
     private:

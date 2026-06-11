@@ -27,9 +27,13 @@ class SqlLogRepository : public ILogRepository {
 
         auto insert(const LogEntry& entry) -> void override;
 
-        auto insert_batch(const std::vector<LogEntry>& entries) -> void override;
+        auto insert_batch(
+                const std::vector<LogEntry>& entries
+        ) -> void override;
 
-        auto get_all(FilterParams params) const -> std::vector<LogEntry> override;
+        [[nodiscard]] auto get_all(
+                FilterParams params
+        ) const -> std::vector<LogEntry> override;
 
     private:
         SQLiteDatabase& database_;

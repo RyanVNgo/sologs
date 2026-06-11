@@ -17,12 +17,14 @@ LogService::~LogService() {
     worker_thread_.join();
 }
 
-auto LogService::create_log(const json& body) -> bool {
+auto LogService::create_log(const json& body) -> void {
     if (!body.contains("message") || 
         !body.contains("level") || 
         !body.contains("source")
     ) {
-        return false;
+        throw std::invalid_argument(
+            "Missing required fields: message, level, source"
+        );
     }
 
     LogEntry new_entry{
@@ -41,8 +43,6 @@ auto LogService::create_log(const json& body) -> bool {
     if (was_empty) {
         cv_.notify_one();
     }
-
-    return true;
 }
 
 auto LogService::get_logs(FilterParams params) const -> json {

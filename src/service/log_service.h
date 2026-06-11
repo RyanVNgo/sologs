@@ -18,7 +18,7 @@ class ILogService {
     public:
         virtual ~ILogService() = default;
 
-        [[nodiscard]] virtual auto create_log(const json& body) -> bool = 0;
+        virtual auto create_log(const json& body) -> void = 0;
 
         [[nodiscard]] virtual auto get_logs(FilterParams params) const -> json = 0;
 };
@@ -29,7 +29,7 @@ class LogService : public ILogService {
 
         ~LogService();
 
-        [[nodiscard]] auto create_log(const json& body) -> bool override;
+        auto create_log(const json& body) -> void override;
 
         [[nodiscard]] auto get_logs(FilterParams params) const -> json override;
 

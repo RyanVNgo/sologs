@@ -29,7 +29,7 @@ TEST(LogService, create_log_valid) {
     };
 
     EXPECT_CALL(mock_repo, insert_batch).Times(testing::Exactly(1));
-    EXPECT_TRUE(service.create_log(valid_log));
+    EXPECT_NO_THROW(service.create_log(valid_log));
 }
 
 TEST(LogService, create_log_invalid) {
@@ -60,7 +60,7 @@ TEST(LogService, create_log_invalid) {
     EXPECT_CALL(mock_repo, insert_batch).Times(testing::Exactly(0));
 
     for (const auto& log: invalid_logs) {
-        EXPECT_FALSE(service.create_log(log));
+        EXPECT_THROW(service.create_log(log), std::invalid_argument);
     }
 }
 

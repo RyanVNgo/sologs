@@ -9,7 +9,7 @@
 
 class LogServiceMock : public ILogService {
     public:
-        MOCK_METHOD(bool, create_log, (const json& body), (override));
+        MOCK_METHOD(void, create_log, (const json& body), (override));
         MOCK_METHOD(json, get_logs, (FilterParams params), (const override));
 };
 

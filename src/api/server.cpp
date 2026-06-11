@@ -117,7 +117,17 @@ auto SOLogSServer::post_logs_handler(
         return;
     }
 
-    log_service_.create_log(body);
+    try {
+        log_service_.create_log(body);
+    } catch (const std::invalid_argument&) {
+        auto resp = drogon::HttpResponse::newHttpResponse(
+                drogon::k400BadRequest,
+                drogon::CT_TEXT_PLAIN
+        );
+        resp->setBody("Missing required fields");
+        callback(resp);
+        return;
+    }
     auto resp = drogon::HttpResponse::newHttpResponse(
             drogon::k202Accepted,
             drogon::CT_TEXT_PLAIN

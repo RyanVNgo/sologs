@@ -39,7 +39,7 @@ TEST(Database, prepared_valid) {
         }
     };
     for (const auto& [query, row] : valid_prepares) {
-        ASSERT_TRUE(test_db->execute_prepared(query, row));
+        ASSERT_NO_THROW(test_db->execute_prepared(query, row));
     }
 
     EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), valid_prepares.size()));
@@ -86,7 +86,7 @@ TEST(Database, prepared_invalid) {
         }
     };
     for (const auto& [query, row] : invalid_prepares) {
-        ASSERT_FALSE(test_db->execute_prepared(query, row)) << query;
+        ASSERT_THROW(test_db->execute_prepared(query, row), std::exception) << query;
     }
 
     EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), 0));

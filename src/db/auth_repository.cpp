@@ -38,7 +38,12 @@ auto SqlAuthRepository::insert(const AuthorizationEntry& entry) -> bool {
     row_data.push_back(entry.expires_at);
     row_data.push_back(entry.is_valid ? "1" : "0");
 
-    return database_.execute_prepared(sql, row_data);
+    try {
+        database_.execute_prepared(sql, row_data);
+        return true;
+    } catch (const std::exception&) {
+        return false;
+    }
 }
 
 auto SqlAuthRepository::insert_batch(
@@ -62,7 +67,12 @@ auto SqlAuthRepository::insert_batch(
         data.push_back(row_data);
     }
 
-    return database_.execute_prepared_batched(sql, data);
+    try {
+        database_.execute_prepared_batched(sql, data);
+        return true;
+    } catch (const std::exception&) {
+        return false;
+    }
 }
 
 auto SqlAuthRepository::get_by_key_hash(

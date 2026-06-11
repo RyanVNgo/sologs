@@ -33,7 +33,12 @@ auto SqlLogRepository::insert(const LogEntry& entry) -> bool {
     row_data.push_back(entry.level);
     row_data.push_back(entry.source);
 
-    return database_.execute_prepared(sql, row_data);
+    try {
+        database_.execute_prepared(sql, row_data);
+        return true;
+    } catch (const std::exception&) {
+        return false;
+    }
 }
 
 auto SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) -> bool {
@@ -50,7 +55,12 @@ auto SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) -> boo
         data.push_back(row_data);
     }
 
-    return database_.execute_prepared_batched(sql, data);
+    try {
+        database_.execute_prepared_batched(sql, data);
+        return true;
+    } catch (const std::exception&) {
+        return false;
+    }
 }
 
 auto SqlLogRepository::get_all(FilterParams params) -> std::vector<LogEntry> {

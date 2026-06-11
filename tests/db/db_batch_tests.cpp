@@ -40,7 +40,7 @@ TEST(Database, batched_valid) {
         {"test log 3", "INFO", "tests"}
     };
 
-    EXPECT_TRUE(test_db->execute_prepared_batched(valid_query, valid_data));
+    EXPECT_NO_THROW(test_db->execute_prepared_batched(valid_query, valid_data));
 
     EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), valid_data.size()));
 
@@ -87,7 +87,10 @@ TEST(Database, batched_invalid_query) {
     };
 
     for (const auto& query : invalid_queries) {
-        EXPECT_FALSE(test_db->execute_prepared_batched(query, valid_data));
+        EXPECT_THROW(
+                test_db->execute_prepared_batched(query, valid_data),
+                std::exception
+        );
     }
 
     EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), 0));
@@ -136,7 +139,10 @@ TEST(Database, batched_invalid_data) {
     };
 
     for (const auto& data : invalid_data) {
-        EXPECT_FALSE(test_db->execute_prepared_batched(valid_query, data));
+        EXPECT_THROW(
+                test_db->execute_prepared_batched(valid_query, data),
+                std::exception
+        );
     }
 
     EXPECT_TRUE(util_validate_row_count(db.get(), table_name.c_str(), 0));

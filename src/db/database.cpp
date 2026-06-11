@@ -27,136 +27,133 @@ SQLiteDatabase::~SQLiteDatabase() {
     }
 }
 
-auto SQLiteDatabase::execute(const std::string& query) -> bool {
+auto SQLiteDatabase::execute(const std::string& query) -> void {
+    char* err_msg = nullptr;
     int rc = sqlite3_exec(
             pimpl_->db,
             query.c_str(),
             nullptr,
             nullptr,
-            nullptr
+            &err_msg
     ); 
 
     if (rc != SQLITE_OK) {
-        return false;
+        std::string err_str(err_msg);
+        sqlite3_free(err_msg);
+        throw std::runtime_error(err_str);
     } 
-    return true;
 }
 
 auto SQLiteDatabase::execute_prepared(
         const std::string& query,
         const Row& values
-) -> bool {
+) -> void {
     sqlite3_stmt* stmt = nullptr;
 
-    if (sqlite3_prepare_v2(
+    if (int err_code = sqlite3_prepare_v2(
                 pimpl_->db,
                 query.c_str(),
                 -1,
                 &stmt,
                 nullptr
-        ) != SQLITE_OK
+        ); err_code != SQLITE_OK
     ) {
-        std::cerr << "SQLiteDatabase | Failed to prepare stmt" << "\n";
-        std::cerr << "  SQL: " << query << "\n";
-        std::cout << "  Error: " << sqlite3_errmsg(pimpl_->db) << std::endl;
-        return false;
+        throw std::runtime_error(sqlite3_errstr(err_code));
     }
-    
+
     for (size_t i = 0; i < values.size(); ++i) {
-        int rc = sqlite3_bind_text(
-                stmt,
-                static_cast<int>(i + 1),
-                values[i].c_str(),
-                -1,
-                SQLITE_TRANSIENT
-        );
-
-        if (rc != SQLITE_OK) {
-            sqlite3_finalize(stmt);
-            return false;
-        }
-    }
-
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
-    sqlite3_finalize(stmt);
-
-    return success;
-}
-
-auto SQLiteDatabase::execute_prepared_batched(
-        const std::string& query,
-        const std::vector<Row>& rows
-) -> bool  {
-    sqlite3_stmt* stmt = nullptr;
-
-    if (sqlite3_prepare_v2(
-                pimpl_->db,
-                query.c_str(),
-                -1,
-                &stmt,
-                nullptr
-        ) != SQLITE_OK
-    ) {
-        std::cerr << "SQLiteDatabase | Failed to prepare stmt" << "\n";
-        std::cerr << "  SQL: " << query << "\n";
-        std::cout << "  Error: " << sqlite3_errmsg(pimpl_->db) << std::endl;
-        return false;
-    }
-
-    execute("BEGIN TRANSACTION");
-
-    for (const auto& values : rows) {
-        sqlite3_reset(stmt);
-        sqlite3_clear_bindings(stmt);
-
-        for (size_t i = 0; i < values.size(); ++i) {
-            int rc = sqlite3_bind_text(
+        if (int err_code = sqlite3_bind_text(
                     stmt,
                     static_cast<int>(i + 1),
                     values[i].c_str(),
                     -1,
                     SQLITE_TRANSIENT
-            );
-
-            if (rc != SQLITE_OK) {
-                sqlite3_finalize(stmt);
-                return false;
-            }
-        }
-
-        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            ); err_code != SQLITE_OK
+        ) {
             sqlite3_finalize(stmt);
-            return false;
+            throw std::runtime_error(sqlite3_errstr(err_code));
         }
     }
-    
-    execute("COMMIT;");
-    sqlite3_finalize(stmt);
 
-    return true;
+    if (int err_code = sqlite3_step(stmt); err_code != SQLITE_DONE) {
+        sqlite3_finalize(stmt);
+        throw std::runtime_error(sqlite3_errstr(err_code));
+    }
+
+    sqlite3_finalize(stmt);
 }
 
-auto SQLiteDatabase::query(const std::string& query) -> QueryResult {
-    QueryResult results;
+auto SQLiteDatabase::execute_prepared_batched(
+        const std::string& query,
+        const std::vector<Row>& rows
+) -> void {
     sqlite3_stmt* stmt = nullptr;
-    
-    if (sqlite3_prepare_v2(
+
+    if (int err_code = sqlite3_prepare_v2(
                 pimpl_->db,
                 query.c_str(),
                 -1,
                 &stmt,
                 nullptr
-        ) != SQLITE_OK
+        ); err_code != SQLITE_OK
     ) {
-        std::cerr << "SQLiteDatabase | Failed to prepare stmt" << std::endl;
-        std::cerr << "  SQL: " << query << "\n";
-        std::cout << "  Error: " << sqlite3_errmsg(pimpl_->db) << std::endl;
-        return results;
+        throw std::runtime_error(sqlite3_errstr(err_code));
+    }
+
+    try {
+        execute("BEGIN TRANSACTION;");
+        for (const auto& values : rows) {
+            sqlite3_reset(stmt);
+            sqlite3_clear_bindings(stmt);
+
+            for (int i = 0; i < values.size(); ++i) {
+                if (int err_code = sqlite3_bind_text(
+                        stmt,
+                        i + 1,
+                        values[i].c_str(),
+                        -1,
+                        SQLITE_STATIC
+                    ); err_code != SQLITE_OK
+                ) {
+                    throw std::runtime_error(sqlite3_errstr(err_code));
+                }
+            }
+
+            if (int err_code = sqlite3_step(stmt); err_code != SQLITE_DONE) {
+                throw std::runtime_error(sqlite3_errstr(err_code));
+            }
+        }
+        execute("COMMIT;");
+    } catch (const std::exception& e) {
+        sqlite3_finalize(stmt);
+        try { execute("ROLLBACK;"); } catch (...) {}
+        throw;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+[[nodiscard]] auto SQLiteDatabase::query(
+        const std::string& query
+) -> QueryResult {
+    QueryResult results;
+    sqlite3_stmt* stmt = nullptr;
+    
+    if (int err_code = sqlite3_prepare_v2(
+                pimpl_->db,
+                query.c_str(),
+                -1,
+                &stmt,
+                nullptr
+        ); err_code != SQLITE_OK
+    ) {
+        throw std::runtime_error(sqlite3_errstr(err_code));
     }
 
     int cols = sqlite3_column_count(stmt);
 
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
+    int rc;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Row row;
 
         for (int i = 0; i < cols; i++) {
@@ -169,47 +166,53 @@ auto SQLiteDatabase::query(const std::string& query) -> QueryResult {
         }
 
         results.push_back(row);
+    }
+
+    if (rc != SQLITE_DONE) {
+        sqlite3_finalize(stmt);
+        throw std::runtime_error(sqlite3_errstr(rc));
     }
 
     sqlite3_finalize(stmt);
     return results;
 }
 
-auto SQLiteDatabase::query(const std::string& query, const Row& params) -> QueryResult {
+[[nodiscard]] auto SQLiteDatabase::query(
+        const std::string& query,
+        const Row& params
+) -> QueryResult {
     QueryResult results;
     sqlite3_stmt* stmt = nullptr;
 
-    if (sqlite3_prepare_v2(
+    if (int err_code = sqlite3_prepare_v2(
                 pimpl_->db,
                 query.c_str(),
                 -1,
                 &stmt,
                 nullptr
-        ) != SQLITE_OK
+        ); err_code != SQLITE_OK
     ) {
-        std::cerr << "SQLiteDatabase | Failed to prepare stmt" << std::endl;
-        std::cerr << "  SQL: " << query << "\n";
-        std::cout << "  Error: " << sqlite3_errmsg(pimpl_->db) << std::endl;
-        return results;
+        throw std::runtime_error(sqlite3_errstr(err_code));
     }
 
     for (size_t i = 0; i < params.size(); ++i) {
-        if (sqlite3_bind_text(
+        if (int err_code = sqlite3_bind_text(
                     stmt,
                     static_cast<int>(i + 1),
                     params[i].c_str(),
                     -1,
                     SQLITE_TRANSIENT
-            ) != SQLITE_OK
+            ); err_code != SQLITE_OK
         ) {
             sqlite3_finalize(stmt);
-            return results;
+            throw std::runtime_error(sqlite3_errstr(err_code));
         }
     }
 
     int cols = sqlite3_column_count(stmt);
 
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
+    int rc;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Row row;
         for (int i = 0; i < cols; i++) {
             if (sqlite3_column_type(stmt, i) == SQLITE_NULL) {
@@ -220,6 +223,11 @@ auto SQLiteDatabase::query(const std::string& query, const Row& params) -> Query
             }
         }
         results.push_back(row);
+    }
+
+    if (rc != SQLITE_DONE) {
+        sqlite3_finalize(stmt);
+        throw std::runtime_error(sqlite3_errstr(rc));
     }
 
     sqlite3_finalize(stmt);

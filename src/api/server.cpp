@@ -162,7 +162,18 @@ auto SOLogSServer::get_logs_handler(
         }
     }
 
-    auto logs = log_service_.get_logs(params);
+    json logs;
+    try {
+        logs = log_service_.get_logs(params);
+    } catch (const std::exception&) {
+        auto resp = drogon::HttpResponse::newHttpResponse(
+                drogon::k500InternalServerError,
+                drogon::CT_TEXT_PLAIN
+        );
+        resp->setBody("Internal Server Error");
+        callback(resp);
+        return;
+    }
 
     auto resp = drogon::HttpResponse::newHttpResponse(
             drogon::k200OK,
@@ -221,7 +232,18 @@ auto SOLogSServer::post_auth_handler(
         expires_at = body["expires_at"];
     }
 
-    auto result = key_service_.create_key(name, permissions, expires_at);
+    IKeyService::CreateKeyResult result;
+    try {
+        result = key_service_.create_key(name, permissions, expires_at);
+    } catch (const std::exception&) {
+        auto resp = drogon::HttpResponse::newHttpResponse(
+                drogon::k500InternalServerError,
+                drogon::CT_TEXT_PLAIN
+        );
+        resp->setBody("Internal Server Error");
+        callback(resp);
+        return;
+    }
 
     json data_resp;
     data_resp["key"] = result.raw_key;

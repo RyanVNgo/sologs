@@ -17,8 +17,8 @@ using json = nlohmann::json;
 class ILogService {
     public:
         virtual ~ILogService() = default;
-        virtual auto create_log(const json& body) -> bool = 0;
-        virtual auto get_logs(FilterParams params) -> json = 0;
+        [[nodiscard]] virtual auto create_log(const json& body) -> bool = 0;
+        [[nodiscard]] virtual auto get_logs(FilterParams params) const -> json = 0;
 };
 
 class LogService : public ILogService {
@@ -26,8 +26,8 @@ class LogService : public ILogService {
         LogService(ILogRepository& repo);
         ~LogService();
 
-        auto create_log(const json& body) -> bool override;
-        auto get_logs(FilterParams params) -> json override;
+        [[nodiscard]] auto create_log(const json& body) -> bool override;
+        [[nodiscard]] auto get_logs(FilterParams params) const -> json override;
 
     private:
         auto worker() -> void ;

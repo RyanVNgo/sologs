@@ -45,7 +45,7 @@ auto LogService::create_log(const json& body) -> bool {
     return true;
 }
 
-auto LogService::get_logs(FilterParams params) -> json {
+auto LogService::get_logs(FilterParams params) const -> json {
     std::vector<LogEntry> logs = log_repo_.get_all(params);
     json arr = json::array();
 
@@ -105,7 +105,10 @@ auto LogService::worker() -> void {
         lock.unlock();
 
         if (!batch.empty()) {
-            log_repo_.insert_batch(batch);
+            try {
+                log_repo_.insert_batch(batch);
+            } catch (const std::exception&) {
+            }
             batch.clear();
         }
 

@@ -13,35 +13,11 @@ class LogServiceMock : public ILogService {
         MOCK_METHOD(json, get_logs, (FilterParams params), (const override));
 };
 
-class AuthorizerMock : public IAuthorizer {
+class AuthServiceMock : public IAuthService {
     public:
         MOCK_METHOD(
-            bool,
-            has_permissions,
-            (
-                const Subject& subject,
-                const std::vector<Permissions>& valid_permissions,
-                PermissionMode mode
-            ),
-            (const override)
-        );
-};
-
-class AuthenticatorMock : public IAuthenticator {
-    public:
-        MOCK_METHOD(
-                std::optional<Subject>,
-                authenticate,
-                (const std::string& key),
-                (const override)
-        );
-};
-
-class KeyServiceMock : public IKeyService {
-    public:
-        MOCK_METHOD(
-            CreateKeyResult,
-            create_key,
+            CreateUserResult,
+            create_user,
             (
                 const std::string& name,
                 const std::vector<Permissions>& permissions,
@@ -49,18 +25,33 @@ class KeyServiceMock : public IKeyService {
             ),
             (override)
         );
+
+        MOCK_METHOD(
+                std::optional<Subject>,
+                authenticate,
+                (const std::string& key),
+                (const override)
+        );
+
+        MOCK_METHOD(
+            bool,
+            subject_has_permissions,
+            (
+                const Subject& subject,
+                const std::vector<Permissions>& valid_permissions,
+                PermissionMode mode
+            ),
+            (const override)
+        );
+
 };
 
 TEST(Server, get_health) {
     LogServiceMock mock_service;
-    AuthorizerMock mock_authorizer;
-    AuthenticatorMock mock_authenticator;
-    KeyServiceMock mock_key_service;
+    AuthServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
-            mock_authorizer,
-            mock_authenticator,
-            mock_key_service
+            mock_auth_service
     );
 
     auto req = drogon::HttpRequest::newHttpRequest();
@@ -77,22 +68,18 @@ TEST(Server, get_health) {
 
 TEST(Server, get_logs) {
     LogServiceMock mock_service;
-    AuthorizerMock mock_authorizer;
-    AuthenticatorMock mock_authenticator;
-    KeyServiceMock mock_key_service;
+    AuthServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
-            mock_authorizer,
-            mock_authenticator,
-            mock_key_service
+            mock_auth_service
     );
 
-    EXPECT_CALL(mock_authenticator, authenticate(testing::_))
+    EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<Subject>(
             Subject{"uuid", "name", {}}
         )));
-    EXPECT_CALL(mock_authorizer, has_permissions(
+    EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 
@@ -114,22 +101,18 @@ TEST(Server, get_logs) {
 
 TEST(Server, get_logs_with_level_param) {
     LogServiceMock mock_service;
-    AuthorizerMock mock_authorizer;
-    AuthenticatorMock mock_authenticator;
-    KeyServiceMock mock_key_service;
+    AuthServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
-            mock_authorizer,
-            mock_authenticator,
-            mock_key_service
+            mock_auth_service
     );
 
-    EXPECT_CALL(mock_authenticator, authenticate(testing::_))
+    EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<Subject>(
             Subject{"uuid", "name", {}}
         )));
-    EXPECT_CALL(mock_authorizer, has_permissions(
+    EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 
@@ -156,22 +139,18 @@ TEST(Server, get_logs_with_level_param) {
 
 TEST(Server, get_logs_with_source_param) {
     LogServiceMock mock_service;
-    AuthorizerMock mock_authorizer;
-    AuthenticatorMock mock_authenticator;
-    KeyServiceMock mock_key_service;
+    AuthServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
-            mock_authorizer,
-            mock_authenticator,
-            mock_key_service
+            mock_auth_service
     );
 
-    EXPECT_CALL(mock_authenticator, authenticate(testing::_))
+    EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<Subject>(
             Subject{"uuid", "name", {}}
         )));
-    EXPECT_CALL(mock_authorizer, has_permissions(
+    EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 
@@ -198,22 +177,18 @@ TEST(Server, get_logs_with_source_param) {
 
 TEST(Server, get_logs_with_limit_param) {
     LogServiceMock mock_service;
-    AuthorizerMock mock_authorizer;
-    AuthenticatorMock mock_authenticator;
-    KeyServiceMock mock_key_service;
+    AuthServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
-            mock_authorizer,
-            mock_authenticator,
-            mock_key_service
+            mock_auth_service
     );
 
-    EXPECT_CALL(mock_authenticator, authenticate(testing::_))
+    EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<Subject>(
             Subject{"uuid", "name", {}}
         )));
-    EXPECT_CALL(mock_authorizer, has_permissions(
+    EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 
@@ -240,22 +215,18 @@ TEST(Server, get_logs_with_limit_param) {
 
 TEST(Server, get_logs_with_multiple_params) {
     LogServiceMock mock_service;
-    AuthorizerMock mock_authorizer;
-    AuthenticatorMock mock_authenticator;
-    KeyServiceMock mock_key_service;
+    AuthServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
-            mock_authorizer,
-            mock_authenticator,
-            mock_key_service
+            mock_auth_service
     );
 
-    EXPECT_CALL(mock_authenticator, authenticate(testing::_))
+    EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<Subject>(
             Subject{"uuid", "name", {}}
         )));
-    EXPECT_CALL(mock_authorizer, has_permissions(
+    EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 
@@ -284,22 +255,18 @@ TEST(Server, get_logs_with_multiple_params) {
 
 TEST(Server, get_logs_with_invalid_limit) {
     LogServiceMock mock_service;
-    AuthorizerMock mock_authorizer;
-    AuthenticatorMock mock_authenticator;
-    KeyServiceMock mock_key_service;
+    AuthServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
-            mock_authorizer,
-            mock_authenticator,
-            mock_key_service
+            mock_auth_service
     );
 
-    EXPECT_CALL(mock_authenticator, authenticate(testing::_))
+    EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<Subject>(
             Subject{"uuid", "name", {}}
         )));
-    EXPECT_CALL(mock_authorizer, has_permissions(
+    EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 

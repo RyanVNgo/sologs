@@ -3,7 +3,6 @@ add_library(sologs_service
     log_service.cpp
     auth_service.cpp
     bootstrap_service.cpp
-    key_service.cpp
 )
 
 target_include_directories(sologs_service

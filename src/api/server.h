@@ -7,16 +7,13 @@
 
 #include "log_service.h"
 #include "auth_service.h"
-#include "key_service.h"
 
 
 class SOLogSServer {
     public:
         explicit SOLogSServer(
                 ILogService& log_service,
-                IAuthorizer& authorizer,
-                IAuthenticator& authenticator,
-                IKeyService& key_service
+                IAuthService& auth_service
         );
 
         auto start(int port) -> void;
@@ -55,9 +52,7 @@ class SOLogSServer {
         ) -> std::optional<drogon::HttpResponsePtr>;
 
         ILogService& log_service_;
-        IAuthorizer& authorizer_;
-        IAuthenticator& authenticator_;
-        IKeyService& key_service_;
+        IAuthService& auth_service_;
 
 };
 

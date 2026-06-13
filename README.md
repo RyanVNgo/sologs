@@ -23,16 +23,6 @@ Ubuntu/Debian one-liner:
 sudo apt install build-essential cmake git libssl-dev libjsoncpp-dev uuid-dev zlib1g-dev
 ```
 
-### Fetched at configure time
-
-- **Drogon** 1.9.13
-- **nlohmann/json** 3.12.0
-- **stduuid** 1.2.3
-
-### Bundled
-
-- **SQLite3** (`external/sqlite/sqlite3.c`)
-
 ## Build
 
 ```bash
@@ -55,7 +45,7 @@ ctest --test-dir build --output-on-failure
 export SOLOGS_BOOTSTRAP_KEY="my-secret-admin-key"
 
 # Start the server
-./build/src/sologs
+./build/bin/sologs
 ```
 
 On first launch the server creates `./sologs.sqlite` and `./sologs-auth.sqlite`

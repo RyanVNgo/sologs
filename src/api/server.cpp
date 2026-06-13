@@ -6,14 +6,8 @@
 
 SOLogSServer::SOLogSServer(
         ILogService& log_service,
-        IAuthorizer& authorizer,
-        IAuthenticator& authenticator,
-        IKeyService& key_service,
         IAuthService& auth_service
 ) : log_service_(log_service),
-    authorizer_(authorizer),
-    authenticator_(authenticator),
-    key_service_(key_service),
     auth_service_(auth_service)
 {
     drogon::app().registerHandler(
@@ -244,9 +238,9 @@ auto SOLogSServer::post_auth_handler(
         expires_at = body["expires_at"];
     }
 
-    IKeyService::CreateKeyResult result;
+    IAuthService::CreateUserResult result;
     try {
-        result = key_service_.create_key(name, permissions, expires_at);
+        result = auth_service_.create_user(name, permissions, expires_at);
     } catch (const std::exception&) {
         auto resp = drogon::HttpResponse::newHttpResponse(
                 drogon::k500InternalServerError,
@@ -304,7 +298,7 @@ auto SOLogSServer::authorize_user(
         return resp;
     }
 
-    auto subject = authenticator_.authenticate(auth_key);
+    auto subject = auth_service_.authenticate(auth_key);
     if (!subject.has_value()) {
         auto resp = drogon::HttpResponse::newHttpResponse(
                 drogon::k401Unauthorized,
@@ -314,7 +308,7 @@ auto SOLogSServer::authorize_user(
         return resp;
     }
 
-    if (!authorizer_.has_permissions(
+    if (!auth_service_.subject_has_permissions(
             subject.value(),
             perms,
             mode

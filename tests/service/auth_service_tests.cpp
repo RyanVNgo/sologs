@@ -16,79 +16,86 @@ class AuthRepositoryMock : public IAuthRepository {
 };
 
 
-TEST(Authorizer, has_permissions_anyof_granted) {
-    Authorizer authz;
+TEST(AuthService, has_permissions_anyof_granted) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
     Subject subject{"uuid", "test", {Permissions::LogRead}};
 
-    EXPECT_TRUE(authz.has_permissions(
+    EXPECT_TRUE(authz.subject_has_permissions(
         subject, {Permissions::LogRead}, PermissionMode::AnyOf
     ));
 }
 
-TEST(Authorizer, has_permissions_anyof_denied) {
-    Authorizer authz;
+TEST(AuthService, has_permissions_anyof_denied) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
     Subject subject{"uuid", "test", {Permissions::LogRead}};
 
-    EXPECT_FALSE(authz.has_permissions(
+    EXPECT_FALSE(authz.subject_has_permissions(
         subject, {Permissions::LogWrite}, PermissionMode::AnyOf
     ));
 }
 
-TEST(Authorizer, has_permissions_anyof_partial_match) {
-    Authorizer authz;
+TEST(AuthService, has_permissions_anyof_partial_match) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
     Subject subject{"uuid", "test", {Permissions::LogRead}};
 
-    EXPECT_TRUE(authz.has_permissions(
+    EXPECT_TRUE(authz.subject_has_permissions(
         subject,
         {Permissions::LogWrite, Permissions::Admin, Permissions::LogRead},
         PermissionMode::AnyOf
     ));
 }
 
-TEST(Authorizer, has_permissions_allof_granted) {
-    Authorizer authz;
+TEST(AuthService, has_permissions_allof_granted) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
     Subject subject{"uuid", "test", {Permissions::LogRead, Permissions::LogWrite}};
 
-    EXPECT_TRUE(authz.has_permissions(
+    EXPECT_TRUE(authz.subject_has_permissions(
         subject,
         {Permissions::LogRead, Permissions::LogWrite},
         PermissionMode::AllOf
     ));
 }
 
-TEST(Authorizer, has_permissions_allof_denied) {
-    Authorizer authz;
+TEST(AuthService, has_permissions_allof_denied) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
     Subject subject{"uuid", "test", {Permissions::LogRead}};
 
-    EXPECT_FALSE(authz.has_permissions(
+    EXPECT_FALSE(authz.subject_has_permissions(
         subject,
         {Permissions::LogRead, Permissions::LogWrite},
         PermissionMode::AllOf
     ));
 }
 
-TEST(Authorizer, has_permissions_allof_extra_permissions) {
-    Authorizer authz;
+TEST(AuthService, has_permissions_allof_extra_permissions) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
     Subject subject{"uuid", "test", {Permissions::LogRead, Permissions::LogWrite, Permissions::Admin}};
 
-    EXPECT_TRUE(authz.has_permissions(
+    EXPECT_TRUE(authz.subject_has_permissions(
         subject, {Permissions::LogRead}, PermissionMode::AllOf
     ));
 }
 
-TEST(Authorizer, has_permissions_empty_required) {
-    Authorizer authz;
+TEST(AuthService, has_permissions_empty_required) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
     Subject subject{"uuid", "test", {Permissions::LogRead}};
 
-    EXPECT_FALSE(authz.has_permissions(
+    EXPECT_FALSE(authz.subject_has_permissions(
         subject, {}, PermissionMode::AnyOf
     ));
 }
 
 
-TEST(Authenticator, authenticate_valid_key) {
-    AuthRepositoryMock mock_repo;
-    Authenticator authn(mock_repo);
+TEST(AuthService, authenticate_valid_key) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "test-uuid",
@@ -100,11 +107,11 @@ TEST(Authenticator, authenticate_valid_key) {
         .is_valid = true
     };
 
-    EXPECT_CALL(mock_repo, get_by_key_hash(testing::_))
+    EXPECT_CALL(mock_auth_repo, get_by_key_hash(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<AuthorizationEntry>(entry)));
 
-    auto result = authn.authenticate("some-key");
+    auto result = authz.authenticate("some-key");
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(result->uuid, "test-uuid");
     EXPECT_EQ(result->name, "test-key");
@@ -113,21 +120,21 @@ TEST(Authenticator, authenticate_valid_key) {
     EXPECT_EQ(result->permissions[1], Permissions::LogWrite);
 }
 
-TEST(Authenticator, authenticate_unknown_key) {
-    AuthRepositoryMock mock_repo;
-    Authenticator authn(mock_repo);
+TEST(AuthService, authenticate_unknown_key) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
 
-    EXPECT_CALL(mock_repo, get_by_key_hash(testing::_))
+    EXPECT_CALL(mock_auth_repo, get_by_key_hash(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::nullopt));
 
-    auto result = authn.authenticate("unknown-key");
+    auto result = authz.authenticate("unknown-key");
     EXPECT_FALSE(result.has_value());
 }
 
-TEST(Authenticator, authenticate_expired_key) {
-    AuthRepositoryMock mock_repo;
-    Authenticator authn(mock_repo);
+TEST(AuthService, authenticate_expired_key) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "expired-uuid",
@@ -139,17 +146,17 @@ TEST(Authenticator, authenticate_expired_key) {
         .is_valid = true
     };
 
-    EXPECT_CALL(mock_repo, get_by_key_hash(testing::_))
+    EXPECT_CALL(mock_auth_repo, get_by_key_hash(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<AuthorizationEntry>(entry)));
 
-    auto result = authn.authenticate("expired-key");
+    auto result = authz.authenticate("expired-key");
     EXPECT_FALSE(result.has_value());
 }
 
-TEST(Authenticator, authenticate_invalid_key) {
-    AuthRepositoryMock mock_repo;
-    Authenticator authn(mock_repo);
+TEST(AuthService, authenticate_invalid_key) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "invalid-uuid",
@@ -161,17 +168,17 @@ TEST(Authenticator, authenticate_invalid_key) {
         .is_valid = false
     };
 
-    EXPECT_CALL(mock_repo, get_by_key_hash(testing::_))
+    EXPECT_CALL(mock_auth_repo, get_by_key_hash(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<AuthorizationEntry>(entry)));
 
-    auto result = authn.authenticate("invalid-key");
+    auto result = authz.authenticate("invalid-key");
     EXPECT_FALSE(result.has_value());
 }
 
-TEST(Authenticator, authenticate_multiple_permissions) {
-    AuthRepositoryMock mock_repo;
-    Authenticator authn(mock_repo);
+TEST(AuthService, authenticate_multiple_permissions) {
+    AuthRepositoryMock mock_auth_repo;
+	AuthService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "multi-perm-uuid",
@@ -183,11 +190,11 @@ TEST(Authenticator, authenticate_multiple_permissions) {
         .is_valid = true
     };
 
-    EXPECT_CALL(mock_repo, get_by_key_hash(testing::_))
+    EXPECT_CALL(mock_auth_repo, get_by_key_hash(testing::_))
         .Times(1)
         .WillOnce(testing::Return(std::optional<AuthorizationEntry>(entry)));
 
-    auto result = authn.authenticate("multi-perm-key");
+    auto result = authz.authenticate("multi-perm-key");
     ASSERT_TRUE(result.has_value());
     ASSERT_EQ(result->permissions.size(), 3);
     EXPECT_EQ(result->permissions[0], Permissions::LogRead);

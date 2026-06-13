@@ -23,13 +23,15 @@ int main(void) {
         Authorizer authorizer;
         Authenticator authenticator(auth_repo);
         KeyService key_service(auth_repo);
+        AuthService auth_service(auth_repo);
         LogService log_service(log_repo);
 
         SOLogSServer server(
             log_service,
             authorizer,
             authenticator,
-            key_service
+            key_service,
+            auth_service
         );
 
         std::cout << "Listening on port " << port << '\n';

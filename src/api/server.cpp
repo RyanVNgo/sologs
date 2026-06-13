@@ -8,11 +8,13 @@ SOLogSServer::SOLogSServer(
         ILogService& log_service,
         IAuthorizer& authorizer,
         IAuthenticator& authenticator,
-        IKeyService& key_service
+        IKeyService& key_service,
+        IAuthService& auth_service
 ) : log_service_(log_service),
     authorizer_(authorizer),
     authenticator_(authenticator),
-    key_service_(key_service)
+    key_service_(key_service),
+    auth_service_(auth_service)
 {
     drogon::app().registerHandler(
             "/health",

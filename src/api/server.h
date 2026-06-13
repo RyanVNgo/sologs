@@ -16,7 +16,8 @@ class SOLogSServer {
                 ILogService& log_service,
                 IAuthorizer& authorizer,
                 IAuthenticator& authenticator,
-                IKeyService& key_service
+                IKeyService& key_service,
+                IAuthService& auth_service
         );
 
         auto start(int port) -> void;
@@ -58,6 +59,7 @@ class SOLogSServer {
         IAuthorizer& authorizer_;
         IAuthenticator& authenticator_;
         IKeyService& key_service_;
+        IAuthService& auth_service_;
 
 };
 

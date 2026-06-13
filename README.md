@@ -95,14 +95,6 @@ Query stored logs. Requires `LogRead` or `Admin`.
 | `until` | End timestamp (`YYYY-MM-DD HH:MM:SS`) |
 | `limit` | Max results (default: all) |
 
-## CI
-
-A `Dockerfile` and `.github/workflows/ci.yml` are included for automated
-build + test via GitHub Actions or local Docker runs:
-
-```bash
-docker build -t sologs-ci .
-```
 
 ## License
 

@@ -2,6 +2,9 @@
 #pragma once
 
 #include <optional>
+#include <list>
+#include <unordered_map>
+#include <mutex>
 
 #include "auth.h"
 #include "auth_repository.h"
@@ -24,13 +27,37 @@ class IAuthService {
 
         [[nodiscard]] virtual auto authenticate(
                 const std::string& key
-        ) const -> std::optional<Subject> = 0;
+        ) -> std::optional<Subject> = 0;
 
         [[nodiscard]] virtual auto subject_has_permissions(
                 const Subject& subject,
                 const std::vector<Permissions>& valid_permissions,
                 PermissionMode mode
         ) const -> bool = 0;
+
+};
+
+class UserLRUCache {
+    public:
+        UserLRUCache(int capacity);
+
+        [[nodiscard]] auto get(
+                const std::string& key
+        ) noexcept -> std::optional<Subject>;
+
+        auto put(const std::string& key, Subject subject) noexcept -> void;
+
+    private:
+        using KeySubjectPair = std::pair<std::string, Subject>;
+
+        size_t capacity_;
+        std::list<KeySubjectPair> lru_;
+        std::unordered_map<
+            std::string,
+            std::list<KeySubjectPair>::iterator
+        > cache_;
+
+        mutable std::mutex mutex_;
 
 };
 
@@ -46,7 +73,7 @@ class AuthService : public IAuthService {
 
         [[nodiscard]] auto authenticate(
                 const std::string& key
-        ) const -> std::optional<Subject> override;
+        ) -> std::optional<Subject> override;
 
         [[nodiscard]] auto subject_has_permissions(
                 const Subject& subject,
@@ -58,6 +85,7 @@ class AuthService : public IAuthService {
         [[nodiscard]] auto current_timestamp() const noexcept -> std::string;
 
         IAuthRepository& auth_repo_;
+        UserLRUCache user_auth_cache_;
 
 };
 

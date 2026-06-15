@@ -30,7 +30,7 @@ class AuthServiceMock : public IAuthService {
                 std::optional<Subject>,
                 authenticate,
                 (const std::string& key),
-                (const override)
+                (override)
         );
 
         MOCK_METHOD(

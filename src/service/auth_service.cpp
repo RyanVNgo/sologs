@@ -10,9 +10,48 @@
 #include "crypto.h"
 
 
+UserLRUCache::UserLRUCache(int capacity) : capacity_(capacity) { }
+
+auto UserLRUCache::get(
+        const std::string& key
+) noexcept -> std::optional<Subject> {
+    std::lock_guard<std::mutex> _(mutex_);
+
+    auto iter = cache_.find(key);
+    if (iter == cache_.end()) {
+        return std::nullopt;
+    }
+
+    lru_.splice(lru_.begin(), lru_, iter->second);
+    return iter->second->second;
+}
+
+auto UserLRUCache::put(
+    const std::string& key,
+    Subject subject
+) noexcept -> void {
+    std::lock_guard<std::mutex> _(mutex_);
+
+    auto iter = cache_.find(key);
+    if (iter != cache_.end()) {
+        iter->second->second = subject;
+        lru_.splice(lru_.begin(), lru_, iter->second);
+    }
+
+    if (cache_.size() == capacity_) {
+        std::string old_key = lru_.back().first;
+        cache_.erase(old_key);
+        lru_.pop_back();
+    }
+
+    lru_.emplace_front(key, subject);
+    cache_[key] = lru_.begin();
+}
+
 AuthService::AuthService(
         IAuthRepository& auth_repo
-) : auth_repo_(auth_repo)
+) : auth_repo_(auth_repo),
+    user_auth_cache_(32)
 { }
 
 auto AuthService::create_user(
@@ -40,7 +79,11 @@ auto AuthService::create_user(
 
 auto AuthService::authenticate(
         const std::string& key
-) const -> std::optional<Subject> {
+) -> std::optional<Subject> {
+    if (auto subject = user_auth_cache_.get(key); subject.has_value()) {
+        return subject.value();
+    }
+
     auto hash = sologs::crypto::sha256_hex(key);
     auto entry = auth_repo_.get_by_key_hash(hash);
     if (!entry.has_value() || !entry->is_valid) {
@@ -56,7 +99,10 @@ auto AuthService::authenticate(
         return {};
     }
 
-    return Subject{entry->uuid, entry->name, entry->permissions};
+    Subject subject{entry->uuid, entry->name, entry->permissions};
+    user_auth_cache_.put(key, subject);
+
+    return subject;
 }
 
 auto AuthService::subject_has_permissions(

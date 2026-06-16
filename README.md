@@ -1,4 +1,4 @@
-# sologs — simple opinionated logging server
+# sologs
 
 A lightweight HTTP logging server built with C++20 and Drogon. Accepts structured log
 entries via HTTP, stores them in SQLite, and provides key-based auth.

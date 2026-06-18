@@ -105,6 +105,7 @@ gtest_discover_tests(service_tests
 add_executable(server_tests
     api/server_post_tests.cpp
     api/server_get_tests.cpp
+    api/server_get_users_tests.cpp
 )
 target_link_libraries(server_tests
     PRIVATE

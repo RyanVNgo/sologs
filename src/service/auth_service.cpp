@@ -77,6 +77,12 @@ auto AuthService::create_user(
     return {raw_key, entry};
 }
 
+auto AuthService::get_users(
+        const UserFilterParams& params
+) -> json {
+    return {};
+}
+
 auto AuthService::authenticate(
         const std::string& key
 ) -> std::optional<Subject> {

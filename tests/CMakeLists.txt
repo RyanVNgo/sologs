@@ -127,6 +127,7 @@ gtest_discover_tests(server_tests
 # ------------------------------------------------------------
 add_executable(e2e_tests
     e2e/auth_e2e_tests.cpp
+    e2e/log_e2e_tests.cpp
 )
 target_link_libraries(e2e_tests
     PRIVATE

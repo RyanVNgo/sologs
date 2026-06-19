@@ -244,3 +244,359 @@ TEST(AuthRepo, unrecognized_permission_skipped) {
     std::filesystem::remove(db_filename);
 }
 
+TEST(AuthRepo, get_auth_entries_no_filters) {
+    const char* db_filename = "auth_repo_get_all.sqlite";
+    std::unique_ptr<SQLiteDatabase> test_db;
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    SqlAuthRepository repo(*test_db.get());
+
+    AuthorizationEntry entry1{
+        .uuid = "uuid-1",
+        .key_hash = "hash1",
+        .name = "Alpha",
+        .permissions = {Permissions::LogRead},
+        .created_at = "2026-01-01 00:00:00",
+        .expires_at = "2030-01-01 00:00:00",
+        .is_valid = true
+    };
+    AuthorizationEntry entry2{
+        .uuid = "uuid-2",
+        .key_hash = "hash2",
+        .name = "Beta",
+        .permissions = {Permissions::Admin},
+        .created_at = "2026-06-01 00:00:00",
+        .expires_at = "2030-06-01 00:00:00",
+        .is_valid = true
+    };
+
+    ASSERT_NO_THROW(repo.insert(entry1));
+    ASSERT_NO_THROW(repo.insert(entry2));
+
+    UserFilterParams params{.limit = 100};
+    auto results = repo.get_auth_entries(params);
+
+    ASSERT_EQ(results.size(), 2);
+    EXPECT_EQ(results[0].uuid, "uuid-1");
+    EXPECT_EQ(results[1].uuid, "uuid-2");
+
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
+}
+
+TEST(AuthRepo, get_auth_entries_filter_uuid) {
+    const char* db_filename = "auth_repo_filter_uuid.sqlite";
+    std::unique_ptr<SQLiteDatabase> test_db;
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    SqlAuthRepository repo(*test_db.get());
+
+    AuthorizationEntry entry1{
+        .uuid = "find-me",
+        .key_hash = "hash1",
+        .name = "Target",
+        .permissions = {Permissions::LogRead},
+        .created_at = "2026-01-01 00:00:00",
+        .expires_at = "2030-01-01 00:00:00",
+        .is_valid = true
+    };
+    AuthorizationEntry entry2{
+        .uuid = "ignore-me",
+        .key_hash = "hash2",
+        .name = "Other",
+        .permissions = {Permissions::Admin},
+        .created_at = "2026-06-01 00:00:00",
+        .expires_at = "2030-06-01 00:00:00",
+        .is_valid = true
+    };
+
+    ASSERT_NO_THROW(repo.insert(entry1));
+    ASSERT_NO_THROW(repo.insert(entry2));
+
+    UserFilterParams params{.uuid = "find-me", .limit = 100};
+    auto results = repo.get_auth_entries(params);
+
+    ASSERT_EQ(results.size(), 1);
+    EXPECT_EQ(results[0].name, "Target");
+
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
+}
+
+TEST(AuthRepo, get_auth_entries_filter_name) {
+    const char* db_filename = "auth_repo_filter_name.sqlite";
+    std::unique_ptr<SQLiteDatabase> test_db;
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    SqlAuthRepository repo(*test_db.get());
+
+    AuthorizationEntry entry1{
+        .uuid = "uuid-1",
+        .key_hash = "hash1",
+        .name = "Alice",
+        .permissions = {Permissions::LogRead},
+        .created_at = "2026-01-01 00:00:00",
+        .expires_at = "2030-01-01 00:00:00",
+        .is_valid = true
+    };
+    AuthorizationEntry entry2{
+        .uuid = "uuid-2",
+        .key_hash = "hash2",
+        .name = "Bob",
+        .permissions = {Permissions::Admin},
+        .created_at = "2026-06-01 00:00:00",
+        .expires_at = "2030-06-01 00:00:00",
+        .is_valid = true
+    };
+
+    ASSERT_NO_THROW(repo.insert(entry1));
+    ASSERT_NO_THROW(repo.insert(entry2));
+
+    UserFilterParams params{.name = "Alice", .limit = 100};
+    auto results = repo.get_auth_entries(params);
+
+    ASSERT_EQ(results.size(), 1);
+    EXPECT_EQ(results[0].uuid, "uuid-1");
+
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
+}
+
+TEST(AuthRepo, get_auth_entries_filter_permissions) {
+    const char* db_filename = "auth_repo_filter_perms.sqlite";
+    std::unique_ptr<SQLiteDatabase> test_db;
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    SqlAuthRepository repo(*test_db.get());
+
+    AuthorizationEntry entry1{
+        .uuid = "uuid-1",
+        .key_hash = "hash1",
+        .name = "Admin",
+        .permissions = {Permissions::Admin},
+        .created_at = "2026-01-01 00:00:00",
+        .expires_at = "2030-01-01 00:00:00",
+        .is_valid = true
+    };
+    AuthorizationEntry entry2{
+        .uuid = "uuid-2",
+        .key_hash = "hash2",
+        .name = "Reader",
+        .permissions = {Permissions::LogRead},
+        .created_at = "2026-06-01 00:00:00",
+        .expires_at = "2030-06-01 00:00:00",
+        .is_valid = true
+    };
+    AuthorizationEntry entry3{
+        .uuid = "uuid-3",
+        .key_hash = "hash3",
+        .name = "Both",
+        .permissions = {Permissions::LogRead, Permissions::Admin},
+        .created_at = "2026-06-01 00:00:00",
+        .expires_at = "2030-06-01 00:00:00",
+        .is_valid = true
+    };
+
+    ASSERT_NO_THROW(repo.insert(entry1));
+    ASSERT_NO_THROW(repo.insert(entry2));
+    ASSERT_NO_THROW(repo.insert(entry3));
+
+    UserFilterParams params{
+        .permissions = std::vector{Permissions::Admin},
+        .limit = 100
+    };
+    auto results = repo.get_auth_entries(params);
+
+    ASSERT_EQ(results.size(), 2);
+    EXPECT_EQ(results[0].uuid, "uuid-1");
+    EXPECT_EQ(results[1].uuid, "uuid-3");
+
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
+}
+
+TEST(AuthRepo, get_auth_entries_filter_multiple_permissions) {
+    const char* db_filename = "auth_repo_filter_multi_perm.sqlite";
+    std::unique_ptr<SQLiteDatabase> test_db;
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    SqlAuthRepository repo(*test_db.get());
+
+    AuthorizationEntry entry1{
+        .uuid = "uuid-1",
+        .key_hash = "hash1",
+        .name = "Admin",
+        .permissions = {Permissions::Admin},
+        .created_at = "2026-01-01 00:00:00",
+        .expires_at = "2030-01-01 00:00:00",
+        .is_valid = true
+    };
+    AuthorizationEntry entry2{
+        .uuid = "uuid-2",
+        .key_hash = "hash2",
+        .name = "Both",
+        .permissions = {Permissions::LogRead, Permissions::Admin},
+        .created_at = "2026-06-01 00:00:00",
+        .expires_at = "2030-06-01 00:00:00",
+        .is_valid = true
+    };
+
+    ASSERT_NO_THROW(repo.insert(entry1));
+    ASSERT_NO_THROW(repo.insert(entry2));
+
+    UserFilterParams params{
+        .permissions = std::vector{Permissions::LogRead, Permissions::Admin},
+        .limit = 100
+    };
+    auto results = repo.get_auth_entries(params);
+
+    ASSERT_EQ(results.size(), 1);
+    EXPECT_EQ(results[0].uuid, "uuid-2");
+
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
+}
+
+TEST(AuthRepo, get_auth_entries_filter_time_range) {
+    const char* db_filename = "auth_repo_filter_time.sqlite";
+    std::unique_ptr<SQLiteDatabase> test_db;
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    SqlAuthRepository repo(*test_db.get());
+
+    AuthorizationEntry entry1{
+        .uuid = "uuid-1",
+        .key_hash = "hash1",
+        .name = "Old",
+        .permissions = {Permissions::LogRead},
+        .created_at = "2025-01-01 00:00:00",
+        .expires_at = "2030-01-01 00:00:00",
+        .is_valid = true
+    };
+    AuthorizationEntry entry2{
+        .uuid = "uuid-2",
+        .key_hash = "hash2",
+        .name = "Mid",
+        .permissions = {Permissions::LogRead},
+        .created_at = "2026-06-01 00:00:00",
+        .expires_at = "2030-01-01 00:00:00",
+        .is_valid = true
+    };
+    AuthorizationEntry entry3{
+        .uuid = "uuid-3",
+        .key_hash = "hash3",
+        .name = "New",
+        .permissions = {Permissions::LogRead},
+        .created_at = "2027-01-01 00:00:00",
+        .expires_at = "2030-01-01 00:00:00",
+        .is_valid = true
+    };
+
+    ASSERT_NO_THROW(repo.insert(entry1));
+    ASSERT_NO_THROW(repo.insert(entry2));
+    ASSERT_NO_THROW(repo.insert(entry3));
+
+    UserFilterParams params{
+        .created_after = "2026-01-01 00:00:00",
+        .created_before = "2026-12-31 23:59:59",
+        .limit = 100
+    };
+    auto results = repo.get_auth_entries(params);
+
+    ASSERT_EQ(results.size(), 1);
+    EXPECT_EQ(results[0].name, "Mid");
+
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
+}
+
+TEST(AuthRepo, get_auth_entries_filter_is_valid_false) {
+    const char* db_filename = "auth_repo_filter_invalid.sqlite";
+    std::unique_ptr<SQLiteDatabase> test_db;
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    SqlAuthRepository repo(*test_db.get());
+
+    AuthorizationEntry entry1{
+        .uuid = "uuid-1",
+        .key_hash = "hash1",
+        .name = "Valid",
+        .permissions = {Permissions::LogRead},
+        .created_at = "2026-01-01 00:00:00",
+        .expires_at = "2030-01-01 00:00:00",
+        .is_valid = true
+    };
+    AuthorizationEntry entry2{
+        .uuid = "uuid-2",
+        .key_hash = "hash2",
+        .name = "Invalid",
+        .permissions = {Permissions::LogRead},
+        .created_at = "2026-06-01 00:00:00",
+        .expires_at = "2030-06-01 00:00:00",
+        .is_valid = false
+    };
+
+    ASSERT_NO_THROW(repo.insert(entry1));
+    ASSERT_NO_THROW(repo.insert(entry2));
+
+    UserFilterParams params{
+        .is_valid = false,
+        .limit = 100
+    };
+    auto results = repo.get_auth_entries(params);
+
+    ASSERT_EQ(results.size(), 1);
+    EXPECT_EQ(results[0].name, "Invalid");
+
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
+}
+
+TEST(AuthRepo, get_auth_entries_limit) {
+    const char* db_filename = "auth_repo_limit.sqlite";
+    std::unique_ptr<SQLiteDatabase> test_db;
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    SqlAuthRepository repo(*test_db.get());
+
+    for (int i = 0; i < 5; ++i) {
+        AuthorizationEntry entry{
+            .uuid = "uuid-" + std::to_string(i),
+            .key_hash = "hash" + std::to_string(i),
+            .name = "key-" + std::to_string(i),
+            .permissions = {Permissions::LogRead},
+            .created_at = "2026-01-01 00:00:00",
+            .expires_at = "2030-01-01 00:00:00",
+            .is_valid = true
+        };
+        ASSERT_NO_THROW(repo.insert(entry));
+    }
+
+    UserFilterParams params{.limit = 3};
+    auto results = repo.get_auth_entries(params);
+
+    ASSERT_EQ(results.size(), 3);
+
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
+}
+
+TEST(AuthRepo, get_auth_entries_no_match) {
+    const char* db_filename = "auth_repo_no_match.sqlite";
+    std::unique_ptr<SQLiteDatabase> test_db;
+    ASSERT_NO_THROW(test_db = std::make_unique<SQLiteDatabase>(db_filename));
+    SqlAuthRepository repo(*test_db.get());
+
+    AuthorizationEntry entry{
+        .uuid = "uuid-1",
+        .key_hash = "hash1",
+        .name = "Solo",
+        .permissions = {Permissions::LogRead},
+        .created_at = "2026-01-01 00:00:00",
+        .expires_at = "2030-01-01 00:00:00",
+        .is_valid = true
+    };
+
+    ASSERT_NO_THROW(repo.insert(entry));
+
+    UserFilterParams params{.name = "Nobody", .limit = 100};
+    auto results = repo.get_auth_entries(params);
+
+    EXPECT_TRUE(results.empty());
+
+    EXPECT_TRUE(std::filesystem::exists(db_filename));
+    std::filesystem::remove(db_filename);
+}
+

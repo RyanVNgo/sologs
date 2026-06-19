@@ -65,6 +65,12 @@ auto SqlAuthRepository::insert_batch(
     database_.execute_prepared_batched(sql, data);
 }
 
+auto SqlAuthRepository::get_auth_entries(
+        const UserFilterParams& params
+) -> std::vector<AuthorizationEntry> {
+    return {};
+}
+
 auto SqlAuthRepository::get_by_key_hash(
     const std::string& hash
 ) const -> std::optional<AuthorizationEntry> {

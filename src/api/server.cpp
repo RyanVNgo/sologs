@@ -328,6 +328,14 @@ auto SOLogSServer::get_auth_handler(
     json users;
     try {
         users = auth_service_.get_users(params);
+    } catch (const std::invalid_argument& e) {
+        auto resp = drogon::HttpResponse::newHttpResponse(
+                drogon::k400BadRequest,
+                drogon::CT_TEXT_PLAIN
+        );
+        resp->setBody(e.what());
+        callback(resp);
+        return;
     } catch (const std::exception&) {
         auto resp = drogon::HttpResponse::newHttpResponse(
                 drogon::k500InternalServerError,

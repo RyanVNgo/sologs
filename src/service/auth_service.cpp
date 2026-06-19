@@ -6,8 +6,10 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <stdexcept>
 
 #include "crypto.h"
+#include "utils.h"
 
 
 UserLRUCache::UserLRUCache(int capacity) : capacity_(capacity) { }
@@ -80,7 +82,47 @@ auto AuthService::create_user(
 auto AuthService::get_users(
         const UserFilterParams& params
 ) -> json {
-    return {};
+    auto validate = [](const std::optional<std::string>& field, const char* name) {
+        if (field.has_value() && !sologs::utils::is_valid_datetime(field.value())) {
+            throw std::invalid_argument(
+                std::string(name) + " must be in YYYY-MM-DDTHH:MM:SS format"
+            );
+        }
+    };
+    validate(params.created_after, "created_after");
+    validate(params.created_before, "created_before");
+    validate(params.expires_after, "expires_after");
+    validate(params.expires_before, "expires_before");
+
+    UserFilterParams normalized = params;
+    auto normalize = [](std::optional<std::string>& field) {
+        if (field.has_value()) {
+            if (field->back() == 'Z') field->pop_back();
+            if ((*field)[10] == 'T') (*field)[10] = ' ';
+        }
+    };
+    normalize(normalized.created_after);
+    normalize(normalized.created_before);
+    normalize(normalized.expires_after);
+    normalize(normalized.expires_before);
+
+    std::vector<AuthorizationEntry> users = auth_repo_.get_auth_entries(normalized);
+    json arr = json::array();
+
+    for (auto& user : users) {
+        arr.push_back(
+            {
+                {"uuid", user.uuid}, 
+                {"name", user.name}, 
+                {"permissions", sologs::utils::permissions_to_string(user.permissions)}, 
+                {"created_at", user.created_at},
+                {"expires_at", user.expires_at},
+                {"is_valid", user.is_valid ? "true" : "false"},
+            }
+        );
+    }
+
+    return arr;
 }
 
 auto AuthService::authenticate(

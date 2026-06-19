@@ -17,6 +17,10 @@ class IAuthRepository {
                 const std::vector<AuthorizationEntry>& entries
         ) -> void = 0;
 
+        [[nodiscard]] virtual auto get_auth_entries(
+                const UserFilterParams& params
+        ) -> std::vector<AuthorizationEntry> = 0;
+
         [[nodiscard]] virtual auto get_by_key_hash(
                 const std::string& hash
         ) const -> std::optional<AuthorizationEntry> = 0;
@@ -34,6 +38,10 @@ class SqlAuthRepository : public IAuthRepository {
         auto insert_batch(
             const std::vector<AuthorizationEntry>& entries
         ) -> void override;
+
+        [[nodiscard]] auto get_auth_entries(
+                const UserFilterParams& params
+        ) -> std::vector<AuthorizationEntry> override;
 
         [[nodiscard]] auto get_by_key_hash(
             const std::string& hash

@@ -502,3 +502,4 @@ TEST(AuthE2E, post_auth_missing_permissions) {
     auto resp = make_post_request(server, admin.raw_key, body);
     EXPECT_EQ(resp->statusCode(), drogon::k400BadRequest);
 }
+

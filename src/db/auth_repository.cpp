@@ -1,8 +1,9 @@
 
 #include "auth_repository.h"
 
-#include "utils.h"
+#include <sstream>
 
+#include "utils.h"
 
 
 SqlAuthRepository::SqlAuthRepository(
@@ -63,6 +64,80 @@ auto SqlAuthRepository::insert_batch(
     }
 
     database_.execute_prepared_batched(sql, data);
+}
+
+auto SqlAuthRepository::get_auth_entries(
+        const UserFilterParams& params
+) -> std::vector<AuthorizationEntry> {
+    std::ostringstream sql;
+    sql << "SELECT uuid, key_hash, name, permissions, "
+           "created_at, expires_at, is_valid "
+           "FROM auth_keys";
+
+    Row bound_params;
+    bool has_where = false;
+
+    auto add = [&](const std::string& clause, const std::string& value) {
+        sql << (has_where ? " AND" : " WHERE") << clause;
+        bound_params.push_back(value);
+        has_where = true;
+    };
+
+    if (params.uuid.has_value()) {
+        add(" uuid = ?", params.uuid.value());
+    }
+
+    if (params.name.has_value()) {
+        add(" name = ?", params.name.value());
+    }
+
+    if (params.permissions.has_value()) {
+        for (const auto& perm : params.permissions.value()) {
+            add(" permissions LIKE ?",
+                "%" + sologs::utils::permission_label(perm) + "%"
+            );
+        }
+    }
+
+    if (params.created_after.has_value()) {
+        add(" created_at >= ?", params.created_after.value());
+    }
+
+    if (params.created_before.has_value()) {
+        add(" created_at <= ?", params.created_before.value());
+    }
+
+    if (params.expires_after.has_value()) {
+        add(" expires_at >= ?", params.expires_after.value());
+    }
+
+    if (params.expires_before.has_value()) {
+        add(" expires_at <= ?", params.expires_before.value());
+    }
+
+    if (params.is_valid.has_value()) {
+        add(" is_valid = ?", params.is_valid.value() ? "1" : "0");
+    }
+
+    sql << " LIMIT " << params.limit << ";";
+
+    QueryResult results = database_.query(sql.str(), bound_params);
+
+    std::vector<AuthorizationEntry> entries;
+    entries.reserve(results.size());
+    for (const auto& row : results) {
+        entries.push_back({
+            .uuid = row.at(0),
+            .key_hash = row.at(1),
+            .name = row.at(2),
+            .permissions = sologs::utils::parse_permissions(row.at(3)),
+            .created_at = row.at(4),
+            .expires_at = row.at(5),
+            .is_valid = (row.at(6) == "1")
+        });
+    }
+
+    return entries;
 }
 
 auto SqlAuthRepository::get_by_key_hash(

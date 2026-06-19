@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 
 enum class Permissions {
@@ -34,5 +35,17 @@ struct Subject {
     std::string uuid;
     std::string name;
     std::vector<Permissions> permissions;
+};
+
+struct UserFilterParams {
+    std::optional<std::string> uuid;
+    std::optional<std::string> name;
+    std::optional<std::vector<Permissions>> permissions;
+    std::optional<std::string> created_after;
+    std::optional<std::string> created_before;
+    std::optional<std::string> expires_after;
+    std::optional<std::string> expires_before;
+    std::optional<bool> is_valid;
+    int limit;
 };
 

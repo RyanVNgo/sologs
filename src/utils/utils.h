@@ -24,5 +24,9 @@ namespace sologs::utils {
         const std::string& str
 ) noexcept -> std::vector<Permissions>;
 
+[[nodiscard]] auto is_valid_datetime(
+        const std::string& str
+) noexcept -> bool;
+
 } // sologs::utils
 

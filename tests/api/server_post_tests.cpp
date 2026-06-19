@@ -25,6 +25,13 @@ class AuthServiceMock : public IAuthService {
         );
 
         MOCK_METHOD(
+                json,
+                get_users,
+                (const UserFilterParams& params),
+                (override)
+        );
+
+        MOCK_METHOD(
                 std::optional<Subject>,
                 authenticate,
                 (const std::string& key),

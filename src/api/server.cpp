@@ -40,9 +40,13 @@ SOLogSServer::SOLogSServer(
                 const drogon::HttpRequestPtr &req,
                 std::function<void (const drogon::HttpResponsePtr &)> &&callback
             ) {
-                post_auth_handler(req, std::move(callback));
+                if (req->method() == drogon::Post) {
+                    post_auth_handler(req, std::move(callback));
+                } else if (req->method() == drogon::Get) {
+                    get_auth_handler(req, std::move(callback));
+                }
             },
-            {drogon::Post}
+            {drogon::Post, drogon::Get}
     );
 
 }
@@ -270,6 +274,83 @@ auto SOLogSServer::post_auth_handler(
             drogon::CT_APPLICATION_JSON
     );
     resp->setBody(data_resp.dump());
+    callback(resp);
+}
+
+auto SOLogSServer::get_auth_handler(
+        const drogon::HttpRequestPtr &req,
+        std::function<void (const drogon::HttpResponsePtr &)> &&callback
+) -> void {
+    static const auto req_perms = {
+        Permissions::Admin,
+        Permissions::AuthRead
+    };
+    auto mode = PermissionMode::AnyOf;
+    auto auth_resp = authorize_user(req, req_perms, mode);
+    if (auth_resp.has_value()) {
+        callback(auth_resp.value());
+        return;
+    }
+
+    UserFilterParams params{.limit = 100};
+
+    if (auto it = req->parameters().find("uuid"); it != req->parameters().end()) {
+        params.uuid= it->second;
+    }
+    if (auto it = req->parameters().find("name"); it != req->parameters().end()) {
+        params.name = it->second;
+    }
+    if (auto it = req->parameters().find("permissions"); it != req->parameters().end()) {
+        params.permissions = sologs::utils::parse_permissions(it->second);
+    }
+    if (auto it = req->parameters().find("created_after"); it != req->parameters().end()) {
+        params.created_after= it->second;
+    }
+    if (auto it = req->parameters().find("created_before"); it != req->parameters().end()) {
+        params.created_before= it->second;
+    }
+    if (auto it = req->parameters().find("expires_after"); it != req->parameters().end()) {
+        params.expires_after = it->second;
+    }
+    if (auto it = req->parameters().find("expires_before"); it != req->parameters().end()) {
+        params.expires_before = it->second;
+    }
+    if (auto it = req->parameters().find("is_valid"); it != req->parameters().end()) {
+        params.is_valid = it->second == "false" ? false : true;
+    }
+    if (auto it = req->parameters().find("limit"); it != req->parameters().end()) {
+        try {
+            params.limit = std::stoi(it->second);
+        } catch (...) {
+        }
+    }
+
+    json users;
+    try {
+        users = auth_service_.get_users(params);
+    } catch (const std::invalid_argument& e) {
+        auto resp = drogon::HttpResponse::newHttpResponse(
+                drogon::k400BadRequest,
+                drogon::CT_TEXT_PLAIN
+        );
+        resp->setBody(e.what());
+        callback(resp);
+        return;
+    } catch (const std::exception&) {
+        auto resp = drogon::HttpResponse::newHttpResponse(
+                drogon::k500InternalServerError,
+                drogon::CT_TEXT_PLAIN
+        );
+        resp->setBody("Internal Server Error");
+        callback(resp);
+        return;
+    }
+
+    auto resp = drogon::HttpResponse::newHttpResponse(
+            drogon::k200OK,
+            drogon::CT_APPLICATION_JSON
+    );
+    resp->setBody(users.dump());
     callback(resp);
 }
 

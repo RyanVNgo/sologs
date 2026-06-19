@@ -105,6 +105,7 @@ gtest_discover_tests(service_tests
 add_executable(server_tests
     api/server_post_tests.cpp
     api/server_get_tests.cpp
+    api/server_get_users_tests.cpp
 )
 target_link_libraries(server_tests
     PRIVATE
@@ -119,5 +120,28 @@ target_include_directories(server_tests
 )
 gtest_discover_tests(server_tests
     WORKING_DIRECTORY $<TARGET_FILE_DIR:server_tests>
+)
+
+# ------------------------------------------------------------
+# End-to-End Tests
+# ------------------------------------------------------------
+add_executable(e2e_tests
+    e2e/auth_e2e_tests.cpp
+)
+target_link_libraries(e2e_tests
+    PRIVATE
+    sologs_server
+    sologs_service
+    sologs_db
+    sologs_crypto
+    GTest::gtest_main
+    GTest::gmock
+)
+target_include_directories(e2e_tests
+    PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/
+)
+gtest_discover_tests(e2e_tests
+    WORKING_DIRECTORY $<TARGET_FILE_DIR:e2e_tests>
 )
 

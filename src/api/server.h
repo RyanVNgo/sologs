@@ -40,6 +40,11 @@ class SOLogSServer {
                 std::function<void (const drogon::HttpResponsePtr &)> &&callback
         ) -> void;
 
+        auto get_auth_handler(
+                const drogon::HttpRequestPtr &req,
+                std::function<void (const drogon::HttpResponsePtr &)> &&callback
+        ) -> void;
+
     private:
         auto parse_auth_key(
                 const drogon::HttpRequestPtr &req

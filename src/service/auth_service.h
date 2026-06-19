@@ -6,9 +6,13 @@
 #include <unordered_map>
 #include <mutex>
 
+#include <nlohmann/json.hpp>
+
 #include "auth.h"
 #include "auth_repository.h"
 
+
+using json = nlohmann::json;
 
 class IAuthService {
     public:
@@ -24,6 +28,10 @@ class IAuthService {
                 const std::vector<Permissions>& permissions,
                 const std::string& expires_at
         ) -> CreateUserResult = 0;
+
+        [[nodiscard]] virtual auto get_users(
+                const UserFilterParams& params
+        ) -> json = 0;
 
         [[nodiscard]] virtual auto authenticate(
                 const std::string& key
@@ -70,6 +78,10 @@ class AuthService : public IAuthService {
                 const std::vector<Permissions>& permissions,
                 const std::string& expires_at
         ) -> CreateUserResult override;
+
+        [[nodiscard]] auto get_users(
+                const UserFilterParams& params
+        ) -> json override;
 
         [[nodiscard]] auto authenticate(
                 const std::string& key

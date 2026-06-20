@@ -10,7 +10,7 @@
 class LogServiceMock : public ILogService {
     public:
         MOCK_METHOD(void, create_log, (const json& body), (override));
-        MOCK_METHOD(json, get_logs, (FilterParams params), (const override));
+        MOCK_METHOD(json, get_logs, (LogFilterParams params), (const override));
 };
 
 class AuthServiceMock : public IAuthService {
@@ -34,7 +34,7 @@ class AuthServiceMock : public IAuthService {
         );
 
         MOCK_METHOD(
-                std::optional<Subject>,
+                std::optional<User>,
                 authenticate,
                 (const std::string& key),
                 (override)
@@ -44,7 +44,7 @@ class AuthServiceMock : public IAuthService {
             bool,
             subject_has_permissions,
             (
-                const Subject& subject,
+                const User& subject,
                 const std::vector<Permissions>& valid_permissions,
                 PermissionMode mode
             ),
@@ -83,8 +83,8 @@ TEST(Server, get_logs) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -116,15 +116,15 @@ TEST(Server, get_logs_with_level_param) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 
     EXPECT_CALL(mock_service, get_logs(
-        testing::Truly([](const FilterParams& p) {
+        testing::Truly([](const LogFilterParams& p) {
             return p.level.has_value() && p.level.value() == "ERROR";
         })
     )).Times(testing::Exactly(1));
@@ -154,15 +154,15 @@ TEST(Server, get_logs_with_source_param) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 
     EXPECT_CALL(mock_service, get_logs(
-        testing::Truly([](const FilterParams& p) {
+        testing::Truly([](const LogFilterParams& p) {
             return p.source.has_value() && p.source.value() == "api";
         })
     )).Times(testing::Exactly(1));
@@ -192,15 +192,15 @@ TEST(Server, get_logs_with_limit_param) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 
     EXPECT_CALL(mock_service, get_logs(
-        testing::Truly([](const FilterParams& p) {
+        testing::Truly([](const LogFilterParams& p) {
             return p.limit.has_value() && p.limit.value() == 10;
         })
     )).Times(testing::Exactly(1));
@@ -230,15 +230,15 @@ TEST(Server, get_logs_with_multiple_params) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 
     EXPECT_CALL(mock_service, get_logs(
-        testing::Truly([](const FilterParams& p) {
+        testing::Truly([](const LogFilterParams& p) {
             return p.level.value() == "WARN" && p.source.value() == "cli" && p.limit.value() == 50;
         })
     )).Times(testing::Exactly(1));
@@ -270,15 +270,15 @@ TEST(Server, get_logs_with_invalid_limit) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
     )).Times(1).WillOnce(testing::Return(true));
 
     EXPECT_CALL(mock_service, get_logs(
-        testing::Truly([](const FilterParams& p) {
+        testing::Truly([](const LogFilterParams& p) {
             return !p.limit.has_value();
         })
     )).Times(testing::Exactly(1));

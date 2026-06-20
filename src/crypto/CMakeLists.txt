@@ -14,6 +14,9 @@ target_link_libraries(sologs_crypto
     PUBLIC
     OpenSSL::Crypto
     stduuid
+    
+    PRIVATE
+    project_flags
 )
 
 target_compile_features(sologs_crypto PUBLIC cxx_std_20)

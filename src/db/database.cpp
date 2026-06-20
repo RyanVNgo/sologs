@@ -104,10 +104,10 @@ auto SQLiteDatabase::execute_prepared_batched(
             sqlite3_reset(stmt);
             sqlite3_clear_bindings(stmt);
 
-            for (int i = 0; i < values.size(); ++i) {
+            for (std::size_t i = 0; i < values.size(); ++i) {
                 if (int err_code = sqlite3_bind_text(
                         stmt,
-                        i + 1,
+                        static_cast<int>(i + 1),
                         values[i].c_str(),
                         -1,
                         SQLITE_STATIC

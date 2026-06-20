@@ -21,38 +21,38 @@ class SOLogSServer {
         auto stop() -> void;
 
         auto get_health(
-                const drogon::HttpRequestPtr &req,
-                std::function<void (const drogon::HttpResponsePtr &)> &&callback
+                const drogon::HttpRequestPtr& req,
+                std::function<void(const drogon::HttpResponsePtr&)>&& callback
         ) -> void;
 
         auto post_logs_handler(
-                const drogon::HttpRequestPtr &req,
-                std::function<void (const drogon::HttpResponsePtr &)> &&callback
+                const drogon::HttpRequestPtr& req,
+                std::function<void(const drogon::HttpResponsePtr&)>&& callback
         ) -> void;
 
         auto get_logs_handler(
-                const drogon::HttpRequestPtr &req,
-                std::function<void (const drogon::HttpResponsePtr &)> &&callback
+                const drogon::HttpRequestPtr& req,
+                std::function<void(const drogon::HttpResponsePtr&)>&& callback
         ) -> void;
 
         auto post_auth_handler(
-                const drogon::HttpRequestPtr &req,
-                std::function<void (const drogon::HttpResponsePtr &)> &&callback
+                const drogon::HttpRequestPtr& req,
+                std::function<void(const drogon::HttpResponsePtr&)>&& callback
         ) -> void;
 
         auto get_auth_handler(
-                const drogon::HttpRequestPtr &req,
-                std::function<void (const drogon::HttpResponsePtr &)> &&callback
+                const drogon::HttpRequestPtr& req,
+                std::function<void(const drogon::HttpResponsePtr&)>&& callback
         ) -> void;
 
     private:
         auto parse_auth_key(
-                const drogon::HttpRequestPtr &req
+                const drogon::HttpRequestPtr& req
         ) const -> std::string;
 
         auto authorize_user(
-                const drogon::HttpRequestPtr &req,
-                const std::vector<Permissions>& perms,
+                const drogon::HttpRequestPtr& req,
+                const PermissionList& perms,
                 const PermissionMode& mode
         ) -> std::optional<drogon::HttpResponsePtr>;
 

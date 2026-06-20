@@ -20,7 +20,7 @@ class AuthRepositoryMock : public IAuthRepository {
 TEST(AuthService, has_permissions_anyof_granted) {
     AuthRepositoryMock mock_auth_repo;
 	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead}};
+    User subject{"uuid", "test", {Permissions::LogRead}};
 
     EXPECT_TRUE(authz.subject_has_permissions(
         subject, {Permissions::LogRead}, PermissionMode::AnyOf
@@ -30,7 +30,7 @@ TEST(AuthService, has_permissions_anyof_granted) {
 TEST(AuthService, has_permissions_anyof_denied) {
     AuthRepositoryMock mock_auth_repo;
 	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead}};
+    User subject{"uuid", "test", {Permissions::LogRead}};
 
     EXPECT_FALSE(authz.subject_has_permissions(
         subject, {Permissions::LogWrite}, PermissionMode::AnyOf
@@ -40,7 +40,7 @@ TEST(AuthService, has_permissions_anyof_denied) {
 TEST(AuthService, has_permissions_anyof_partial_match) {
     AuthRepositoryMock mock_auth_repo;
 	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead}};
+    User subject{"uuid", "test", {Permissions::LogRead}};
 
     EXPECT_TRUE(authz.subject_has_permissions(
         subject,
@@ -52,7 +52,7 @@ TEST(AuthService, has_permissions_anyof_partial_match) {
 TEST(AuthService, has_permissions_allof_granted) {
     AuthRepositoryMock mock_auth_repo;
 	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead, Permissions::LogWrite}};
+    User subject{"uuid", "test", {Permissions::LogRead, Permissions::LogWrite}};
 
     EXPECT_TRUE(authz.subject_has_permissions(
         subject,
@@ -64,7 +64,7 @@ TEST(AuthService, has_permissions_allof_granted) {
 TEST(AuthService, has_permissions_allof_denied) {
     AuthRepositoryMock mock_auth_repo;
 	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead}};
+    User subject{"uuid", "test", {Permissions::LogRead}};
 
     EXPECT_FALSE(authz.subject_has_permissions(
         subject,
@@ -76,7 +76,7 @@ TEST(AuthService, has_permissions_allof_denied) {
 TEST(AuthService, has_permissions_allof_extra_permissions) {
     AuthRepositoryMock mock_auth_repo;
 	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead, Permissions::LogWrite, Permissions::Admin}};
+    User subject{"uuid", "test", {Permissions::LogRead, Permissions::LogWrite, Permissions::Admin}};
 
     EXPECT_TRUE(authz.subject_has_permissions(
         subject, {Permissions::LogRead}, PermissionMode::AllOf
@@ -86,7 +86,7 @@ TEST(AuthService, has_permissions_allof_extra_permissions) {
 TEST(AuthService, has_permissions_empty_required) {
     AuthRepositoryMock mock_auth_repo;
 	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead}};
+    User subject{"uuid", "test", {Permissions::LogRead}};
 
     EXPECT_FALSE(authz.subject_has_permissions(
         subject, {}, PermissionMode::AnyOf

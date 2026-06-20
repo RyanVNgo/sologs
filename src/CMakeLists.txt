@@ -13,5 +13,7 @@ target_link_libraries(sologs
     sologs_db
     sologs_server
     sologs_service
+
+    project_flags
 )
 

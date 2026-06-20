@@ -23,23 +23,27 @@ class IAuthService {
 
         ~IAuthService() = default;
 
-        [[nodiscard]] virtual auto create_user(
+        [[nodiscard]]
+        virtual auto create_user(
                 const std::string& name,
-                const std::vector<Permissions>& permissions,
+                const PermissionList& permissions,
                 const std::string& expires_at
         ) -> CreateUserResult = 0;
 
-        [[nodiscard]] virtual auto get_users(
+        [[nodiscard]]
+        virtual auto get_users(
                 const UserFilterParams& params
         ) -> json = 0;
 
-        [[nodiscard]] virtual auto authenticate(
+        [[nodiscard]]
+        virtual auto authenticate(
                 const std::string& key
-        ) -> std::optional<Subject> = 0;
+        ) -> std::optional<User> = 0;
 
-        [[nodiscard]] virtual auto subject_has_permissions(
-                const Subject& subject,
-                const std::vector<Permissions>& valid_permissions,
+        [[nodiscard]]
+        virtual auto subject_has_permissions(
+                const User& subject,
+                const PermissionList& valid_permissions,
                 PermissionMode mode
         ) const -> bool = 0;
 
@@ -49,14 +53,15 @@ class UserLRUCache {
     public:
         UserLRUCache(int capacity);
 
-        [[nodiscard]] auto get(
+        [[nodiscard]]
+        auto get(
                 const std::string& key
-        ) noexcept -> std::optional<Subject>;
+        ) noexcept -> std::optional<User>;
 
-        auto put(const std::string& key, Subject subject) noexcept -> void;
+        auto put(const std::string& key, User subject) noexcept -> void;
 
     private:
-        using KeySubjectPair = std::pair<std::string, Subject>;
+        using KeySubjectPair = std::pair<std::string, User>;
 
         size_t capacity_;
         std::list<KeySubjectPair> lru_;
@@ -73,28 +78,33 @@ class AuthService : public IAuthService {
     public:
         explicit AuthService(IAuthRepository& auth_repo);
         
-        [[nodiscard]] auto create_user(
+        [[nodiscard]]
+        auto create_user(
                 const std::string& name,
-                const std::vector<Permissions>& permissions,
+                const PermissionList& permissions,
                 const std::string& expires_at
         ) -> CreateUserResult override;
 
-        [[nodiscard]] auto get_users(
+        [[nodiscard]]
+        auto get_users(
                 const UserFilterParams& params
         ) -> json override;
 
-        [[nodiscard]] auto authenticate(
+        [[nodiscard]]
+        auto authenticate(
                 const std::string& key
-        ) -> std::optional<Subject> override;
+        ) -> std::optional<User> override;
 
-        [[nodiscard]] auto subject_has_permissions(
-                const Subject& subject,
-                const std::vector<Permissions>& valid_permissions,
+        [[nodiscard]]
+        auto subject_has_permissions(
+                const User& subject,
+                const PermissionList& valid_permissions,
                 PermissionMode mode
         ) const -> bool override;
 
     private:
-        [[nodiscard]] auto current_timestamp() const noexcept -> std::string;
+        [[nodiscard]]
+        auto current_timestamp() const noexcept -> std::string;
 
         IAuthRepository& auth_repo_;
         UserLRUCache user_auth_cache_;

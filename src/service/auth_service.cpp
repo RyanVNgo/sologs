@@ -16,7 +16,7 @@ UserLRUCache::UserLRUCache(int capacity) : capacity_(capacity) { }
 
 auto UserLRUCache::get(
         const std::string& key
-) noexcept -> std::optional<Subject> {
+) noexcept -> std::optional<User> {
     std::lock_guard<std::mutex> _(mutex_);
 
     auto iter = cache_.find(key);
@@ -30,7 +30,7 @@ auto UserLRUCache::get(
 
 auto UserLRUCache::put(
     const std::string& key,
-    Subject subject
+    User subject
 ) noexcept -> void {
     std::lock_guard<std::mutex> _(mutex_);
 
@@ -58,7 +58,7 @@ AuthService::AuthService(
 
 auto AuthService::create_user(
         const std::string& name,
-        const std::vector<Permissions>& permissions,
+        const PermissionList& permissions,
         const std::string& expires_at
 ) -> CreateUserResult {
     std::string raw_key = sologs::crypto::generate_key();
@@ -127,7 +127,7 @@ auto AuthService::get_users(
 
 auto AuthService::authenticate(
         const std::string& key
-) -> std::optional<Subject> {
+) -> std::optional<User> {
     if (auto subject = user_auth_cache_.get(key); subject.has_value()) {
         return subject.value();
     }
@@ -147,15 +147,15 @@ auto AuthService::authenticate(
         return {};
     }
 
-    Subject subject{entry->uuid, entry->name, entry->permissions};
+    User subject{entry->uuid, entry->name, entry->permissions};
     user_auth_cache_.put(key, subject);
 
     return subject;
 }
 
 auto AuthService::subject_has_permissions(
-        const Subject& subject,
-        const std::vector<Permissions>& valid_permissions,
+        const User& subject,
+        const PermissionList& valid_permissions,
         PermissionMode mode
 ) const -> bool {
     auto& subj_perms = subject.permissions;

@@ -20,7 +20,8 @@ class ILogService {
 
         virtual auto create_log(const json& body) -> void = 0;
 
-        [[nodiscard]] virtual auto get_logs(FilterParams params) const -> json = 0;
+        [[nodiscard]]
+        virtual auto get_logs(LogFilterParams params) const -> json = 0;
 };
 
 class LogService : public ILogService {
@@ -31,10 +32,11 @@ class LogService : public ILogService {
 
         auto create_log(const json& body) -> void override;
 
-        [[nodiscard]] auto get_logs(FilterParams params) const -> json override;
+        [[nodiscard]]
+        auto get_logs(LogFilterParams params) const -> json override;
 
     private:
-        auto worker() -> void ;
+        auto worker() -> void;
         
         ILogRepository& log_repo_;
         std::thread worker_thread_;

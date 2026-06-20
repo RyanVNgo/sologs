@@ -17,6 +17,8 @@ target_link_libraries(sologs_db
 
     PRIVATE
     sqlite3
+
+    project_flags
 )
 
 target_compile_features(sologs_db PUBLIC cxx_std_20)

@@ -16,8 +16,9 @@ class ILogRepository {
                 const std::vector<LogEntry>& entries
         ) -> void = 0;
 
-        [[nodiscard]] virtual auto get_all(
-                FilterParams params
+        [[nodiscard]]
+        virtual auto get_all(
+                LogFilterParams params
         ) const -> std::vector<LogEntry> = 0;
 };
 
@@ -31,8 +32,9 @@ class SqlLogRepository : public ILogRepository {
                 const std::vector<LogEntry>& entries
         ) -> void override;
 
-        [[nodiscard]] auto get_all(
-                FilterParams params
+        [[nodiscard]]
+        auto get_all(
+                LogFilterParams params
         ) const -> std::vector<LogEntry> override;
 
     private:

@@ -35,7 +35,7 @@ auto permission_from_label(
 }
 
 auto permissions_to_string(
-        const std::vector<Permissions>& perms
+        const PermissionList& perms
 ) noexcept -> std::string {
     std::ostringstream oss;
     for (size_t i = 0; i < perms.size(); ++i) {
@@ -47,8 +47,8 @@ auto permissions_to_string(
 
 auto parse_permissions(
         const std::string& str
-) noexcept -> std::vector<Permissions> {
-    std::vector<Permissions> result;
+) noexcept -> PermissionList {
+    PermissionList result;
     std::istringstream iss(str);
     std::string token;
     while (std::getline(iss, token, ',')) {

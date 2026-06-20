@@ -16,6 +16,9 @@ target_link_libraries(sologs_service
     sologs_domain
     sologs_crypto
     nlohmann_json::nlohmann_json
+
+    PRIVATE
+    project_flags
 )
 
 target_compile_features(sologs_service PUBLIC cxx_std_20)

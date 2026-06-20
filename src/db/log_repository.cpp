@@ -53,7 +53,9 @@ auto SqlLogRepository::insert_batch(const std::vector<LogEntry>& entries) -> voi
     database_.execute_prepared_batched(sql, data);
 }
 
-auto SqlLogRepository::get_all(FilterParams params) const -> std::vector<LogEntry> {
+auto SqlLogRepository::get_all(
+        LogFilterParams params
+) const -> std::vector<LogEntry> {
     std::ostringstream sql;
     sql << "SELECT id, message, level, source, timestamp FROM logs";
 

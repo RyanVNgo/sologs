@@ -45,7 +45,7 @@ auto LogService::create_log(const json& body) -> void {
     }
 }
 
-auto LogService::get_logs(FilterParams params) const -> json {
+auto LogService::get_logs(LogFilterParams params) const -> json {
     std::vector<LogEntry> logs = log_repo_.get_all(params);
     json arr = json::array();
 

@@ -19,7 +19,7 @@ using json = nlohmann::json;
 class LogServiceMock : public ILogService {
     public:
         MOCK_METHOD(void, create_log, (const json& body), (override));
-        MOCK_METHOD(json, get_logs, (FilterParams params), (const override));
+        MOCK_METHOD(json, get_logs, (LogFilterParams params), (const override));
 };
 
 

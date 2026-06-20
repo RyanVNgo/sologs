@@ -13,6 +13,9 @@ target_link_libraries(sologs_server
     sologs_service
     sologs_utils
     drogon
+
+    PRIVATE
+    project_flags
 )
 
 target_compile_features(sologs_server PUBLIC cxx_std_20)

@@ -13,8 +13,8 @@ SOLogSServer::SOLogSServer(
     drogon::app().registerHandler(
             "/health",
             [this] (
-                const drogon::HttpRequestPtr &req,
-                std::function<void (const drogon::HttpResponsePtr &)> &&callback
+                const drogon::HttpRequestPtr&req,
+                std::function<void(const drogon::HttpResponsePtr&)>&& callback
             ) { get_health(req, std::move(callback)); },
             {drogon::Get}
     );
@@ -22,8 +22,8 @@ SOLogSServer::SOLogSServer(
     drogon::app().registerHandler(
             "/logs",
             [this] (
-                const drogon::HttpRequestPtr &req,
-                std::function<void (const drogon::HttpResponsePtr &)> &&callback
+                const drogon::HttpRequestPtr& req,
+                std::function<void(const drogon::HttpResponsePtr &)>&& callback
             ) { 
                 if (req->method() == drogon::Post) {
                     post_logs_handler(req, std::move(callback)); 
@@ -37,8 +37,8 @@ SOLogSServer::SOLogSServer(
     drogon::app().registerHandler(
             "/auth",
             [this](
-                const drogon::HttpRequestPtr &req,
-                std::function<void (const drogon::HttpResponsePtr &)> &&callback
+                const drogon::HttpRequestPtr& req,
+                std::function<void(const drogon::HttpResponsePtr &)>&& callback
             ) {
                 if (req->method() == drogon::Post) {
                     post_auth_handler(req, std::move(callback));
@@ -57,7 +57,7 @@ auto SOLogSServer::start(int port) -> void {
     }
     drogon::app()
         .setThreadNum(std::thread::hardware_concurrency())
-        .addListener("127.0.0.1", port)
+        .addListener("127.0.0.1", static_cast<uint16_t>(port))
         .run();
 }
 
@@ -70,8 +70,8 @@ auto SOLogSServer::stop() -> void {
 }
 
 void SOLogSServer::get_health(
-        const drogon::HttpRequestPtr &req,
-        std::function<void (const drogon::HttpResponsePtr &)> &&callback
+        const drogon::HttpRequestPtr&,
+        std::function<void(const drogon::HttpResponsePtr&)>&& callback
 ) {
     auto resp = drogon::HttpResponse::newHttpResponse(
             drogon::k200OK,
@@ -82,8 +82,8 @@ void SOLogSServer::get_health(
 }
 
 auto SOLogSServer::post_logs_handler(
-        const drogon::HttpRequestPtr &req,
-        std::function<void (const drogon::HttpResponsePtr &)> &&callback
+        const drogon::HttpRequestPtr& req,
+        std::function<void(const drogon::HttpResponsePtr&)>&& callback
 ) -> void {
     static const auto req_perms = {
         Permissions::LogWrite, 
@@ -137,8 +137,8 @@ auto SOLogSServer::post_logs_handler(
 }
 
 auto SOLogSServer::get_logs_handler(
-        const drogon::HttpRequestPtr &req,
-        std::function<void (const drogon::HttpResponsePtr &)> &&callback
+        const drogon::HttpRequestPtr& req,
+        std::function<void(const drogon::HttpResponsePtr&)>&& callback
 ) -> void {
     static const auto req_perms = {
         Permissions::LogRead, 
@@ -151,25 +151,29 @@ auto SOLogSServer::get_logs_handler(
         return;
     }
 
-    FilterParams params;
+    LogFilterParams params;
 
-    if (auto it = req->parameters().find("level"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(LogFilterParams::LevelKey);
+        it != req->parameters().end()) {
         params.level = it->second;
     }
-    if (auto it = req->parameters().find("source"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(LogFilterParams::SourceKey);
+        it != req->parameters().end()) {
         params.source = it->second;
     }
-    if (auto it = req->parameters().find("since"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(LogFilterParams::SinceKey);
+        it != req->parameters().end()) {
         params.since = it->second;
     }
-    if (auto it = req->parameters().find("until"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(LogFilterParams::UntilKey);
+        it != req->parameters().end()) {
         params.until = it->second;
     }
-    if (auto it = req->parameters().find("limit"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(LogFilterParams::LimitKey);
+        it != req->parameters().end()) {
         try {
             params.limit = std::stoi(it->second);
-        } catch (...) {
-        }
+        } catch (...) { }
     }
 
     json logs;
@@ -194,8 +198,8 @@ auto SOLogSServer::get_logs_handler(
 }
 
 auto SOLogSServer::post_auth_handler(
-        const drogon::HttpRequestPtr &req,
-        std::function<void (const drogon::HttpResponsePtr &)> &&callback
+        const drogon::HttpRequestPtr& req,
+        std::function<void(const drogon::HttpResponsePtr&)>&& callback
 ) -> void {
     static const auto req_perms = {Permissions::Admin};
     auto mode = PermissionMode::AllOf;
@@ -230,7 +234,7 @@ auto SOLogSServer::post_auth_handler(
 
     std::string name = body["name"];
 
-    std::vector<Permissions> permissions;
+    PermissionList permissions;
     for (const auto& p : body["permissions"]) {
         if (auto perm = sologs::utils::permission_from_label(p)) {
             permissions.push_back(perm.value());
@@ -278,8 +282,8 @@ auto SOLogSServer::post_auth_handler(
 }
 
 auto SOLogSServer::get_auth_handler(
-        const drogon::HttpRequestPtr &req,
-        std::function<void (const drogon::HttpResponsePtr &)> &&callback
+        const drogon::HttpRequestPtr& req,
+        std::function<void(const drogon::HttpResponsePtr&)>&& callback
 ) -> void {
     static const auto req_perms = {
         Permissions::Admin,
@@ -294,35 +298,43 @@ auto SOLogSServer::get_auth_handler(
 
     UserFilterParams params{.limit = 100};
 
-    if (auto it = req->parameters().find("uuid"); it != req->parameters().end()) {
-        params.uuid= it->second;
+    if (auto it = req->parameters().find(UserFilterParams::UUIDKey); 
+        it != req->getParameters().end()) {
+        params.uuid = it->second;
     }
-    if (auto it = req->parameters().find("name"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(UserFilterParams::NameKey); 
+        it != req->parameters().end()) {
         params.name = it->second;
     }
-    if (auto it = req->parameters().find("permissions"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(UserFilterParams::PermissionsKey);
+        it != req->parameters().end()) {
         params.permissions = sologs::utils::parse_permissions(it->second);
     }
-    if (auto it = req->parameters().find("created_after"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(UserFilterParams::CreatedAfterKey);
+        it != req->parameters().end()) {
         params.created_after= it->second;
     }
-    if (auto it = req->parameters().find("created_before"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(UserFilterParams::CreatedBeforeKey);
+        it != req->parameters().end()) {
         params.created_before= it->second;
     }
-    if (auto it = req->parameters().find("expires_after"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(UserFilterParams::ExpiresAfterKey);
+        it != req->parameters().end()) {
         params.expires_after = it->second;
     }
-    if (auto it = req->parameters().find("expires_before"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(UserFilterParams::ExpiresBeforeKey);
+        it != req->parameters().end()) {
         params.expires_before = it->second;
     }
-    if (auto it = req->parameters().find("is_valid"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(UserFilterParams::IsValidKey);
+        it != req->parameters().end()) {
         params.is_valid = it->second == "false" ? false : true;
     }
-    if (auto it = req->parameters().find("limit"); it != req->parameters().end()) {
+    if (auto it = req->parameters().find(UserFilterParams::LimitKey);
+        it != req->parameters().end()) {
         try {
             params.limit = std::stoi(it->second);
-        } catch (...) {
-        }
+        } catch (...) { }
     }
 
     json users;
@@ -355,7 +367,7 @@ auto SOLogSServer::get_auth_handler(
 }
 
 auto SOLogSServer::parse_auth_key(
-        const drogon::HttpRequestPtr &req
+        const drogon::HttpRequestPtr& req
 ) const -> std::string {
     auto auth_header = req->getHeader("Authorization");
     if (auth_header.empty() || !auth_header.starts_with("Bearer ")) {
@@ -365,8 +377,8 @@ auto SOLogSServer::parse_auth_key(
 }
 
 auto SOLogSServer::authorize_user(
-        const drogon::HttpRequestPtr &req,
-        const std::vector<Permissions>& perms,
+        const drogon::HttpRequestPtr& req,
+        const PermissionList& perms,
         const PermissionMode& mode
 ) -> std::optional<drogon::HttpResponsePtr> {
     std::string auth_key = parse_auth_key(req);

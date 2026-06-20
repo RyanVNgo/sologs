@@ -43,7 +43,7 @@ auto generate_uuid() -> std::string {
 
 auto generate_key() -> std::string {
     std::array<uint8_t, 32> bytes;
-    if (getrandom(bytes.data(), bytes.size(), 0) != bytes.size()) {
+    if (getrandom(bytes.data(), bytes.size(), 0) != static_cast<long int>(bytes.size())) {
         std::ifstream urandom("/dev/urandom", std::ios::binary);
         urandom.read(reinterpret_cast<char*>(bytes.data()), bytes.size());
     }

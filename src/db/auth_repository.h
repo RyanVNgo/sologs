@@ -17,15 +17,18 @@ class IAuthRepository {
                 const std::vector<AuthorizationEntry>& entries
         ) -> void = 0;
 
-        [[nodiscard]] virtual auto get_auth_entries(
+        [[nodiscard]]
+        virtual auto get_auth_entries(
                 const UserFilterParams& params
         ) -> std::vector<AuthorizationEntry> = 0;
 
-        [[nodiscard]] virtual auto get_by_key_hash(
+        [[nodiscard]]
+        virtual auto get_by_key_hash(
                 const std::string& hash
         ) const -> std::optional<AuthorizationEntry> = 0;
 
-        [[nodiscard]] virtual auto has_any_admin() const -> bool = 0;
+        [[nodiscard]]
+        virtual auto has_any_admin() const -> bool = 0;
 
 };
 
@@ -39,15 +42,18 @@ class SqlAuthRepository : public IAuthRepository {
             const std::vector<AuthorizationEntry>& entries
         ) -> void override;
 
-        [[nodiscard]] auto get_auth_entries(
+        [[nodiscard]]
+        auto get_auth_entries(
                 const UserFilterParams& params
         ) -> std::vector<AuthorizationEntry> override;
 
-        [[nodiscard]] auto get_by_key_hash(
+        [[nodiscard]]
+        auto get_by_key_hash(
             const std::string& hash
         ) const -> std::optional<AuthorizationEntry> override;
 
-        [[nodiscard]] auto has_any_admin() const -> bool override;
+        [[nodiscard]]
+        auto has_any_admin() const -> bool override;
 
     private:
         SQLiteDatabase& database_;

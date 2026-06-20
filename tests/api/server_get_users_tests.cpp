@@ -11,7 +11,7 @@
 class LogServiceMock : public ILogService {
     public:
         MOCK_METHOD(void, create_log, (const json& body), (override));
-        MOCK_METHOD(json, get_logs, (FilterParams params), (const override));
+        MOCK_METHOD(json, get_logs, (LogFilterParams params), (const override));
 };
 
 class AuthServiceMock : public IAuthService {
@@ -35,7 +35,7 @@ class AuthServiceMock : public IAuthService {
         );
 
         MOCK_METHOD(
-                std::optional<Subject>,
+                std::optional<User>,
                 authenticate,
                 (const std::string& key),
                 (override)
@@ -45,7 +45,7 @@ class AuthServiceMock : public IAuthService {
             bool,
             subject_has_permissions,
             (
-                const Subject& subject,
+                const User& subject,
                 const std::vector<Permissions>& valid_permissions,
                 PermissionMode mode
             ),
@@ -64,8 +64,8 @@ TEST(Server, get_users_defaults) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -109,8 +109,8 @@ TEST(Server, get_users_uuid) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -149,8 +149,8 @@ TEST(Server, get_users_name) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -189,8 +189,8 @@ TEST(Server, get_users_permissions) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -242,8 +242,8 @@ TEST(Server, get_users_created_after) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -282,8 +282,8 @@ TEST(Server, get_users_created_before) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -322,8 +322,8 @@ TEST(Server, get_users_expires_after) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -362,8 +362,8 @@ TEST(Server, get_users_expires_before) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -402,8 +402,8 @@ TEST(Server, get_users_is_valid) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -442,8 +442,8 @@ TEST(Server, get_users_limit) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_

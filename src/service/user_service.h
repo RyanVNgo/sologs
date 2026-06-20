@@ -14,14 +14,14 @@
 
 using json = nlohmann::json;
 
-class IAuthService {
+class IUserService {
     public:
         struct CreateUserResult {
             std::string raw_key;
             AuthorizationEntry entry;
         };
 
-        ~IAuthService() = default;
+        ~IUserService() = default;
 
         [[nodiscard]]
         virtual auto create_user(
@@ -74,9 +74,9 @@ class UserLRUCache {
 
 };
 
-class AuthService : public IAuthService {
+class UserService : public IUserService {
     public:
-        explicit AuthService(IAuthRepository& auth_repo);
+        explicit UserService(IAuthRepository& auth_repo);
         
         [[nodiscard]]
         auto create_user(

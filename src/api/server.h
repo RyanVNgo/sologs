@@ -6,14 +6,14 @@
 #include <drogon/HttpController.h>
 
 #include "log_service.h"
-#include "auth_service.h"
+#include "user_service.h"
 
 
 class SOLogSServer {
     public:
         explicit SOLogSServer(
                 ILogService& log_service,
-                IAuthService& auth_service
+                IUserService& auth_service
         );
 
         auto start(int port) -> void;
@@ -57,7 +57,7 @@ class SOLogSServer {
         ) -> std::optional<drogon::HttpResponsePtr>;
 
         ILogService& log_service_;
-        IAuthService& auth_service_;
+        IUserService& auth_service_;
 
 };
 

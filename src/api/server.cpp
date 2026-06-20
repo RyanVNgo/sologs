@@ -6,7 +6,7 @@
 
 SOLogSServer::SOLogSServer(
         ILogService& log_service,
-        IAuthService& auth_service
+        IUserService& auth_service
 ) : log_service_(log_service),
     auth_service_(auth_service)
 {
@@ -246,7 +246,7 @@ auto SOLogSServer::post_auth_handler(
         expires_at = body["expires_at"];
     }
 
-    IAuthService::CreateUserResult result;
+    IUserService::CreateUserResult result;
     try {
         result = auth_service_.create_user(name, permissions, expires_at);
     } catch (const std::exception&) {

@@ -1,5 +1,5 @@
 
-#include "auth_service.h"
+#include "user_service.h"
 
 #include <algorithm>
 #include <chrono>
@@ -50,13 +50,13 @@ auto UserLRUCache::put(
     cache_[key] = lru_.begin();
 }
 
-AuthService::AuthService(
+UserService::UserService(
         IAuthRepository& auth_repo
 ) : auth_repo_(auth_repo),
     user_auth_cache_(32)
 { }
 
-auto AuthService::create_user(
+auto UserService::create_user(
         const std::string& name,
         const PermissionList& permissions,
         const std::string& expires_at
@@ -79,7 +79,7 @@ auto AuthService::create_user(
     return {raw_key, entry};
 }
 
-auto AuthService::get_users(
+auto UserService::get_users(
         const UserFilterParams& params
 ) -> json {
     auto validate = [](const std::optional<std::string>& field, const char* name) {
@@ -125,7 +125,7 @@ auto AuthService::get_users(
     return arr;
 }
 
-auto AuthService::authenticate(
+auto UserService::authenticate(
         const std::string& key
 ) -> std::optional<User> {
     if (auto subject = user_auth_cache_.get(key); subject.has_value()) {
@@ -153,7 +153,7 @@ auto AuthService::authenticate(
     return subject;
 }
 
-auto AuthService::subject_has_permissions(
+auto UserService::subject_has_permissions(
         const User& subject,
         const PermissionList& valid_permissions,
         PermissionMode mode
@@ -183,7 +183,7 @@ auto AuthService::subject_has_permissions(
     return false;
 }
 
-auto AuthService::current_timestamp() const noexcept -> std::string {
+auto UserService::current_timestamp() const noexcept -> std::string {
     auto now = std::chrono::system_clock::now();
     auto now_c = std::chrono::system_clock::to_time_t(now);
     std::ostringstream ss;

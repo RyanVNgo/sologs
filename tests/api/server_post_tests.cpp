@@ -11,7 +11,7 @@ class LogServiceMock : public ILogService {
         MOCK_METHOD(json, get_logs, (LogFilterParams params), (const override));
 };
 
-class AuthServiceMock : public IAuthService {
+class UserServiceMock : public IUserService {
     public:
         MOCK_METHOD(
             CreateUserResult,
@@ -53,7 +53,7 @@ class AuthServiceMock : public IAuthService {
 
 TEST(Server, post_valid) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -95,7 +95,7 @@ TEST(Server, post_valid) {
 
 TEST(Server, post_invalid) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -135,7 +135,7 @@ TEST(Server, post_invalid) {
 
 TEST(Server, post_auth_valid_json) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -184,7 +184,7 @@ TEST(Server, post_auth_valid_json) {
 
 TEST(Server, post_auth_invalid_json) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -227,7 +227,7 @@ TEST(Server, post_auth_invalid_json) {
 
 TEST(Server, post_auth_missing_field) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service

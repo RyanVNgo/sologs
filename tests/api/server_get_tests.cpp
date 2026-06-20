@@ -13,7 +13,7 @@ class LogServiceMock : public ILogService {
         MOCK_METHOD(json, get_logs, (LogFilterParams params), (const override));
 };
 
-class AuthServiceMock : public IAuthService {
+class UserServiceMock : public IUserService {
     public:
         MOCK_METHOD(
             CreateUserResult,
@@ -55,7 +55,7 @@ class AuthServiceMock : public IAuthService {
 
 TEST(Server, get_health) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -75,7 +75,7 @@ TEST(Server, get_health) {
 
 TEST(Server, get_logs) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -108,7 +108,7 @@ TEST(Server, get_logs) {
 
 TEST(Server, get_logs_with_level_param) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -146,7 +146,7 @@ TEST(Server, get_logs_with_level_param) {
 
 TEST(Server, get_logs_with_source_param) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -184,7 +184,7 @@ TEST(Server, get_logs_with_source_param) {
 
 TEST(Server, get_logs_with_limit_param) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -222,7 +222,7 @@ TEST(Server, get_logs_with_limit_param) {
 
 TEST(Server, get_logs_with_multiple_params) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -262,7 +262,7 @@ TEST(Server, get_logs_with_multiple_params) {
 
 TEST(Server, get_logs_with_invalid_limit) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service

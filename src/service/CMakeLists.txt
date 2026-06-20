@@ -1,7 +1,7 @@
 
 add_library(sologs_service
     log_service.cpp
-    auth_service.cpp
+    user_service.cpp
     bootstrap_service.cpp
 )
 

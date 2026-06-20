@@ -14,7 +14,7 @@ class LogServiceMock : public ILogService {
         MOCK_METHOD(json, get_logs, (LogFilterParams params), (const override));
 };
 
-class AuthServiceMock : public IAuthService {
+class UserServiceMock : public IUserService {
     public:
         MOCK_METHOD(
             CreateUserResult,
@@ -56,7 +56,7 @@ class AuthServiceMock : public IAuthService {
 
 TEST(Server, get_users_defaults) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -101,7 +101,7 @@ TEST(Server, get_users_defaults) {
 
 TEST(Server, get_users_uuid) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -141,7 +141,7 @@ TEST(Server, get_users_uuid) {
 
 TEST(Server, get_users_name) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -181,7 +181,7 @@ TEST(Server, get_users_name) {
 
 TEST(Server, get_users_permissions) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -234,7 +234,7 @@ TEST(Server, get_users_permissions) {
 
 TEST(Server, get_users_created_after) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -274,7 +274,7 @@ TEST(Server, get_users_created_after) {
 
 TEST(Server, get_users_created_before) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -314,7 +314,7 @@ TEST(Server, get_users_created_before) {
 
 TEST(Server, get_users_expires_after) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -354,7 +354,7 @@ TEST(Server, get_users_expires_after) {
 
 TEST(Server, get_users_expires_before) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -394,7 +394,7 @@ TEST(Server, get_users_expires_before) {
 
 TEST(Server, get_users_is_valid) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -434,7 +434,7 @@ TEST(Server, get_users_is_valid) {
 
 TEST(Server, get_users_limit) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service

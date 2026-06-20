@@ -3,7 +3,7 @@
 #include "db/log_repository.h"
 #include "db/auth_repository.h"
 #include "service/log_service.h"
-#include "service/auth_service.h"
+#include "service/user_service.h"
 #include "service/bootstrap_service.h"
 #include "api/server.h"
 
@@ -19,7 +19,7 @@ int main(void) {
         SqlAuthRepository auth_repo(auth_db);
 
         BootstrapService::try_bootstrap(auth_repo);
-        AuthService auth_service(auth_repo);
+        UserService auth_service(auth_repo);
         LogService log_service(log_repo);
 
         SOLogSServer server(

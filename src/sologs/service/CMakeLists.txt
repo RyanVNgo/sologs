@@ -9,11 +9,11 @@ target_sources(sologs.service
     PUBLIC
         FILE_SET HEADERS
             BASE_DIRS
-                ${CMAKE_CURRENT_SOURCE_DIR}/include
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs
             FILES
-                include/service/user_service.h
-                include/service/log_service.h
-                include/service/bootstrap_service.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs/service/user_service.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs/service/log_service.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs/service/bootstrap_service.h
 )
 
 target_link_libraries(sologs.service

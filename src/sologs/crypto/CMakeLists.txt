@@ -9,9 +9,9 @@ target_sources(sologs.crypto
     PUBLIC
         FILE_SET HEADERS
             BASE_DIRS
-                ${CMAKE_CURRENT_SOURCE_DIR}/include
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs
             FILES
-                include/crypto/crypto.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs/crypto/crypto.h
 )
 
 target_link_libraries(sologs.crypto

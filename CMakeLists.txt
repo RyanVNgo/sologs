@@ -64,8 +64,7 @@ target_compile_options(project_flags INTERFACE
     $<$<CONFIG:Release>:-O3>
 )
 
-add_subdirectory(components)
-add_subdirectory(src)
+add_subdirectory(src/sologs)
 
 if(BUILD_TESTS)
     add_subdirectory(tests)

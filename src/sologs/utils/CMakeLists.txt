@@ -7,9 +7,9 @@ target_sources(sologs.utils
     PUBLIC
         FILE_SET HEADERS
             BASE_DIRS
-                ${CMAKE_CURRENT_SOURCE_DIR}/include
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs
             FILES
-                include/utils/utils.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs/utils/utils.h
 )
 
 target_link_libraries(sologs.utils

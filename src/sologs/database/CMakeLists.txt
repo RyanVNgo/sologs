@@ -9,11 +9,11 @@ target_sources(sologs.database
     PUBLIC
         FILE_SET HEADERS
             BASE_DIRS
-                ${CMAKE_CURRENT_SOURCE_DIR}/include
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs
             FILES
-                include/database/database.h
-                include/database/auth_repository.h
-                include/database/log_repository.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs/database/database.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs/database/auth_repository.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../sologs/database/log_repository.h
 )
 
 target_link_libraries(sologs.database

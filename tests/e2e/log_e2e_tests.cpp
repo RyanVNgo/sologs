@@ -6,12 +6,12 @@
 
 #include <nlohmann/json.hpp>
 
-#include "api/server.h"
-#include "service/user_service.h"
-#include "service/log_service.h"
-#include "db/auth_repository.h"
-#include "db/log_repository.h"
-#include "db/database.h"
+#include <server/server.h>
+#include <service/user_service.h>
+#include <service/log_service.h>
+#include <database/auth_repository.h>
+#include <database/log_repository.h>
+#include <database/database.h>
 
 using json = nlohmann::json;
 

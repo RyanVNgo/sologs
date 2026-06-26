@@ -3,9 +3,9 @@
 
 #include <gtest/gtest.h>
 
-#include "db_utils.h"
+#include <db_utils.h>
 
-#include "db/log_repository.h"
+#include <database/log_repository.h>
 
 
 TEST(Repo, init) {

@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "service/log_service.h"
+#include <service/log_service.h>
 
 
 class LogRepositoryMock : public ILogRepository {

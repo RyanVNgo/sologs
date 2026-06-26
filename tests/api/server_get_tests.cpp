@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "api/server.h"
+#include <server/server.h>
 
 
 class LogServiceMock : public ILogService {

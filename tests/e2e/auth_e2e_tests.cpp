@@ -7,11 +7,11 @@
 
 #include <nlohmann/json.hpp>
 
-#include "api/server.h"
-#include "service/user_service.h"
-#include "db/auth_repository.h"
-#include "db/database.h"
-#include "crypto.h"
+#include <server/server.h>
+#include <service/user_service.h>
+#include <database/auth_repository.h>
+#include <database/database.h>
+#include <crypto/crypto.h>
 
 using json = nlohmann::json;
 

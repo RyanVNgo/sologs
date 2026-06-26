@@ -1,11 +1,11 @@
 
-#include "db/database.h"
-#include "db/log_repository.h"
-#include "db/auth_repository.h"
-#include "service/log_service.h"
-#include "service/user_service.h"
-#include "service/bootstrap_service.h"
-#include "api/server.h"
+#include <database/database.h>
+#include <database/log_repository.h>
+#include <database/auth_repository.h>
+#include <service/log_service.h>
+#include <service/user_service.h>
+#include <service/bootstrap_service.h>
+#include <server/server.h>
 
 
 int main(void) {

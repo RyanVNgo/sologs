@@ -64,6 +64,7 @@ target_compile_options(project_flags INTERFACE
     $<$<CONFIG:Release>:-O3>
 )
 
+add_subdirectory(components)
 add_subdirectory(src)
 
 if(BUILD_TESTS)

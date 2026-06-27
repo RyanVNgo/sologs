@@ -6,12 +6,12 @@
 
 #include <nlohmann/json.hpp>
 
-#include "api/server.h"
-#include "service/auth_service.h"
-#include "service/log_service.h"
-#include "db/auth_repository.h"
-#include "db/log_repository.h"
-#include "db/database.h"
+#include <server/server.h>
+#include <service/user_service.h>
+#include <service/log_service.h>
+#include <database/auth_repository.h>
+#include <database/log_repository.h>
+#include <database/database.h>
 
 using json = nlohmann::json;
 
@@ -63,7 +63,7 @@ TEST(LogE2E, post_logs_success) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto admin = auth_service.create_user(
@@ -86,7 +86,7 @@ TEST(LogE2E, post_logs_filtered_auth_success) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto writer = auth_service.create_user(
@@ -109,7 +109,7 @@ TEST(LogE2E, post_logs_unauthorized) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     json body = {
@@ -128,7 +128,7 @@ TEST(LogE2E, post_logs_forbidden) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto reader = auth_service.create_user(
@@ -151,7 +151,7 @@ TEST(LogE2E, post_logs_invalid_json) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto admin = auth_service.create_user(
@@ -180,7 +180,7 @@ TEST(LogE2E, post_logs_missing_fields) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto admin = auth_service.create_user(
@@ -201,7 +201,7 @@ TEST(LogE2E, get_logs_no_filters) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto admin = auth_service.create_user(
@@ -224,7 +224,7 @@ TEST(LogE2E, get_logs_filter_level) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto admin = auth_service.create_user(
@@ -249,7 +249,7 @@ TEST(LogE2E, get_logs_filter_source) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto admin = auth_service.create_user(
@@ -273,7 +273,7 @@ TEST(LogE2E, get_logs_filter_limit) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto admin = auth_service.create_user(
@@ -301,7 +301,7 @@ TEST(LogE2E, get_logs_invalid_limit) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto admin = auth_service.create_user(
@@ -323,7 +323,7 @@ TEST(LogE2E, get_logs_unauthorized) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto resp = make_get_log_request(server, "");
@@ -336,7 +336,7 @@ TEST(LogE2E, get_logs_forbidden) {
     SqlLogRepository log_repo(log_db);
     SqlAuthRepository auth_repo(auth_db);
     LogService log_service(log_repo);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     SOLogSServer server(log_service, auth_service);
 
     auto reader = auth_service.create_user(

@@ -23,7 +23,7 @@ target_include_directories(test_utils
     utils/
 )
 target_link_libraries(test_utils
-    sologs_db
+    sologs::database
     sqlite3
 )
 target_compile_features(test_utils PUBLIC cxx_std_20)
@@ -41,7 +41,7 @@ add_executable(database_tests
 )
 target_link_libraries(database_tests
     PRIVATE
-    sologs_db
+    sologs::database
     test_utils
     sqlite3
     GTest::gtest_main
@@ -65,7 +65,7 @@ add_executable(repo_tests
 )
 target_link_libraries(repo_tests
     PRIVATE
-    sologs_db
+    sologs::database
     test_utils
     sqlite3
     GTest::gtest_main
@@ -87,7 +87,7 @@ add_executable(service_tests
 )
 target_link_libraries(service_tests
     PRIVATE
-    sologs_service
+    sologs::service
     GTest::gtest_main
     GTest::gmock
 )
@@ -109,7 +109,7 @@ add_executable(server_tests
 )
 target_link_libraries(server_tests
     PRIVATE
-    sologs_server
+    sologs::server
     test_utils
     GTest::gtest_main
     GTest::gmock
@@ -131,10 +131,10 @@ add_executable(e2e_tests
 )
 target_link_libraries(e2e_tests
     PRIVATE
-    sologs_server
-    sologs_service
-    sologs_db
-    sologs_crypto
+    sologs::server
+    sologs::service
+    sologs::database
+    sologs::crypto
     GTest::gtest_main
     GTest::gmock
 )

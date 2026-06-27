@@ -3,7 +3,7 @@
 
 #include <filesystem>
 
-#include "db/database.h"
+#include <database/database.h>
 
 
 TEST(Database, init_file_dne) {

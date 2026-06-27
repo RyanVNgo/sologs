@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "service/auth_service.h"
+#include <service/user_service.h>
 
 
 class AuthRepositoryMock : public IAuthRepository {
@@ -17,30 +17,30 @@ class AuthRepositoryMock : public IAuthRepository {
 };
 
 
-TEST(AuthService, has_permissions_anyof_granted) {
+TEST(UserService, has_permissions_anyof_granted) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead}};
+	UserService authz(mock_auth_repo);
+    User subject{"uuid", "test", {Permissions::LogRead}};
 
     EXPECT_TRUE(authz.subject_has_permissions(
         subject, {Permissions::LogRead}, PermissionMode::AnyOf
     ));
 }
 
-TEST(AuthService, has_permissions_anyof_denied) {
+TEST(UserService, has_permissions_anyof_denied) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead}};
+	UserService authz(mock_auth_repo);
+    User subject{"uuid", "test", {Permissions::LogRead}};
 
     EXPECT_FALSE(authz.subject_has_permissions(
         subject, {Permissions::LogWrite}, PermissionMode::AnyOf
     ));
 }
 
-TEST(AuthService, has_permissions_anyof_partial_match) {
+TEST(UserService, has_permissions_anyof_partial_match) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead}};
+	UserService authz(mock_auth_repo);
+    User subject{"uuid", "test", {Permissions::LogRead}};
 
     EXPECT_TRUE(authz.subject_has_permissions(
         subject,
@@ -49,10 +49,10 @@ TEST(AuthService, has_permissions_anyof_partial_match) {
     ));
 }
 
-TEST(AuthService, has_permissions_allof_granted) {
+TEST(UserService, has_permissions_allof_granted) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead, Permissions::LogWrite}};
+	UserService authz(mock_auth_repo);
+    User subject{"uuid", "test", {Permissions::LogRead, Permissions::LogWrite}};
 
     EXPECT_TRUE(authz.subject_has_permissions(
         subject,
@@ -61,10 +61,10 @@ TEST(AuthService, has_permissions_allof_granted) {
     ));
 }
 
-TEST(AuthService, has_permissions_allof_denied) {
+TEST(UserService, has_permissions_allof_denied) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead}};
+	UserService authz(mock_auth_repo);
+    User subject{"uuid", "test", {Permissions::LogRead}};
 
     EXPECT_FALSE(authz.subject_has_permissions(
         subject,
@@ -73,20 +73,20 @@ TEST(AuthService, has_permissions_allof_denied) {
     ));
 }
 
-TEST(AuthService, has_permissions_allof_extra_permissions) {
+TEST(UserService, has_permissions_allof_extra_permissions) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead, Permissions::LogWrite, Permissions::Admin}};
+	UserService authz(mock_auth_repo);
+    User subject{"uuid", "test", {Permissions::LogRead, Permissions::LogWrite, Permissions::Admin}};
 
     EXPECT_TRUE(authz.subject_has_permissions(
         subject, {Permissions::LogRead}, PermissionMode::AllOf
     ));
 }
 
-TEST(AuthService, has_permissions_empty_required) {
+TEST(UserService, has_permissions_empty_required) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
-    Subject subject{"uuid", "test", {Permissions::LogRead}};
+	UserService authz(mock_auth_repo);
+    User subject{"uuid", "test", {Permissions::LogRead}};
 
     EXPECT_FALSE(authz.subject_has_permissions(
         subject, {}, PermissionMode::AnyOf
@@ -94,9 +94,9 @@ TEST(AuthService, has_permissions_empty_required) {
 }
 
 
-TEST(AuthService, authenticate_valid_key) {
+TEST(UserService, authenticate_valid_key) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
+	UserService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "test-uuid",
@@ -121,9 +121,9 @@ TEST(AuthService, authenticate_valid_key) {
     EXPECT_EQ(result->permissions[1], Permissions::LogWrite);
 }
 
-TEST(AuthService, authenticate_unknown_key) {
+TEST(UserService, authenticate_unknown_key) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
+	UserService authz(mock_auth_repo);
 
     EXPECT_CALL(mock_auth_repo, get_by_key_hash(testing::_))
         .Times(1)
@@ -133,9 +133,9 @@ TEST(AuthService, authenticate_unknown_key) {
     EXPECT_FALSE(result.has_value());
 }
 
-TEST(AuthService, authenticate_expired_key) {
+TEST(UserService, authenticate_expired_key) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
+	UserService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "expired-uuid",
@@ -155,9 +155,9 @@ TEST(AuthService, authenticate_expired_key) {
     EXPECT_FALSE(result.has_value());
 }
 
-TEST(AuthService, authenticate_invalid_key) {
+TEST(UserService, authenticate_invalid_key) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
+	UserService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "invalid-uuid",
@@ -177,9 +177,9 @@ TEST(AuthService, authenticate_invalid_key) {
     EXPECT_FALSE(result.has_value());
 }
 
-TEST(AuthService, authenticate_multiple_permissions) {
+TEST(UserService, authenticate_multiple_permissions) {
     AuthRepositoryMock mock_auth_repo;
-	AuthService authz(mock_auth_repo);
+	UserService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "multi-perm-uuid",
@@ -203,9 +203,9 @@ TEST(AuthService, authenticate_multiple_permissions) {
     EXPECT_EQ(result->permissions[2], Permissions::Admin);
 }
 
-TEST(AuthService, get_users_empty) {
+TEST(UserService, get_users_empty) {
     AuthRepositoryMock mock_auth_repo;
-    AuthService authz(mock_auth_repo);
+    UserService authz(mock_auth_repo);
 
     EXPECT_CALL(mock_auth_repo, get_auth_entries(testing::_))
         .Times(1)
@@ -216,9 +216,9 @@ TEST(AuthService, get_users_empty) {
     EXPECT_EQ(result.size(), 0);
 }
 
-TEST(AuthService, get_users_single_entry) {
+TEST(UserService, get_users_single_entry) {
     AuthRepositoryMock mock_auth_repo;
-    AuthService authz(mock_auth_repo);
+    UserService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "user-1-uuid",
@@ -244,9 +244,9 @@ TEST(AuthService, get_users_single_entry) {
     EXPECT_EQ(result[0]["is_valid"], "true");
 }
 
-TEST(AuthService, get_users_multiple_entries) {
+TEST(UserService, get_users_multiple_entries) {
     AuthRepositoryMock mock_auth_repo;
-    AuthService authz(mock_auth_repo);
+    UserService authz(mock_auth_repo);
 
     AuthorizationEntry entry1{
         .uuid = "uuid-1",
@@ -281,9 +281,9 @@ TEST(AuthService, get_users_multiple_entries) {
     EXPECT_EQ(result[1]["permissions"], "Admin");
 }
 
-TEST(AuthService, get_users_all_permission_types) {
+TEST(UserService, get_users_all_permission_types) {
     AuthRepositoryMock mock_auth_repo;
-    AuthService authz(mock_auth_repo);
+    UserService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "all-perms-uuid",
@@ -308,9 +308,9 @@ TEST(AuthService, get_users_all_permission_types) {
     EXPECT_EQ(result[0]["permissions"], "LogRead,LogWrite,LogDelete,AuthRead,AuthWrite,AuthDelete,Admin");
 }
 
-TEST(AuthService, get_users_invalid_entry) {
+TEST(UserService, get_users_invalid_entry) {
     AuthRepositoryMock mock_auth_repo;
-    AuthService authz(mock_auth_repo);
+    UserService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "invalid-uuid",
@@ -331,9 +331,9 @@ TEST(AuthService, get_users_invalid_entry) {
     EXPECT_EQ(result[0]["is_valid"], "false");
 }
 
-TEST(AuthService, get_users_passthrough_params) {
+TEST(UserService, get_users_passthrough_params) {
     AuthRepositoryMock mock_auth_repo;
-    AuthService authz(mock_auth_repo);
+    UserService authz(mock_auth_repo);
 
     UserFilterParams params{
         .uuid = std::nullopt,
@@ -368,9 +368,9 @@ TEST(AuthService, get_users_passthrough_params) {
     EXPECT_EQ(result[0]["name"], "Specific User");
 }
 
-TEST(AuthService, get_users_invalid_created_after) {
+TEST(UserService, get_users_invalid_created_after) {
     AuthRepositoryMock mock_auth_repo;
-    AuthService authz(mock_auth_repo);
+    UserService authz(mock_auth_repo);
 
     UserFilterParams params;
     params.created_after = "not-a-date";
@@ -380,9 +380,9 @@ TEST(AuthService, get_users_invalid_created_after) {
     EXPECT_THROW((void)authz.get_users(params), std::invalid_argument);
 }
 
-TEST(AuthService, get_users_invalid_expires_before) {
+TEST(UserService, get_users_invalid_expires_before) {
     AuthRepositoryMock mock_auth_repo;
-    AuthService authz(mock_auth_repo);
+    UserService authz(mock_auth_repo);
 
     UserFilterParams params;
     params.expires_before = "01/15/2026";
@@ -392,9 +392,9 @@ TEST(AuthService, get_users_invalid_expires_before) {
     EXPECT_THROW((void)authz.get_users(params), std::invalid_argument);
 }
 
-TEST(AuthService, get_users_iso8601_normalized) {
+TEST(UserService, get_users_iso8601_normalized) {
     AuthRepositoryMock mock_auth_repo;
-    AuthService authz(mock_auth_repo);
+    UserService authz(mock_auth_repo);
 
     AuthorizationEntry entry{
         .uuid = "uuid",

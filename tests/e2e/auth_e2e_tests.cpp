@@ -7,11 +7,11 @@
 
 #include <nlohmann/json.hpp>
 
-#include "api/server.h"
-#include "service/auth_service.h"
-#include "db/auth_repository.h"
-#include "db/database.h"
-#include "crypto.h"
+#include <server/server.h>
+#include <service/user_service.h>
+#include <database/auth_repository.h>
+#include <database/database.h>
+#include <crypto/crypto.h>
 
 using json = nlohmann::json;
 
@@ -19,7 +19,7 @@ using json = nlohmann::json;
 class LogServiceMock : public ILogService {
     public:
         MOCK_METHOD(void, create_log, (const json& body), (override));
-        MOCK_METHOD(json, get_logs, (FilterParams params), (const override));
+        MOCK_METHOD(json, get_logs, (LogFilterParams params), (const override));
 };
 
 
@@ -69,7 +69,7 @@ static auto make_post_request(
 TEST(AuthE2E, get_users_no_filters) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -92,7 +92,7 @@ TEST(AuthE2E, get_users_no_filters) {
 TEST(AuthE2E, get_users_filter_name) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -114,7 +114,7 @@ TEST(AuthE2E, get_users_filter_name) {
 TEST(AuthE2E, get_users_filter_permissions) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -136,7 +136,7 @@ TEST(AuthE2E, get_users_filter_permissions) {
 TEST(AuthE2E, get_users_filter_time_range) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -158,7 +158,7 @@ TEST(AuthE2E, get_users_filter_time_range) {
 TEST(AuthE2E, get_users_no_match) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -176,7 +176,7 @@ TEST(AuthE2E, get_users_no_match) {
 TEST(AuthE2E, get_users_unauthorized) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -187,7 +187,7 @@ TEST(AuthE2E, get_users_unauthorized) {
 TEST(AuthE2E, get_users_forbidden) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -202,7 +202,7 @@ TEST(AuthE2E, get_users_forbidden) {
 TEST(AuthE2E, get_users_expired_key) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -227,7 +227,7 @@ TEST(AuthE2E, get_users_expired_key) {
 TEST(AuthE2E, get_users_invalid_key) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -252,7 +252,7 @@ TEST(AuthE2E, get_users_invalid_key) {
 TEST(AuthE2E, get_users_bad_datetime) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -269,7 +269,7 @@ TEST(AuthE2E, get_users_bad_datetime) {
 TEST(AuthE2E, post_auth_success) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -300,7 +300,7 @@ TEST(AuthE2E, post_auth_success) {
 TEST(AuthE2E, post_auth_custom_expiry) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -324,7 +324,7 @@ TEST(AuthE2E, post_auth_custom_expiry) {
 TEST(AuthE2E, post_auth_single_permission) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -348,7 +348,7 @@ TEST(AuthE2E, post_auth_single_permission) {
 TEST(AuthE2E, post_auth_multiple_permissions) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -374,7 +374,7 @@ TEST(AuthE2E, post_auth_multiple_permissions) {
 TEST(AuthE2E, post_auth_then_get) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -405,7 +405,7 @@ TEST(AuthE2E, post_auth_then_get) {
 TEST(AuthE2E, post_auth_unauthorized) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -421,7 +421,7 @@ TEST(AuthE2E, post_auth_unauthorized) {
 TEST(AuthE2E, post_auth_forbidden) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -441,7 +441,7 @@ TEST(AuthE2E, post_auth_forbidden) {
 TEST(AuthE2E, post_auth_invalid_json) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -468,7 +468,7 @@ TEST(AuthE2E, post_auth_invalid_json) {
 TEST(AuthE2E, post_auth_missing_name) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 
@@ -487,7 +487,7 @@ TEST(AuthE2E, post_auth_missing_name) {
 TEST(AuthE2E, post_auth_missing_permissions) {
     SQLiteDatabase db(":memory:");
     SqlAuthRepository auth_repo(db);
-    AuthService auth_service(auth_repo);
+    UserService auth_service(auth_repo);
     LogServiceMock log_mock;
     SOLogSServer server(log_mock, auth_service);
 

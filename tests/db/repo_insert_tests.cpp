@@ -3,10 +3,10 @@
 
 #include <gtest/gtest.h>
 
-#include "db_utils.h"
+#include <db_utils.h>
 
-#include "db/log_repository.h"
-#include "domain/log_entry.h"
+#include <database/log_repository.h>
+#include <domain/log_entry.h>
 
 
 TEST(Repo, insert) {

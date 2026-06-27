@@ -2,14 +2,14 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "service/log_service.h"
+#include <service/log_service.h>
 
 
 class LogRepositoryMock : public ILogRepository {
     public:
         MOCK_METHOD(void, insert, (const LogEntry& entry), (override));
         MOCK_METHOD(void, insert_batch, (const std::vector<LogEntry>& entries), (override));
-        MOCK_METHOD(std::vector<LogEntry>, get_all, (FilterParams params), (const override));
+        MOCK_METHOD(std::vector<LogEntry>, get_all, (LogFilterParams params), (const override));
 };
 
 TEST(LogService, create_log_valid) {

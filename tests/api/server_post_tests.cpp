@@ -2,16 +2,16 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "api/server.h"
+#include <server/server.h>
 
 
 class LogServiceMock : public ILogService {
     public:
         MOCK_METHOD(void, create_log, (const json& body), (override));
-        MOCK_METHOD(json, get_logs, (FilterParams params), (const override));
+        MOCK_METHOD(json, get_logs, (LogFilterParams params), (const override));
 };
 
-class AuthServiceMock : public IAuthService {
+class UserServiceMock : public IUserService {
     public:
         MOCK_METHOD(
             CreateUserResult,
@@ -32,7 +32,7 @@ class AuthServiceMock : public IAuthService {
         );
 
         MOCK_METHOD(
-                std::optional<Subject>,
+                std::optional<User>,
                 authenticate,
                 (const std::string& key),
                 (override)
@@ -42,7 +42,7 @@ class AuthServiceMock : public IAuthService {
             bool,
             subject_has_permissions,
             (
-                const Subject& subject,
+                const User& subject,
                 const std::vector<Permissions>& valid_permissions,
                 PermissionMode mode
             ),
@@ -53,7 +53,7 @@ class AuthServiceMock : public IAuthService {
 
 TEST(Server, post_valid) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -61,8 +61,8 @@ TEST(Server, post_valid) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -95,7 +95,7 @@ TEST(Server, post_valid) {
 
 TEST(Server, post_invalid) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -103,8 +103,8 @@ TEST(Server, post_invalid) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -135,7 +135,7 @@ TEST(Server, post_invalid) {
 
 TEST(Server, post_auth_valid_json) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -143,8 +143,8 @@ TEST(Server, post_auth_valid_json) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -184,7 +184,7 @@ TEST(Server, post_auth_valid_json) {
 
 TEST(Server, post_auth_invalid_json) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -192,8 +192,8 @@ TEST(Server, post_auth_invalid_json) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_
@@ -227,7 +227,7 @@ TEST(Server, post_auth_invalid_json) {
 
 TEST(Server, post_auth_missing_field) {
     LogServiceMock mock_service;
-    AuthServiceMock mock_auth_service;
+    UserServiceMock mock_auth_service;
     SOLogSServer server(
             mock_service,
             mock_auth_service
@@ -235,8 +235,8 @@ TEST(Server, post_auth_missing_field) {
 
     EXPECT_CALL(mock_auth_service, authenticate(testing::_))
         .Times(1)
-        .WillOnce(testing::Return(std::optional<Subject>(
-            Subject{"uuid", "name", {}}
+        .WillOnce(testing::Return(std::optional<User>(
+            User{"uuid", "name", {}}
         )));
     EXPECT_CALL(mock_auth_service, subject_has_permissions(
         testing::_, testing::_, testing::_

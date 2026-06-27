@@ -4,9 +4,9 @@
 
 #include <gtest/gtest.h>
 
-#include "db_utils.h"
+#include <db_utils.h>
 
-#include "db/database.h"
+#include <database/database.h>
 
 
 TEST(Database, execute_valid) {

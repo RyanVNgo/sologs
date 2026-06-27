@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.28)
 project(sologs
     VERSION   0.1.0
     LANGUAGES C CXX
@@ -51,7 +51,20 @@ FetchContent_MakeAvailable(stduuid)
 add_library(sqlite3 STATIC external/sqlite/sqlite3.c)
 target_include_directories(sqlite3 PUBLIC external/sqlite)
 
-add_subdirectory(src)
+add_library(project_flags INTERFACE)
+target_compile_options(project_flags INTERFACE
+    $<$<CONFIG:Debug>:
+        -O0
+        -Wall
+        -Wextra
+        -Werror
+        -Wconversion
+        -pedantic
+    >
+    $<$<CONFIG:Release>:-O3>
+)
+
+add_subdirectory(src/sologs)
 
 if(BUILD_TESTS)
     add_subdirectory(tests)

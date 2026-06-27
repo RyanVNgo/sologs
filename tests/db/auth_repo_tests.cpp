@@ -4,9 +4,9 @@
 
 #include <gtest/gtest.h>
 
-#include "db_utils.h"
+#include <db_utils.h>
 
-#include "db/auth_repository.h"
+#include <database/auth_repository.h>
 
 
 TEST(AuthRepo, init) {

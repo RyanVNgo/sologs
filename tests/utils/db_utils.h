@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include "sqlite3.h"
+#include <sqlite3.h>
 
 
 using SqliteHandle = std::unique_ptr<sqlite3, decltype(&sqlite3_close)>;

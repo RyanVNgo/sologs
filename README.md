@@ -69,7 +69,23 @@ Create a new API key. Requires `Admin` permission.
   "permissions": ["LogWrite"],
   "expires_at": "2026-12-31 23:59:59"
 }
-```
+ ```
+
+### `GET /auth`
+
+List API keys with optional filters. Requires `AuthRead` or `Admin` permission.
+
+| Query param | Description |
+|---|---|
+| `uuid` | Filter by key UUID |
+| `name` | Filter by key name |
+| `permissions` | Comma-separated permission list (e.g. `LogWrite,LogRead`) |
+| `created_after` | Filter by creation timestamp (`YYYY-MM-DD HH:MM:SS`) |
+| `created_before` | Filter by creation timestamp (`YYYY-MM-DD HH:MM:SS`) |
+| `expires_after` | Filter by expiration timestamp (`YYYY-MM-DD HH:MM:SS`) |
+| `expires_before` | Filter by expiration timestamp (`YYYY-MM-DD HH:MM:SS`) |
+| `is_valid` | `true` (default) or `false` — includes/excludes expired keys |
+| `limit` | Max results (default: 100) |
 
 ### `POST /logs`
 

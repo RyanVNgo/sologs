@@ -1,0 +1,69 @@
+{
+
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+
+  "configurePresets": [
+    {
+      "name": "defaults",
+      "hidden": true,
+      "cacheVariables": {
+        "BUILD_EXAMPLES": "OFF",
+        "BUILD_CTL": "OFF",
+        "BUILD_DOC": "OFF",
+        "BUILD_ORM": "OFF",
+        "BUILD_REDIS": "OFF",
+        "BUILD_MYSQL": "OFF",
+        "BUILD_POSTGRESQL": "OFF",
+        "BUILD_SQLITE": "OFF"
+      }
+    },
+    {
+      "name": "debug-ninja",
+      "inherits": "defaults",
+      "displayName": "Ninja Debug Build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "release-ninja",
+      "inherits": "defaults",
+      "displayName": "Ninja Release Build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+
+  "buildPresets": [
+    {
+      "name": "default-build-options",
+      "hidden": true,
+      "verbose": false
+    },
+    {
+      "name": "sologs-debug-ninja",
+      "inherits": "default-build-options",
+      "displayName": "Sologs Debug Ninja",
+      "configurePreset": "debug-ninja"
+    },
+    {
+      "name": "sologs-release-ninja",
+      "inherits": "default-build-options",
+      "displayName": "Sologs Release Ninja",
+      "configurePreset": "release-ninja"
+    }
+  ]
+
+}
+

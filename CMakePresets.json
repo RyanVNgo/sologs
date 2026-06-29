@@ -63,6 +63,78 @@
       "displayName": "Sologs Release Ninja",
       "configurePreset": "release-ninja"
     }
+  ],
+
+  "testPresets": [
+    {
+      "name": "default-test-preset",
+      "hidden": true,
+      "configurePreset": "debug-ninja",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "all-tests",
+      "displayName": "Sologs Test Suite",
+      "description": "Run all unit and E2E tests",
+      "inherits": "default-test-preset"
+    },
+    {
+      "name": "server-tests",
+      "displayName": "Sologs Server Test Suite",
+      "description": "Run all server unit tests",
+      "inherits": "default-test-preset",
+      "filter": {
+        "include": {
+          "name": "Server"
+        }
+      }
+    },
+    {
+      "name": "service-tests",
+      "displayName": "Sologs Service Test Suite",
+      "description": "Run all service unit tests",
+      "inherits": "default-test-preset",
+      "filter": {
+        "include": {
+          "name": "Service"
+        }
+      }
+    },
+    {
+      "name": "repo-tests",
+      "displayName": "Sologs Repository Test Suite",
+      "description": "Run all repository unit tests",
+      "inherits": "default-test-preset",
+      "filter": {
+        "include": {
+          "name": "Repo"
+        }
+      }
+    },
+    {
+      "name": "database-tests",
+      "displayName": "Sologs Database Test Suite",
+      "description": "Run all database unit tests",
+      "inherits": "default-test-preset",
+      "filter": {
+        "include": {
+          "name": "Database"
+        }
+      }
+    },
+    {
+      "name": "e2e-tests",
+      "displayName": "Sologs E2E Test Suite",
+      "description": "Run all end-to-end tests",
+      "inherits": "default-test-preset",
+      "filter": {
+        "include": {
+          "name": "E2E"
+        }
+      }
+    }
   ]
 
 }

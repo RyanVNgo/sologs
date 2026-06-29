@@ -22,9 +22,12 @@ jobs:
             uuid-dev \
             zlib1g-dev \
           && rm -rf /var/lib/apt/lists/*
-      - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
-      - name: Build
-        run: cmake --build build --parallel "$(nproc)"
-      - name: Test
-        run: ctest --test-dir build/tests --output-on-failure
+
+      - name: Configure Debug Ninja Build
+        run: cmake --preset debug-ninja
+
+      - name: Build Debug
+        run: cmake --build --preset sologs-debug-ninja
+
+      - name: Run tests
+        run: ctest --test-dir build/debug/tests --preset all-tests

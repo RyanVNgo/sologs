@@ -20,5 +20,5 @@ RUN cmake --preset debug-ninja
 
 RUN cmake --build --preset sologs-debug-ninja
 
-RUN ctest --test-dir build/debug/tests --preset all-tests
+CMD ["ctest", "--preset", "all-tests"]
 

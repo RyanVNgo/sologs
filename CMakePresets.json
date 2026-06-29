@@ -23,6 +23,10 @@
       }
     },
     {
+      "name": "tests",
+      "binaryDir": "${sourceDir}/build/debug/tests"
+    },
+    {
       "name": "debug-ninja",
       "inherits": "defaults",
       "displayName": "Ninja Debug Build",
@@ -69,7 +73,7 @@
     {
       "name": "default-test-preset",
       "hidden": true,
-      "configurePreset": "debug-ninja",
+      "configurePreset": "tests",
       "output": {
         "outputOnFailure": true
       }

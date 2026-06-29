@@ -1,33 +1,23 @@
-name: CI
+name: sologs CI Build and Testing
+
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
 jobs:
-  build:
+  build-and-test:
+    name: Build and Run Tests (Docker)
     runs-on: ubuntu-latest
-    container: ubuntu:24.04
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get install -y --no-install-recommends \
-            build-essential \
-            cmake \
-            git \
-            ca-certificates \
-            libssl-dev \
-            libjsoncpp-dev \
-            uuid-dev \
-            zlib1g-dev \
-          && rm -rf /var/lib/apt/lists/*
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Configure Debug Ninja Build
-        run: cmake --preset debug-ninja
-
-      - name: Build Debug
-        run: cmake --build --preset sologs-debug-ninja
+      - name: Build Docker image
+        run: docker build -t rem8cpp-test .
 
       - name: Run tests
-        run: ctest --test-dir build/debug/tests --preset all-tests
+        run: docker run --rm rem8cpp-test
+

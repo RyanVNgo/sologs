@@ -55,7 +55,9 @@
       "binaryDir": "${sourceDir}/build/benchmark",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "BUILD_BENCH": "ON"
+        "BUILD_BENCH": "ON",
+        "BENCHMARK_ENABLE_TESTING": "OFF",
+        "BENCHMARK_ENABLE_GTEST_TESTS": "OFF"
       }
     }
   ],
@@ -82,15 +84,6 @@
       "name": "sologs-benchmarking-ninja",
       "inherits": "default-build-options",
       "displayName": "Sologs Benchmarking Ninja",
-      "targets": [
-        "sologs.server",
-        "sologs.service",
-        "sologs.database",
-        "sologs.crypto",
-        "sologs.domain",
-        "sologs.utils",
-        "demo_bench"
-      ],
       "configurePreset": "benchmarking-ninja"
     }
   ],

@@ -16,11 +16,24 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(benchmark)
 
-add_executable(demo_bench
-    demo_bench.cpp
+add_executable(all_benchmarks
+    bench_main.cpp
+    e2e/post_logs.cpp
+    database/database_ph.cpp
+    server/server_ph.cpp
+    service/service_ph.cpp
+    utils/utils_ph.cpp
 )
-target_link_libraries(demo_bench
+target_link_libraries(all_benchmarks
     PRIVATE
+        sologs::server
+        sologs::service
+        sologs::database
+        sologs::crypto
+        sologs::utils
+
+        GTest::gtest_main
+        GTest::gmock
         benchmark::benchmark_main
 )
 

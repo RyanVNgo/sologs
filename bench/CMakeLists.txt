@@ -18,7 +18,12 @@ FetchContent_MakeAvailable(benchmark)
 
 add_executable(all_benchmarks
     bench_main.cpp
+
     e2e/post_logs.cpp
+    e2e/get_logs.cpp
+    e2e/post_auth.cpp
+    e2e/get_auth.cpp
+
     database/database_ph.cpp
     server/server_ph.cpp
     service/service_ph.cpp

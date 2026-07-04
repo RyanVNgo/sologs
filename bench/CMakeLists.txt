@@ -40,6 +40,7 @@ target_link_libraries(all_benchmarks
 add_executable(service_benchmarks
     bench_main.cpp
     service/log_service.cpp
+    service/auth_service.cpp
 )
 target_link_libraries(service_benchmarks
     PRIVATE

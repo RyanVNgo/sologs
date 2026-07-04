@@ -23,11 +23,6 @@ add_executable(all_benchmarks
     e2e/get_logs.cpp
     e2e/post_auth.cpp
     e2e/get_auth.cpp
-
-    database/database_ph.cpp
-    server/server_ph.cpp
-    service/service_ph.cpp
-    utils/utils_ph.cpp
 )
 target_link_libraries(all_benchmarks
     PRIVATE
@@ -36,6 +31,19 @@ target_link_libraries(all_benchmarks
         sologs::database
         sologs::crypto
         sologs::utils
+
+        GTest::gtest_main
+        GTest::gmock
+        benchmark::benchmark_main
+)
+
+add_executable(service_benchmarks
+    bench_main.cpp
+    service/log_service.cpp
+)
+target_link_libraries(service_benchmarks
+    PRIVATE
+        sologs::service
 
         GTest::gtest_main
         GTest::gmock

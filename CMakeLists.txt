@@ -15,6 +15,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Options 
 option(BUILD_TESTS "Build the test suite" OFF)
+option(BUILD_BENCH "Build the benchmarking suite" OFF)
 
 include(FetchContent)
 include(cmake/CPM.cmake)
@@ -60,5 +61,9 @@ add_subdirectory(src/sologs)
 
 if(BUILD_TESTS)
     add_subdirectory(tests)
+endif()
+
+if(BUILD_BENCH)
+    add_subdirectory(bench)
 endif()
 

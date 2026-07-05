@@ -46,6 +46,19 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+    {
+      "name": "benchmarking-ninja",
+      "inherits": "defaults",
+      "displayName": "Ninja Benchmarking Build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/benchmark",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_BENCH": "ON",
+        "BENCHMARK_ENABLE_TESTING": "OFF",
+        "BENCHMARK_ENABLE_GTEST_TESTS": "OFF"
+      }
     }
   ],
 
@@ -66,6 +79,12 @@
       "inherits": "default-build-options",
       "displayName": "Sologs Release Ninja",
       "configurePreset": "release-ninja"
+    },
+    {
+      "name": "sologs-benchmarking-ninja",
+      "inherits": "default-build-options",
+      "displayName": "Sologs Benchmarking Ninja",
+      "configurePreset": "benchmarking-ninja"
     }
   ],
 

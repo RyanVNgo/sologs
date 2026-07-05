@@ -1,41 +1,13 @@
 # sologs
 
-A lightweight HTTP logging server built with C++20 and Drogon. Accepts structured log
-entries via HTTP, stores them in SQLite, and provides key-based auth.
-
-## Dependencies
-
-### System packages
-
-| Package | Notes |
-|---|---|
-| `build-essential` (g++ ≥ 10) | C++20 support required |
-| `cmake` | ≥ 3.20 |
-| `git` | Needed by CPM/FetchContent to clone dependencies |
-| `libssl-dev` | OpenSSL headers + shared libs |
-| `libjsoncpp-dev` | Required by Drogon |
-| `uuid-dev` | Required by Drogon |
-| `zlib1g-dev` | Required by Drogon |
-
-Ubuntu/Debian one-liner:
-
-```bash
-sudo apt install build-essential cmake git libssl-dev libjsoncpp-dev uuid-dev zlib1g-dev
-```
+A HTTP logging server built in C++20 with Drogon and SQLite. Accepts structured log
+entries via HTTP and provides key-based auth.
 
 ## Build
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel "$(nproc)"
-```
-
-With tests:
-
-```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
-cmake --build build --parallel "$(nproc)"
-ctest --test-dir build --output-on-failure
+cmake --preset release-ninja
+cmake --build --preset sologs-release-ninja
 ```
 
 ## Quick start
@@ -45,7 +17,7 @@ ctest --test-dir build --output-on-failure
 export SOLOGS_BOOTSTRAP_KEY="my-secret-admin-key"
 
 # Start the server
-./build/bin/sologs
+./build/release/bin/sologs
 ```
 
 On first launch the server creates `./sologs.sqlite` and `./sologs-auth.sqlite`
@@ -110,8 +82,3 @@ Query stored logs. Requires `LogRead` or `Admin`.
 | `since` | Start timestamp (`YYYY-MM-DD HH:MM:SS`) |
 | `until` | End timestamp (`YYYY-MM-DD HH:MM:SS`) |
 | `limit` | Max results (default: all) |
-
-
-## License
-
-MIT

@@ -47,3 +47,30 @@ BENCHMARK(BM_LogService_create_log)
     ->ThreadRange(1, std::thread::hardware_concurrency())
     ->Name("LogService::create_log: Threads");
 
+static void BM_LogService_get_logs(benchmark::State& state) {
+    LogRepositoryMock mock_repo;
+    LogService log_service(mock_repo);
+    std::vector<LogEntry> entries(
+            state.range(0),
+            LogEntry{
+                .id = 1,
+                .message = "test log",
+                .level = "INFO",
+                .source = "LogService Benchmark"
+            }
+    );
+    EXPECT_CALL(mock_repo, get_all)
+        .Times(testing::AnyNumber())
+        .WillRepeatedly(testing::Return(entries));
+
+    LogFilterParams params{.limit = state.range(0)};
+    for (auto _ : state) {
+        auto res = log_service.get_logs(params);
+        benchmark::DoNotOptimize(res);
+    }
+}
+BENCHMARK(BM_LogService_get_logs)
+    ->RangeMultiplier(2)
+    ->Range(32, 1024)
+    ->Name("LogService::get_logs: count");
+

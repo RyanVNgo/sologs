@@ -1,3 +1,24 @@
+> [!NOTE]
+> **Archived — no longer maintained.**
+>
+> This project was primarily developed to learn/explore/improve at various concepts
+> and technologies. Namely:
+> 
+> - project/file structure
+> - cmake build configurations
+> - test friendly design
+> - API design
+> - HTTP frameworks
+> - containerized testing
+> - benchmarking
+>
+> I wanted to improve at software development through experimentation and practice so
+> most of these targets had no formal goal and some only came up as development went on.
+> My current practices have since evolved, so this repository no longer fully represents
+> my approach to software development and I no longer see fit to update/maintain this.
+>
+> Ultimately, this code is preserved as a record of my proficiency at the time.
+
 # sologs
 
 A HTTP logging server built in C++20 with Drogon and SQLite. Accepts structured log
